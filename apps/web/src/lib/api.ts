@@ -40,12 +40,10 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     },
   });
   if (!response.ok) {
-    const error = await response
-      .json()
-      .catch(() => ({
-        detail: "The request could not be completed.",
-        code: "network",
-      }));
+    const error = await response.json().catch(() => ({
+      detail: "The request could not be completed.",
+      code: "network",
+    }));
     if (response.status === 401) sessionPromise = undefined;
     throw new ApiError(error.detail, error.code, response.status);
   }

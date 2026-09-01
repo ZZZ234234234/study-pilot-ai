@@ -226,6 +226,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
               className={cn("reader-side", mobile !== "pdf" && "mobile-hidden")}
             >
               <PdfReader
+                key={id}
                 id={id}
                 page={page}
                 count={doc.page_count}

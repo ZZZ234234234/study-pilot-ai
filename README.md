@@ -23,7 +23,7 @@
 
 ## 快速开始
 
-需要 **Node.js 22+、Python 3.11+**。首次运行需要联网安装开源依赖。不需要购买数据库或模型服务即可体验内置样例。
+需要 **Node.js 22.13+、Python 3.11+**。首次运行需要联网安装开源依赖。不需要购买数据库或模型服务即可体验内置样例。
 
 ### macOS / Linux
 
@@ -94,8 +94,11 @@ EMBEDDING_MODEL=填写嵌入模型名称
 ```bash
 npm run typecheck
 npm run lint
+npm run format:check
 npm test
+npm run test:pdf
 npm run build
+npm run test:e2e:api
 .venv/bin/python -m ruff check apps/api scripts
 .venv/bin/python -m pytest apps/api/tests
 ```
@@ -105,6 +108,27 @@ Windows 将 `.venv/bin/python` 替换为 `.\.venv\Scripts\python.exe`。
 启动完整项目后，还可运行 `.venv/bin/python scripts/smoke_test.py`。也可使用 `.venv/bin/python scripts/smoke_test.py --start-services` 自动启动临时测试数据库、API 和 Worker。它只连接本机 API，在新的匿名测试工作区中验证样例处理、引用、计划、闪卡、测验和文档隔离，并删除自己创建的测试文档。
 
 `npm run build` 构建的是前端；构建成功不代表真实 AI、数据库部署与所有用户路径已经验收。当前验证结果见 [验证记录](docs/verification.md)。
+
+### 独立端到端测试
+
+先完成依赖安装和 `npm run build`。`npm run test:e2e:api` 不需要浏览器，会启动生产构建的前端、临时 API、Worker 和独立 PGlite 数据库，测试同源转发、静态资源、上传、引用和工作区隔离。它强制使用 Demo 模式，不连接你的真实模型或正常开发数据库，结束后清理临时测试数据。
+
+浏览器测试需要额外安装 Chromium：
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+完整测试分为 `api`、`desktop`、`mobile` 三组；后两组使用 Chromium，手机尺寸是浏览器模拟，不代表 iOS/Safari 真机验收。可用 `npm run test:e2e -- --project=desktop` 单独运行，或 `npm run test:e2e -- --list` 只检查用例收集。浏览器无法启动时测试会明确失败，不会跳过后宣称通过。
+
+报告位于 `apps/web/playwright-report/`；浏览器能运行后，截图和失败跟踪位于 `apps/web/test-results/`。测试默认使用 `127.0.0.1:3310`，不复用已有服务；可通过 `E2E_PORT` 调整端口，或通过 `E2E_PYTHON` 指定已安装后端依赖的 Python。`npm run test:pdf` 只验证 Node 下的 PDF 渲染兼容性，不替代上述浏览器测试。
+
+### 构建后的本地前端
+
+`npm run build` 会把公共资源和编译后的 CSS/JS 复制到 Next.js standalone 目录，随后可用 `npm start` 启动前端。API 与 Worker 仍需单独运行，例如 `.venv/bin/python scripts/dev.py --api-only`；同源代理默认连接 `127.0.0.1:8000`，可用 `API_INTERNAL_URL` 修改。这不是一键生产部署。
+
+PDF.js 的 Worker、字体、CMap 和图像解码资源由安装/构建脚本从锁定依赖复制到 `apps/web/public/`，无需外部 CDN，不要手工修改这些生成文件。前端 CSS 按用途拆分在 `apps/web/src/styles/`，由 `globals.css` 统一引入。
 
 ## 部署边界
 

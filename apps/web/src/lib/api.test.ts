@@ -37,13 +37,11 @@ describe("API helpers", () => {
   it("surfaces structured server errors", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response('{"detail":"Not found","code":"not_found"}', {
-            status: 404,
-          }),
-        ),
+      vi.fn().mockResolvedValue(
+        new Response('{"detail":"Not found","code":"not_found"}', {
+          status: 404,
+        }),
+      ),
     );
     await expect(api("/documents/missing")).rejects.toMatchObject({
       message: "Not found",

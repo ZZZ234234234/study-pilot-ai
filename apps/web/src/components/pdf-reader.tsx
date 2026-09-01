@@ -11,6 +11,7 @@ import {
   AlignLeft,
 } from "lucide-react";
 import { ensureSession, errorMessage } from "@/lib/api";
+import { pdfDocumentOptions, PDF_WORKER_SRC } from "@/lib/pdf-options";
 import { ErrorState, Spinner } from "./ui";
 
 export function PdfReader({
@@ -52,11 +53,9 @@ export function PdfReader({
       try {
         await ensureSession();
         const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-        task = pdfjs.getDocument({
-          url: `/api/v1/documents/${id}/file`,
-          withCredentials: true,
-        });
+        if (disposed) return;
+        pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+        task = pdfjs.getDocument(pdfDocumentOptions(id));
         const loaded = await task.promise;
         if (!disposed) setPdf(loaded);
       } catch (e) {

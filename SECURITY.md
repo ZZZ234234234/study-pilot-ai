@@ -13,6 +13,9 @@ This is an alpha development preview, not a security-audited multi-tenant servic
 - Model keys remain on the server. Provider responses are not included in generic error logs.
 - Source references are resolved against chunks belonging to the selected document.
 - Deleting a document removes its associated learning records and stored PDF.
+- The read-only PDF canvas uses a patched PDF.js dependency with locally served matching worker/resources; it does not initialize a PDF scripting manager or XFA forms.
+
+The lockfile was upgraded from PDF.js 5.7.284 to 6.3.289 after [Mozilla's GHSA-hq66-cqwq-w95j advisory](https://github.com/mozilla/pdf.js/security/advisories/GHSA-hq66-cqwq-w95j). The affected dependency was present; exploitability of this application's canvas-only path was not demonstrated. A clean `npm audit --omit=dev` is a dependency snapshot, not a complete security review. Keep checking for new advisories.
 
 ## Limitations and operational responsibilities
 

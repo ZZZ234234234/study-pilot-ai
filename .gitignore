@@ -17,5 +17,6 @@ playwright-report/
 .DS_Store
 *.tsbuildinfo
 apps/web/public/pdf.worker.min.mjs
+apps/web/public/pdfjs/
 *.egg-info/
 dist/

@@ -10,12 +10,12 @@ const db = await PGlite.create({
 const server = new PGLiteSocketServer({
   db,
   host: "127.0.0.1",
-  port: 54329,
+  port: Number(process.env.DEV_DB_PORT || 54329),
   maxConnections: 30,
 });
 await server.start();
 console.info(
-  "Development PGlite + pgvector ready on 127.0.0.1:54329 (not for production).",
+  `Development PGlite + pgvector ready on 127.0.0.1:${process.env.DEV_DB_PORT || 54329} (not for production).`,
 );
 async function stop() {
   await server.stop();

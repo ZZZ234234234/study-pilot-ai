@@ -7,6 +7,7 @@ export default defineConfig([
   globalIgnores([
     ".next/**",
     "public/pdf.worker.min.mjs",
+    "public/pdfjs/**",
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",

@@ -1,0 +1,219 @@
+/* Workspace structure */
+.app-shell {
+  min-height: 100svh;
+}
+.sidebar {
+  width: 242px;
+  position: fixed;
+  inset: 0 auto 0 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px 20px;
+  z-index: 30;
+}
+.sidebar-brand {
+  padding-left: 9px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar .logo {
+  font-size: 22px;
+}
+.workspace-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 550;
+}
+.workspace-avatar {
+  width: 29px;
+  height: 33px;
+  display: grid;
+  place-items: center;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--green);
+  font-size: 12px;
+}
+.workspace-label small {
+  display: block;
+  font-size: 9px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.nav-label {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin: 38px 12px 12px;
+}
+.sidebar nav {
+  display: grid;
+  gap: 5px;
+}
+.nav-link {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 11px 13px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.nav-link:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.nav-link.active {
+  background: var(--accent-soft);
+  color: var(--green);
+  font-weight: 600;
+}
+.sidebar-note {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 18px;
+  margin: 43px 7px 22px;
+  background: linear-gradient(145deg, var(--accent-soft), var(--surface));
+  font-size: 11px;
+}
+.sidebar-note > svg {
+  color: #6b9054;
+  margin-bottom: 14px;
+}
+.sidebar-note > strong {
+  display: block;
+  line-height: 1.5;
+  font-weight: 550;
+  font-size: 15px;
+  letter-spacing: -0.03em;
+}
+.sidebar-note > p {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 10px 0 14px;
+  line-height: 1.7;
+}
+.sidebar-note > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--green);
+  font-weight: 600;
+}
+.sidebar-bottom {
+  margin-top: auto;
+}
+.profile {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding: 20px 7px 0;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 9px;
+}
+.profile small {
+  display: block;
+  color: var(--muted);
+  font-size: 8px;
+  margin-top: 2px;
+}
+.profile .theme-toggle {
+  margin-left: auto;
+}
+.app-main {
+  margin-left: 242px;
+  min-width: 0;
+}
+.app-topbar {
+  height: 65px;
+  border-bottom: 1px solid var(--line);
+  padding: 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.breadcrumb,
+.topbar-right {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+}
+.breadcrumb strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.topbar-right {
+  gap: 18px;
+}
+.topbar-right .badge {
+  font-size: 9px;
+}
+.app-content {
+  max-width: 1580px;
+  margin: auto;
+  padding: 38px 36px 60px;
+}
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 33px;
+}
+.page-heading .eyebrow {
+  font-size: 9px;
+  margin-bottom: 12px;
+}
+.page-heading h1 {
+  font-size: 34px;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+.page-heading p {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.section-heading h2 {
+  font-size: 17px;
+  letter-spacing: -0.025em;
+  font-weight: 550;
+}
+.section-heading > a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.mobile-only {
+  display: none !important;
+}
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  background: #0004;
+  z-index: 29;
+  border: none;
+}

@@ -9,10 +9,12 @@
 - Study plans, flashcards, spaced reviews and quizzes.
 - Anonymous browser workspace ownership and document deletion.
 - Original eight-page learning sample and local PGlite quick-start.
+- Isolated Playwright API tests with a temporary demo stack; separate desktop/mobile browser suites are prepared but not yet browser-verified.
+- Self-hosted PDF.js worker, fonts and decoding assets, plus a Node canvas compatibility check.
 
 ## Before a production release
 
-- Complete browser end-to-end tests, accessibility review and mobile visual QA.
+- Run and complete the prepared browser end-to-end suites on a working Chromium installation, then review accessibility and real-device/mobile visuals.
 - Exercise real chat/embedding providers with explicitly supplied credentials.
 - Validate native PostgreSQL transactions and concurrent workers.
 - Freeze immutable Alembic migrations; test upgrades and rollback on native PostgreSQL.
