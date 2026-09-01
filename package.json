@@ -1,0 +1,28 @@
+{
+  "name": "study-pilot-ai",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @studypilot/web",
+    "build": "npm run build --workspace @studypilot/web",
+    "start": "npm run start --workspace @studypilot/web",
+    "lint": "npm run lint --workspace @studypilot/web",
+    "typecheck": "npm run typecheck --workspace @studypilot/web",
+    "test": "npm run test --workspace @studypilot/web",
+    "test:e2e": "npm run test:e2e --workspace @studypilot/web",
+    "format": "prettier --write 'apps/web/**/*.{ts,tsx,css}' '*.{json,md}' 'docs/*.md'",
+    "format:check": "prettier --check 'apps/web/**/*.{ts,tsx,css}'"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-pgvector": "^0.0.9",
+    "@electric-sql/pglite-socket": "^0.2.11",
+    "prettier": "^3.6.2"
+  }
+}
