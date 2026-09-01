@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="640" viewBox="0 0 1600 640" role="img" aria-labelledby="title desc">
+  <title id="title">StudyPilot AI — Less collecting. More connecting.</title>
+  <desc id="desc">An original editorial-style project banner showing a document connected to knowledge, review, and source-grounded questions. This is a diagram, not an application screenshot.</desc>
+  <rect width="1600" height="640" fill="#f4f5ef"/>
+  <path d="M72 68h1456M72 566h1456" stroke="#d8dbcf"/>
+  <rect x="76" y="104" width="56" height="56" rx="13" fill="#273d30"/>
+  <path d="M115 117H96l-9 10 22 13-9 9H85" stroke="#d4e8aa" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#24352b">
+    <text x="151" y="140" font-size="28" font-weight="700">StudyPilot AI</text>
+    <text x="76" y="260" font-size="64" letter-spacing="-2" font-weight="700">Less collecting.</text>
+    <text x="76" y="337" font-size="64" letter-spacing="-2" font-weight="700">More connecting.</text>
+    <text x="80" y="400" font-size="21" fill="#697364">Turn PDFs into structured knowledge.</text>
+    <text x="80" y="435" font-size="21" fill="#697364">Understand. Review. Ask. Follow the source.</text>
+    <text x="80" y="529" font-size="14" letter-spacing="3">OPEN SOURCE / SELF-HOSTABLE / MIT</text>
+    <text x="1520" y="608" font-size="13" text-anchor="end" fill="#697364">NEXT.JS + FASTAPI + PGVECTOR</text>
+  </g>
+  <g transform="translate(905 108)">
+    <rect width="280" height="366" rx="7" fill="#fff" stroke="#d3d8cb"/>
+    <rect x="23" y="27" width="39" height="4" fill="#68884f"/>
+    <text x="24" y="76" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#7a8276" letter-spacing="2">YOUR SOURCE</text>
+    <text x="24" y="121" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#24352b" font-weight="700">One document.</text>
+    <path d="M24 152h198M24 169h216M24 186h166M24 256h209M24 273h177M24 290h216" stroke="#e0e4da" stroke-width="6"/>
+    <rect x="20" y="209" width="238" height="27" fill="#e5edcf"/>
+    <path d="M30 222h215" stroke="#9cb280" stroke-width="4"/>
+    <text x="24" y="341" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#7a8276" letter-spacing="1">IDEAS WITH TRACEABLE ORIGINS</text>
+    <path d="M280 220h35V78h26M315 220h26M315 220v142h26" fill="none" stroke="#a4b490" stroke-width="2"/>
+    <g fill="#f4f5ef" stroke="#a4b490"><circle cx="315" cy="220" r="5"/></g>
+    <g font-family="Arial, Helvetica, sans-serif">
+      <rect x="341" y="35" width="214" height="86" rx="5" fill="#273d30"/>
+      <text x="360" y="62" fill="#bad490" font-size="10" letter-spacing="2">01 / UNDERSTAND</text>
+      <text x="360" y="91" fill="#fff" font-size="19">Knowledge map</text>
+      <rect x="341" y="177" width="214" height="86" rx="5" fill="#e4ebd4"/>
+      <text x="360" y="204" fill="#587447" font-size="10" letter-spacing="2">02 / REMEMBER</text>
+      <text x="360" y="233" fill="#24352b" font-size="19">Spaced review</text>
+      <rect x="341" y="319" width="214" height="86" rx="5" fill="#fff" stroke="#d3d8cb"/>
+      <text x="360" y="346" fill="#587447" font-size="10" letter-spacing="2">03 / FOLLOW THE SOURCE</text>
+      <text x="360" y="375" fill="#24352b" font-size="19">Grounded answers</text>
+    </g>
+  </g>
+</svg>
