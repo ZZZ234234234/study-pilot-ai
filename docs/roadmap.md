@@ -7,6 +7,8 @@
 - PDF upload, page extraction, chunking, asynchronous processing and search.
 - Demo, OpenAI-compatible and Ollama-compatible provider adapters.
 - Source-linked knowledge points and document-scoped Q&A.
+- Explicit Chinese/English page translation with academic/clear styles, glossary preferences, verbatim source comparison, ten-page sequential batches, stop-after-current-page and bilingual TXT export. Real-provider quality validation is still pending.
+- Browser-local images-to-PDF, PDF-to-images, PNG/JPG/WebP conversion and PDF-to-TXT with ordering, page ranges, output quality, ZIP packaging and resource limits.
 - Study plans, flashcards, spaced reviews and quizzes.
 - Anonymous browser workspace ownership and document deletion.
 - Original eight-page learning sample and local PGlite quick-start.
@@ -18,6 +20,7 @@
 
 - Run and complete the prepared browser end-to-end suites on a working Chromium installation, then review accessibility and real-device/mobile visuals.
 - Exercise real chat/embedding providers with explicitly supplied credentials.
+- Evaluate real English/Chinese academic translation: terminology consistency, negation, numbers, formulas and two-column extraction order; verify browser conversion downloads, cancellation and mobile memory limits.
 - Validate native PostgreSQL transactions and concurrent workers.
 - Freeze immutable Alembic migrations; test upgrades and rollback on native PostgreSQL.
 - Add and verify Docker Compose, CI integration tests and deployment documentation.
@@ -29,6 +32,8 @@
 
 - Recoverable accounts and cross-device learning state.
 - OCR with explicit cost and privacy controls.
+- Durable translation history, document-wide terminology consistency and translated-PDF layout reconstruction, only after validating the current reading workflow.
+- Office-document conversions where format fidelity, licensing and operating costs can be handled transparently.
 - Multi-document retrieval and exportable learning notes.
 
 Items here are plans, not claims of completed work or delivery dates.

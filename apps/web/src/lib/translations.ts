@@ -1,5 +1,7 @@
+import { toolCopy } from "./tool-copy";
 // Chinese source copy is the stable lookup key. Only interface copy belongs here.
 export const english: Record<string, string> = {
+  ...toolCopy,
   等待处理: "Queued",
   解析中: "Parsing",
   重点回顾: "Focused review",

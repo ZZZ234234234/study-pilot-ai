@@ -39,6 +39,8 @@ import { KnowledgePanel } from "./knowledge-panel";
 import { AppShell } from "./app-shell";
 import { Spinner, ErrorState } from "./ui";
 import { ApiError } from "../lib/api";
+import ToolsPage from "../app/app/tools/page";
+import { TranslationPanel } from "./translation-panel";
 
 beforeEach(() => {
   fixture.locale = "en";
@@ -57,6 +59,41 @@ const visibleCopy = (html: string) =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
 
 describe("server-rendered interface copy (not browser interaction)", () => {
+  it("renders the new tools and translation setup in English without a live provider", () => {
+    for (const component of [
+      <ToolsPage key="tools" />,
+      <TranslationPanel
+        key="translation"
+        id="doc"
+        title="Paper"
+        page={1}
+        count={8}
+        onPage={() => {}}
+      />,
+    ]) {
+      expect(visibleCopy(renderToStaticMarkup(component))).not.toMatch(
+        /[\u3400-\u9fff]/,
+      );
+    }
+    const html = renderToStaticMarkup(
+      <TranslationPanel
+        id="doc"
+        title="Paper"
+        page={1}
+        count={8}
+        onPage={() => {}}
+      />,
+    );
+    expect(html).toContain("Demo mode never simulates translations");
+    expect(html).toContain("disabled");
+  });
+  it("renders Chinese tool labels by default without translating file contents", () => {
+    fixture.locale = "zh-CN";
+    const html = renderToStaticMarkup(<ToolsPage />);
+    expect(html).toContain("图片转 PDF");
+    expect(html).toContain("开始转换");
+    expect(html).toContain("不需要 AI 密钥");
+  });
   it("renders the original English landing and illustrative preview", () => {
     const html = renderToStaticMarkup(<Landing />);
     expect(html).toContain("structured knowledge.");

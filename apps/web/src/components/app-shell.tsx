@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ArrowUpRight,
   Leaf,
+  Files,
 } from "lucide-react";
 import { Logo, ThemeToggle, Badge } from "./ui";
 import type { Settings } from "@/lib/types";
@@ -23,6 +24,7 @@ const nav = [
   { href: "/app", label: "学习概览", icon: LayoutDashboard },
   { href: "/app/library", label: "我的资料", icon: Library },
   { href: "/app/study-plan", label: "复习计划", icon: CalendarDays },
+  { href: "/app/tools", label: "学习工具箱", icon: Files },
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = useLocale();
@@ -133,9 +135,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   ? t("我的资料")
                   : path.includes("study-plan")
                     ? t("复习计划")
-                    : path.includes("settings")
-                      ? t("设置")
-                      : t("学习概览")}
+                    : path.includes("tools")
+                      ? t("学习工具箱")
+                      : path.includes("settings")
+                        ? t("设置")
+                        : t("学习概览")}
             </strong>
           </div>
           <div className="topbar-right">

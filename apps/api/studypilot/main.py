@@ -16,6 +16,7 @@ from .routes_documents import router as documents_router
 from .routes_quiz import router as quiz_router
 from .routes_study import router as study_router
 from .routes_system import router as system_router
+from .routes_translation import router as translation_router
 from .security import signer
 
 logger = logging.getLogger("studypilot")
@@ -129,5 +130,12 @@ async def handle_unexpected(request: Request, exc: Exception):
     )
 
 
-for router in (system_router, documents_router, chat_router, study_router, quiz_router):
+for router in (
+    system_router,
+    documents_router,
+    chat_router,
+    study_router,
+    quiz_router,
+    translation_router,
+):
     app.include_router(router, prefix="/api/v1")

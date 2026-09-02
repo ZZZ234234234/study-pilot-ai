@@ -1,6 +1,6 @@
 # Architecture
 
-The browser talks only to the Next.js `/api/v1/*` proxy. The proxy forwards requests to a fixed server-side `API_INTERNAL_URL`; it does not take arbitrary upstream URLs from the user.
+Server-backed features use the Next.js `/api/v1/*` proxy. The proxy forwards requests to a fixed server-side `API_INTERNAL_URL`; it does not take arbitrary upstream URLs from the user. File conversion is a separate browser-local path: input bytes are not submitted to this proxy or a third-party converter.
 
 ```mermaid
 flowchart TD
@@ -21,6 +21,22 @@ The initial server-rendered interface is Simplified Chinese (`zh-CN`). Settings 
 Chinese interface copy is the lookup key in `apps/web/src/lib/translations.ts`; English copy and parameterized labels live in the same dictionary. React text rendering escapes inserted values. Stable API enums, model identifiers, PDF text, document titles, citations and stored learning content are never used as translation keys. Common structured errors are localized at presentation time, so one cached API error can be displayed in either language. Dates use the active locale; the document's language attribute and browser title follow the preference after hydration.
 
 The setting does not request document translation or change the provider configuration. It does not remount form components, mutate learning data or reissue AI-generation requests. Preference/store unit tests and static React rendering checks are distinct from the prepared browser interaction tests.
+
+## Translation
+
+The reader's Translation tab posts one page at a time to `/documents/{id}/translate`. The API verifies workspace ownership, checks page readiness, retrieves authoritative page text and sends it with terminology preferences to the existing JSON-compatible chat provider. It never uses embeddings. If parsing completed but indexing subsequently failed, the original reader and translation remain accessible without treating partially generated learning material as ready.
+
+Each page is split into exact source slices of at most 1600 characters, bounded by an 18000-character page limit. Segment IDs must be returned once each in their original order; missing, repeated, extra or blank structured results are rejected. Source text is always copied from the stored page, never accepted from a provider response. These checks establish structure and provenance, not semantic translation accuracy. The translation task requests its explicitly chosen output language independently of interface locale.
+
+The client sends at most ten pages sequentially per batch after explicit confirmation. Stopping prevents future page requests but does not recall an in-flight model request or its cost. Completed pages are cached only in component memory under page/target/style/glossary keys and can be exported as bilingual TXT. Switching study tabs retains the mounted translation component; leaving the document or refreshing discards its cache. No database migration or persistent translation storage was added. A process-local two-slot semaphore bounds concurrent translation calls; it is not a distributed quota system.
+
+## Local conversion
+
+`/app/tools` lazily loads pdf-lib and fflate for file creation/ZIP packaging and reuses the self-hosted PDF.js assets for PDF rendering/text extraction. Canvas handles image encoding and applies white backgrounds for JPEG. Images are fitted to A4 or their own aspect ratio, not stretched. ZIP members use bounded, sanitized, numbered names to prevent collisions and path traversal.
+
+Files are extension/size checked; supported image signatures and dimensions are checked before decoding. Batches are limited to 20 images or one PDF (300 pages maximum), 20 MB per file, 50 MB total input, 100 MB output and 24 million decoded pixels per image/page. PDF image exports are limited to 20 selected pages and rendered sequentially, releasing canvases/pages afterward. Abort requests interrupt between steps and destroy active PDF tasks. These limits reduce resource use but do not make malicious file decoding a hardened sandbox.
+
+No conversion upload endpoint exists. Browser-local conversion does not imply that AI translation is local: that depends on the configured model endpoint. Metadata, color profiles and animation are not preserved; OCR, office-document layout conversion and translated-PDF layout reconstruction are outside the implemented scope.
 
 ## Document lifecycle
 

@@ -32,6 +32,13 @@ export const reviewGrade = {
 
 // Stable API codes also localize feedback from an older English-speaking server.
 export const errorMessages: Record<string, string> = {
+  translation_provider_required:
+    "翻译需要真实聊天模型。请在模型设置中完成配置并重启服务；无需重新建立索引。",
+  translation_empty:
+    "这一页没有可提取的文字。扫描页需要先进行 OCR，当前版本不提供文字识别。",
+  translation_limit: "这一页超过 18000 字符的翻译上限，请选择文字较少的页面。",
+  translation_invalid:
+    "模型返回了不完整或错位的译文，未接受这一页结果。已完成的其他页面仍可导出，请稍后重试。",
   provider_required:
     "PDF 可以继续阅读和搜索。问答等 AI 功能需要先在“模型设置”中配置可用的模型服务，再重新处理文档。",
   provider_auth:

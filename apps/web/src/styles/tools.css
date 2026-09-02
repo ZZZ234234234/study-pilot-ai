@@ -1,0 +1,438 @@
+/* Translation and file tools inherit the existing workspace palette in both themes. */
+.file-tools {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.tools-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+.tools-heading h1 {
+  font-size: clamp(25px, 3vw, 38px);
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  margin: 10px 0 12px;
+}
+.tools-heading p,
+.converter-heading p {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.tools-heading > svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+.tools-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+.tool-selector {
+  display: grid;
+  gap: 8px;
+}
+.tool-selector > button,
+.translation-tool-link {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 12px;
+  padding: 17px 14px;
+  font-size: 15px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--muted);
+}
+.tool-selector > button:hover,
+.tool-selector > button.active {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--green);
+}
+.tool-selector > button.active {
+  box-shadow: inset 3px 0 var(--green);
+  font-weight: 600;
+}
+.translation-tool-link {
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  margin-top: 18px;
+  align-items: flex-start;
+  font-size: 14px;
+}
+.translation-tool-link small {
+  display: block;
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.translation-tool-link svg {
+  flex-shrink: 0;
+}
+.converter-surface {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 30px;
+}
+.converter-heading {
+  margin-bottom: 24px;
+}
+.converter-heading h2 {
+  font-size: 23px;
+  margin-bottom: 8px;
+}
+.file-dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 32px 18px;
+  border: 1px dashed var(--green);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+.file-dropzone input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.file-dropzone:focus-within {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.file-dropzone svg {
+  color: var(--green);
+}
+.file-dropzone strong {
+  font-size: 16px;
+}
+.file-dropzone span {
+  font-size: 14px;
+}
+.file-dropzone small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.file-dropzone.disabled {
+  opacity: 0.6;
+}
+.conversion-files {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  max-height: 310px;
+  overflow: auto;
+}
+.conversion-files li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.conversion-files li > div:first-of-type {
+  min-width: 0;
+  flex: 1;
+}
+.conversion-files strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.conversion-files small,
+.file-number {
+  font-size: 12px;
+  color: var(--muted);
+}
+.file-order-actions {
+  display: flex;
+  flex-shrink: 0;
+}
+.file-tools .icon-button {
+  width: 32px;
+  height: 36px;
+}
+.conversion-options,
+.translation-controls {
+  border: 0;
+  padding: 0;
+  margin: 24px 0 18px;
+  min-width: 0;
+}
+.conversion-options legend {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.tool-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.translation-controls > label,
+.translation-controls > .tool-fields {
+  margin-bottom: 16px;
+}
+.file-tools label:not(.file-dropzone),
+.translation-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  min-width: 0;
+}
+.file-tools select,
+.file-tools input:not([type="file"]),
+.translation-controls select,
+.translation-controls input:not([type="checkbox"]),
+.translation-controls textarea {
+  width: 100%;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 5px;
+  padding: 11px 12px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.translation-controls textarea {
+  resize: vertical;
+  min-height: 76px;
+}
+.translation-controls .tool-consent {
+  flex-direction: row;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.tool-consent input {
+  margin-top: 4px;
+  flex-shrink: 0;
+  accent-color: var(--green);
+}
+.tool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 18px 0;
+}
+.tool-actions .button {
+  min-height: 40px;
+  font-size: 14px;
+}
+.tool-fineprint,
+.tools-bottom-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.tools-bottom-note {
+  margin-top: 22px;
+}
+.tool-error {
+  border-left: 2px solid #b54738;
+  background: rgba(181, 71, 56, 0.06);
+  color: var(--ink);
+  padding: 12px 15px;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 16px 0;
+}
+.conversion-result {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+  border-radius: 6px;
+}
+.conversion-result > div {
+  min-width: 0;
+}
+.conversion-result strong {
+  font-size: 16px;
+}
+.conversion-result p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.conversion-result .button {
+  flex-shrink: 0;
+}
+.conversion-progress {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+}
+.conversion-progress progress {
+  flex: 1;
+  min-width: 30px;
+  accent-color: var(--green);
+}
+.translation-panel {
+  padding: 22px;
+}
+.tool-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tool-panel-heading > svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+.tool-panel-heading h2 {
+  font-size: 20px;
+  line-height: 1.4;
+}
+.tool-panel-heading p {
+  margin-top: 5px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.tool-notice {
+  font-size: 13px;
+  padding: 12px 14px;
+  background: var(--soft);
+  line-height: 1.8;
+  margin: 16px 0;
+  border-radius: 4px;
+}
+.tool-notice a {
+  display: block;
+  width: fit-content;
+  color: var(--green);
+  text-decoration: underline;
+  margin-top: 6px;
+}
+.translation-empty {
+  padding: 30px 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 24px;
+}
+.translated-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+.translated-pages button {
+  padding: 8px 12px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.translated-pages button.active {
+  color: var(--green);
+  background: var(--accent-soft);
+}
+.translation-segment {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+}
+.translation-segment p {
+  font-size: 16px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+}
+.translation-segment summary {
+  font-size: 13px;
+  color: var(--green);
+  cursor: pointer;
+}
+.translation-segment .translation-source {
+  font-size: 14px;
+  background: var(--soft);
+  padding: 14px;
+  color: var(--muted);
+}
+.document-tabs {
+  overflow-x: auto;
+}
+.document-tabs button {
+  flex-shrink: 0;
+}
+.assistant-panel [hidden] {
+  display: none !important;
+}
+@media (max-width: 1000px) {
+  .tools-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .tool-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .translation-tool-link {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+}
+@media (max-width: 600px) {
+  .tools-heading {
+    margin-bottom: 24px;
+  }
+  .tools-heading > svg {
+    display: none;
+  }
+  .tools-heading p,
+  .converter-heading p {
+    font-size: 14px;
+  }
+  .converter-surface {
+    padding: 20px 16px;
+  }
+  .tool-selector > button {
+    padding: 13px 10px;
+    font-size: 14px;
+    gap: 8px;
+  }
+  .tool-fields {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .conversion-result {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .translation-panel {
+    padding: 18px 14px;
+  }
+  .conversion-files li {
+    gap: 8px;
+  }
+  .file-tools .icon-button {
+    width: 28px;
+  }
+}

@@ -1,71 +1,72 @@
 # Verification record
 
-Bilingual-interface regression checked on 2026-09-02 in the project workspace. Dependency installation and audit results below are retained from 2026-09-01; this update did not change dependencies or the lockfile. Results describe this alpha snapshot, not a production certification.
+Translation and local-conversion update checked on **2026-09-02** in the project workspace. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
 
-| Check                          | Result                                                                                                              |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| Locked dependency installation | Passed on 2026-09-01 (`npm ci`); dependencies unchanged                                                             |
-| Next.js production build       | Passed, including standalone static asset packaging                                                                 |
-| TypeScript                     | Passed (`npm run typecheck`)                                                                                        |
-| Frontend lint                  | Passed without lint warnings (`npm run lint`)                                                                       |
-| Formatting                     | Passed (`npm run format:check`); Chinese typography overrides follow the existing styles                            |
-| Frontend unit tests            | 36 passed (`npm test`), including preference persistence, dictionary coverage and bilingual static React rendering  |
-| Backend lint                   | Passed (`python -m ruff check apps/api scripts`)                                                                    |
-| Backend unit tests             | 21 passed (`python -m pytest apps/api/tests`), including Chinese demo queries and source preservation               |
-| PDF.js Node canvas             | All 8 original sample pages rendered with visible pixels and extractable text (`npm run test:pdf`)                  |
-| API end-to-end tests           | 16 passed against the production frontend, temporary API, worker and PGlite (`npm run test:e2e:api`)                |
-| Local API workflow             | Passed (`python scripts/smoke_test.py --start-services`)                                                            |
-| Production dependency audit    | 0 reported on 2026-09-01 (`npm audit --omit=dev`); dependencies were unchanged in this interface update             |
-| Browser test collection        | 12 desktop/mobile scenarios collected separately from the 16 API cases                                              |
-| Browser test execution         | Not passed: local Chromium was unavailable; a later cloud-browser attempt could not connect to the isolated preview |
+## Current checks
 
-## Bilingual interface update
+| Check                                     | Result                                                                                                                |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                                    |
+| Frontend production build                 | Passed, including standalone assets and `/app/tools`                                                                  |
+| TypeScript                                | Passed (`npm run typecheck`)                                                                                          |
+| Frontend lint                             | Passed (`npm run lint`)                                                                                               |
+| Formatting                                | Passed (`npm run format:check`)                                                                                       |
+| Frontend logic/component/conversion tests | 68 passed: including eleven static rendering, five jsdom translation interaction and seven Node-canvas runtime checks |
+| Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                                      |
+| Backend tests                             | 45 passed, including 24 translation schema and isolated endpoint checks                                               |
+| PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                              |
+| API end-to-end tests                      | 18 passed against the production frontend, temporary API, worker and PGlite                                           |
+| Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                              |
+| Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment                     |
+| Browser test collection                   | 16 desktop/mobile scenarios collected separately from the 18 API cases                                                |
+| Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed               |
 
-- Default Chinese with a Chinese/English selector in Settings. The selector remains available when the settings API fails. The client preference store handles persistence, invalid values, blocked localStorage, cross-tab updates and listener cleanup; these behaviors passed unit tests.
-- Nine static React-rendering checks exercise English landing/preview, Settings and configuration snippets, navigation, privacy/open-source/404, model-setup guidance, citations, knowledge labels and cached errors. These checks use isolated fixtures and do not prove browser interaction, hydration, visual layout or mobile acceptance.
-- Prepared desktop/mobile browser tests cover default Chinese, selecting English without resetting unsaved model fields, navigation, reload persistence, switching back, overflow and backend failure. These tests are collected, but browser execution is still unavailable in this environment; they are not counted as passed.
+**131 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of translation accuracy. The Python run reports a Starlette TestClient/httpx deprecation warning, not a failing test; the existing HTTP client stack was not replaced merely to suppress it.
 
-- Localized public pages, navigation, learning workspace, settings, form labels, empty/loading states, dates, document status, review grades and common errors without changing API enum values or stored user content.
-- Added Chinese model-setup guidance for normal uploads in Demo mode. AI panels are not mounted while configuration is missing; reading and search remain available. The prepared browser test checks this behavior, but it has not run successfully in a browser here.
-- Added Chinese font fallbacks and scoped typography adjustments while retaining the original layout and color palette. Chinese IME composition and Shift+Enter no longer trigger accidental question submission; unit tests cover the keyboard guard.
-- HTTP tests verify `zh-CN` on all public/app routes and Chinese metadata, 404 copy and model-check feedback. Three Chinese demo questions retrieve the expected original pages; every returned citation is checked against that page's actual extracted text.
-- Real-provider prompts request Simplified Chinese learning content and responses in the question's language. Source quotes, protocol keys and enums must remain unchanged. These prompt constraints are unit-tested, not live-model verified.
-- The bundled English PDF and its fixed knowledge content are unchanged. Chinese keyword aliases are deterministic demo lookup support, not a translation service or general-purpose AI.
+## Translation checks
 
-## Fixes included in this snapshot
+- Exact source segmentation is lossless, bounded to 1600 characters per slice and 18000 characters per page. Stored original text is never taken from a model response or overwritten.
+- Chinese/English targets, academic/clear styles, glossary limits and untrusted-source instructions are tested. These are protocol and prompt checks, not proof of model compliance.
+- Missing, repeated, mismatched, blank or extra structured fields are rejected. Unsupported languages/styles, invalid pages and oversized terminology fail validation.
+- Isolated endpoint tests use real SQLAlchemy queries over temporary SQLite tables, with a deterministic fake chat provider. They verify ownership, original-source preservation, missing pages, and refusal of Demo/missing-key requests. The fake provider rejects any embedding call.
+- Parsed pages remain translatable after indexing failure. Active parsing cannot translate stale pages; other learning tools do not become falsely ready.
+- Five jsdom component tests verify confirmation before requests, reuse of completed pages, new requests after terminology changes, stopping after the current page, preserving results after a later failure, export availability and Demo disabling. Model calls and the download helper are mocked.
+- Real frontend/API checks exercise Chinese toolkit content, page ownership and refusal to simulate Demo translations.
 
-- Upgraded the lockfile's PDF.js from 5.7.284 to 6.3.289, beyond the fixed version in [Mozilla's advisory](https://github.com/mozilla/pdf.js/security/advisories/GHSA-hq66-cqwq-w95j). The earlier dependency advisory did not demonstrate that this canvas-only application was exploitable. The npm audit result is not a whole-application security assessment.
-- Self-hosted matching worker, CMaps, standard fonts, ICC profiles and image decoders. The HTTP tests compare worker/font/decoder bytes with the installed package and check the homepage's compiled CSS/JavaScript.
-- Added distinct Vitest and Playwright collection, API/desktop/mobile projects, correct CLI argument forwarding, and fresh temporary demo services. Tests never use real AI credentials or normal development data.
-- Added standalone resource copying to the build and a compatible production start command. Startup failures now propagate instead of being reported as successful shutdowns; supervisors clean up their child services.
-- Added explicit Prettier configuration, ignored generated assets and split the compressed stylesheet into nine readable, ordered files.
+## Conversion checks and visual inspection
 
-The Node canvas check exercises the upgraded rendering engine, **not** DOM rendering, actual browsers, all uploaded PDF variants or visual design acceptance. The local browser attempt used `npm run test:e2e -- --project=desktop --grep 'sample onboarding' --max-failures=1`; it stopped at browser launch with `Executable doesn't exist`. Browser acquisition had also failed during the preceding audit. A subsequent cloud-browser attempt on 2026-09-02 returned `ERR_CONNECTION_REFUSED` when opening the isolated local Settings preview; no application page loaded. These environment blockers do not constitute a UI test pass or evidence of an application regression. No browser screenshot or successful UI interaction is claimed.
+- Logic tests cover file count/extension/byte limits, valid and invalid page ranges, image signature/dimension checks, aspect-preserving A4/image sizing, ZIP name collisions and safe archive paths.
+- Runtime tests execute the actual conversion functions with native **Node canvas adapters** for browser Canvas/createImageBitmap and the PDF.js legacy Node renderer. Actual PNG, JPEG and WebP bytes are decoded and dimensions verified. Real sample PDF text is extracted for an exact selected page.
+- Images become a genuine two-page PDF, are reopened with pdf-lib, then rendered and packaged as a two-image ZIP. Tests reject invalid PDF bytes, report OCR absence for image-only PDFs and respect cancellation before processing.
+- A synthetic landscape/portrait fixture was saved outside the repository, inspected using `pdfinfo` and independently rendered with Poppler. Both PNG previews were visually reviewed: A4 orientation, intact aspect ratio, white margins and complete image content were confirmed. The sample PDF is 4442 bytes, has two pages, no encryption and no JavaScript.
+- These previews validate generated document layout, not website layout. No website screenshot, real browser download, mobile memory profile or color-profile fidelity is claimed. Animation and metadata limitations are documented.
 
-To run the prepared UI suites on a machine with supported browser dependencies: install project dependencies, run `npm run build`, `npx playwright install chromium`, then `npm run test:e2e`. The mobile project is Chromium device emulation, not a Safari/iPhone hardware test. Local HTML reports and optional screenshots/traces are generated under `apps/web/playwright-report/` and `apps/web/test-results/`; these generated files are intentionally not committed.
+To reproduce optional conversion previews, set `CONVERSION_QA_DIR` to a dedicated temporary directory before `npm test`. The runtime test writes `images-roundtrip.pdf` and two PNG previews there. Otherwise fixtures remain in memory. Generated files are not committed.
+
+## Retained safeguards
+
+- Chinese remains the default interface language, with a Settings switch, preference persistence, blocked-storage fallback and cross-tab updates. UI language does not automatically translate user content.
+- Eleven static React checks cover public pages, navigation, Settings, model guidance, source preservation, tools and translation setup. Literal UI translation keys and cached API errors are checked.
+- Chinese IME-safe Enter, verbatim citations and fixed Chinese keyword aliases for the English Demo remain tested. Demo aliases are not machine translation.
+- PDF.js remains locked at 6.3.289, beyond the fixed version in [Mozilla's advisory](https://github.com/mozilla/pdf.js/security/advisories/GHSA-hq66-cqwq-w95j). Worker, CMaps, fonts, ICC profiles and image decoders are served from the same dependency; HTTP tests compare the packaged bytes.
+- Standalone asset copying, process cleanup, isolated test services and separate unit/API/UI collection are preserved.
 
 ## Local workflow exercised
 
-`python scripts/smoke_test.py --start-services` starts fresh temporary services and checks:
+The smoke test uses fresh temporary database/storage to check database health, eight-page sample processing, source-linked Demo answers, original PDF access, workspace isolation, study plans, flashcard scheduling, quiz grading and duplicate-submission protection. Ordinary uploads remain readable in Demo but refuse simulated AI. Only documents created by the test are removed, followed by 404 checks; no third-party model is contacted.
 
-1. Database health and pgvector availability.
-2. Processing the original sample into eight pages and grounded knowledge points.
-3. Original PDF access and refusal of another workspace's read/delete requests.
-4. Demo Q&A with a nonempty citation whose excerpt actually exists on the referenced page.
-5. Study-plan creation, task completion and dashboard updates.
-6. Flashcard creation, review scheduling and rejection of a duplicate same-day review.
-7. Five-question quiz generation, hidden answers before submission, grading and duplicate-submission rejection.
-8. A regular PDF upload remains readable but cannot use simulated AI in demo mode.
-9. Renaming and deletion of only the test's own documents, followed by 404 checks.
+## Browser and real-provider limits
 
-No third-party AI service was contacted. Temporary test documents and test storage were removed after this check.
+Earlier local Playwright execution stopped at browser launch with `Executable doesn't exist`. A subsequent cloud-browser attempt returned `ERR_CONNECTION_REFUSED` for the isolated Settings preview; no application page loaded. These environment failures are neither UI passes nor evidence of an application regression. This update does not claim those blockers have been fixed.
 
-## Not yet verified
+Prepared desktop/mobile tests now also cover a real image-to-PDF download without an upload request and the reader's refusal to simulate Demo translation. On a machine with supported browser dependencies, run `npm run build`, `npx playwright install chromium`, then `npm run test:e2e`. Mobile tests emulate an iPhone-sized viewport in Chromium, not Safari/iPhone hardware. Reports and optional screenshots/traces go to `apps/web/playwright-report/` and `apps/web/test-results/`; they are not committed.
 
-- Browser end-to-end tests, visual screenshots, PDF canvas rendering and accessibility on real devices.
-- Chat and embedding output from real OpenAI-compatible or Ollama providers.
-- Native PostgreSQL under concurrent worker load.
-- Docker packaging, public deployment, production backup/restore and abuse prevention.
-- A fresh installation on Windows or macOS.
+Still pending:
 
-The banner is an original vector diagram, not a fabricated screenshot of a running deployment. See [Roadmap](roadmap.md) and [Security](../SECURITY.md) for remaining work.
+- Real browser interaction, downloads, cancellation, layout and accessibility across desktop/mobile devices.
+- Real chat/embedding providers and English/Chinese academic translation quality, including terminology, negation, numbers, formulas and two-column extraction order.
+- Native PostgreSQL under concurrent workers and production quota enforcement.
+- Fresh Windows/macOS installation, Docker packaging, public deployment, backup/restore and abuse prevention.
+- OCR, durable translation history, office-format conversion and translated-PDF layout reconstruction are not implemented.
+
+The banner remains a vector illustration, not a deployment screenshot. See [Roadmap](roadmap.md) and [Security](../SECURITY.md).

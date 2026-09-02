@@ -15,10 +15,12 @@ import {
   Search,
   RotateCw,
   CircleHelp,
+  Languages,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge, EmptyState, ErrorState, Modal, Skeleton, Spinner } from "./ui";
 import { PdfReader } from "./pdf-reader";
+import { TranslationPanel } from "./translation-panel";
 import { KnowledgePanel } from "./knowledge-panel";
 import { ChatPanel } from "./chat-panel";
 import { FlashcardsPanel } from "./flashcards-panel";
@@ -39,6 +41,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 const tabs = [
+  { id: "translation", label: "对照翻译", icon: Languages },
   { id: "chat", label: "文档问答", icon: MessageSquare },
   { id: "knowledge", label: "知识地图", icon: ListTree },
   { id: "flashcards", label: "知识闪卡", icon: Layers3 },
@@ -59,7 +62,9 @@ export function DocumentWorkspace({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const active = tabs.some((t) => t.id === searchParams.get("tab"))
     ? searchParams.get("tab")!
-    : "chat";
+    : doc?.status === "failed" && doc.progress >= 30
+      ? "translation"
+      : "chat";
   const [page, setPage] = useState(1);
   const [mobile, setMobile] = useState("assistant");
   const [split, setSplit] = useState(49);
@@ -148,7 +153,8 @@ export function DocumentWorkspace({ id }: { id: string }) {
           </Link>
         </div>
       </div>
-      {doc.status !== "ready" ? (
+      {doc.status !== "ready" &&
+      !(doc.status === "failed" && doc.progress >= 30) ? (
         <section className="processing-panel">
           <div className="process-art">
             <BookOpen size={46} strokeWidth={1.2} />
@@ -203,6 +209,13 @@ export function DocumentWorkspace({ id }: { id: string }) {
         </section>
       ) : (
         <>
+          {doc.status === "failed" && (
+            <div className="mode-notice" role="status">
+              {t(
+                "原文已解析，但知识索引未完成。仍可阅读与翻译；其他学习功能需修复模型配置后重新处理。",
+              )}
+            </div>
+          )}
           {doc.ai_status === "not_configured" && (
             <div className="mode-notice">
               {t("PDF 已解析，可以阅读和搜索。")}{" "}
@@ -277,7 +290,18 @@ export function DocumentWorkspace({ id }: { id: string }) {
                 ))}
               </nav>
               <div className="assistant-panel">
-                {doc.ai_status === "not_configured" ? (
+                <div hidden={active !== "translation"}>
+                  <TranslationPanel
+                    key={id}
+                    id={id}
+                    title={doc.title}
+                    page={page}
+                    count={doc.page_count}
+                    onPage={setPage}
+                  />
+                </div>
+                {active === "translation" ? null : doc.ai_status ===
+                    "not_configured" || doc.status === "failed" ? (
                   <div className="provider-notice" role="status">
                     <EmptyState
                       title={t("原文已就绪，AI 功能还差一步。")}
