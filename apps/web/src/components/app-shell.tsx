@@ -2,7 +2,7 @@
 import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import useSWR from "swr";
 import {
   LayoutDashboard,
@@ -16,10 +16,18 @@ import {
   ArrowUpRight,
   Leaf,
   Files,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { Logo, ThemeToggle, Badge } from "./ui";
 import type { Settings } from "@/lib/types";
 import { cn } from "@/lib/api";
+import {
+  useReadingPreference,
+  useReadingViewport,
+} from "@/lib/reading-preferences";
+import { useFocusLayer } from "./use-focus-layer";
+const navigationStates = ["closed", "open"] as const;
 const nav = [
   { href: "/app", label: "学习概览", icon: LayoutDashboard },
   { href: "/app/library", label: "我的资料", icon: Library },
@@ -30,23 +38,57 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = useLocale();
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [navigation, setNavigation] = useReadingPreference(
+    "studypilot:navigation",
+    navigationStates,
+    "closed",
+  );
+  const compact = useReadingViewport().width <= 1080;
+  const expanded = compact ? open : navigation === "open";
+  const sidebar = useRef<HTMLElement>(null);
+  const navigationToggle = useRef<HTMLButtonElement>(null);
+  const closeDrawer = useCallback(() => setOpen(false), []);
+  useFocusLayer(compact && open, sidebar, closeDrawer);
   const { data } = useSWR<Settings>("/settings");
   return (
-    <div className="app-shell">
-      {open && (
+    <div
+      className={cn(
+        "app-shell",
+        !expanded && "nav-collapsed",
+        compact && "nav-overlay",
+      )}
+    >
+      {compact && open && (
         <button
           className="nav-scrim"
           aria-label={t("关闭导航")}
           onClick={() => setOpen(false)}
         />
       )}
-      <aside className={cn("sidebar", open && "is-open")}>
+      <aside
+        ref={sidebar}
+        id="workspace-navigation"
+        tabIndex={-1}
+        inert={!expanded}
+        role={compact ? "dialog" : undefined}
+        aria-modal={compact && open ? true : undefined}
+        aria-label={t("主要导航")}
+        className={cn("sidebar", expanded && "is-open")}
+      >
         <div className="sidebar-brand">
           <Logo />
           <button
-            className="icon-button mobile-only"
-            aria-label={t("关闭菜单")}
-            onClick={() => setOpen(false)}
+            className="icon-button"
+            data-layer-focus
+            aria-label={compact ? t("关闭菜单") : t("收起导航")}
+            title={t("收起导航")}
+            onClick={() => {
+              setOpen(false);
+              if (!compact) {
+                setNavigation("closed");
+                navigationToggle.current?.focus();
+              }
+            }}
           >
             <X size={20} />
           </button>
@@ -120,11 +162,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="app-topbar">
           <div className="breadcrumb">
             <button
-              className="icon-button mobile-only"
-              aria-label={t("打开菜单")}
-              onClick={() => setOpen(true)}
+              ref={navigationToggle}
+              className="icon-button navigation-toggle"
+              aria-label={
+                compact
+                  ? t("打开菜单")
+                  : expanded
+                    ? t("收起导航")
+                    : t("展开导航")
+              }
+              aria-controls="workspace-navigation"
+              aria-expanded={expanded}
+              title={expanded ? t("收起导航") : t("展开导航")}
+              onClick={() =>
+                compact
+                  ? setOpen(true)
+                  : setNavigation(expanded ? "closed" : "open")
+              }
             >
-              <Menu size={22} />
+              {compact ? (
+                <Menu size={22} />
+              ) : expanded ? (
+                <PanelLeftClose size={20} />
+              ) : (
+                <PanelLeftOpen size={20} />
+              )}
             </button>
             <span>{t("学习空间")}</span>
             <ChevronRight size={13} />

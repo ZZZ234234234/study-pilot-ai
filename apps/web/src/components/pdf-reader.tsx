@@ -10,20 +10,27 @@ import {
   Minus,
   Plus,
   AlignLeft,
+  Expand,
+  ScanLine,
 } from "lucide-react";
 import { ensureSession, errorMessage } from "@/lib/api";
 import { pdfDocumentOptions, PDF_WORKER_SRC } from "@/lib/pdf-options";
 import { ErrorState, Spinner } from "./ui";
+import { rasterRatio } from "@/lib/reader-layout";
 export function PdfReader({
   id,
   page,
   count,
   onPage,
+  fullscreen = false,
+  onExpand,
 }: {
   id: string;
   page: number;
   count: number;
   onPage: (page: number) => void;
+  fullscreen?: boolean;
+  onExpand?: () => void;
 }) {
   const { t } = useLocale();
   const holder = useRef<HTMLDivElement>(null);
@@ -34,20 +41,25 @@ export function PdfReader({
   const [error, setError] = useState<string>();
   const [rendering, setRendering] = useState(false);
   const [textView, setTextView] = useState(false);
+  const showingText = textView && !fullscreen;
   const { data: pageText } = useSWR<
     {
       text: string;
     }[]
-  >(textView ? `/documents/${id}/pages?page=${page}` : null);
+  >(showingText ? `/documents/${id}/pages?page=${page}` : null);
   useEffect(() => {
     const el = holder.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(entry.contentRect.width - 48),
-    );
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0)
+        setWidth(Math.max(1, entry.contentRect.width));
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+  useEffect(() => {
+    holder.current?.scrollTo({ top: 0, left: 0 });
+  }, [page, fullscreen]);
   useEffect(() => {
     let disposed = false;
     let task:
@@ -71,7 +83,7 @@ export function PdfReader({
     };
   }, [id]);
   useEffect(() => {
-    if (!pdf || !canvas.current || textView) return;
+    if (!pdf || !canvas.current || showingText) return;
     let disposed = false;
     let render:
       | ReturnType<Awaited<ReturnType<PDFDocumentProxy["getPage"]>>["render"]>
@@ -79,15 +91,20 @@ export function PdfReader({
     void (async () => {
       try {
         setRendering(true);
+        setError(undefined);
         const current = await pdf.getPage(page);
         if (disposed || !canvas.current) return;
         const natural = current.getViewport({ scale: 1 });
-        const scale = Math.max(0.3, width / natural.width) * zoom;
+        const scale = Math.max(0.05, width / natural.width) * zoom;
         const viewport = current.getViewport({ scale });
         const target = canvas.current;
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        target.width = viewport.width * dpr;
-        target.height = viewport.height * dpr;
+        const dpr = rasterRatio(
+          viewport.width,
+          viewport.height,
+          window.devicePixelRatio || 1,
+        );
+        target.width = Math.max(1, Math.floor(viewport.width * dpr));
+        target.height = Math.max(1, Math.floor(viewport.height * dpr));
         target.style.width = `${viewport.width}px`;
         target.style.height = `${viewport.height}px`;
         const context = target.getContext("2d");
@@ -114,7 +131,7 @@ export function PdfReader({
       disposed = true;
       render?.cancel();
     };
-  }, [pdf, page, width, zoom, textView]);
+  }, [pdf, page, width, zoom, showingText]);
   return (
     <div className="pdf-reader">
       <div className="reader-toolbar">
@@ -155,27 +172,46 @@ export function PdfReader({
           <button
             className="icon-button"
             aria-label={t("缩小")}
-            disabled={zoom <= 0.7}
-            onClick={() => setZoom((v) => Math.max(0.7, v - 0.1))}
+            disabled={zoom <= 0.5}
+            onClick={() =>
+              setZoom((v) => Math.max(0.5, Math.round((v - 0.1) * 10) / 10))
+            }
           >
             <Minus size={15} />
           </button>
-          <span className="zoom-label">{Math.round(zoom * 100)}%</span>
+          <span className="zoom-label" title={t("100% 表示适应阅读区宽度")}>
+            {Math.round(zoom * 100)}%
+          </span>
           <button
             className="icon-button"
             aria-label={t("放大")}
-            disabled={zoom >= 1.5}
-            onClick={() => setZoom((v) => Math.min(1.5, v + 0.1))}
+            disabled={zoom >= 3}
+            onClick={() =>
+              setZoom((v) => Math.min(3, Math.round((v + 0.1) * 10) / 10))
+            }
           >
             <Plus size={15} />
           </button>
           <button
-            className={`icon-button ${textView ? "selected" : ""}`}
-            aria-label={t("切换文字阅读视图")}
-            onClick={() => setTextView((v) => !v)}
+            className="icon-button"
+            aria-label={t("适应宽度")}
+            title={t("适应宽度")}
+            onClick={() => {
+              setZoom(1);
+              holder.current?.scrollTo({ left: 0, top: 0 });
+            }}
           >
-            <AlignLeft size={17} />
+            <ScanLine size={17} />
           </button>
+          {!fullscreen && (
+            <button
+              className={`icon-button ${showingText ? "selected" : ""}`}
+              aria-label={t("切换文字阅读视图")}
+              onClick={() => setTextView((v) => !v)}
+            >
+              <AlignLeft size={17} />
+            </button>
+          )}
           <a
             className="icon-button"
             aria-label={t("下载原始 PDF")}
@@ -187,32 +223,76 @@ export function PdfReader({
           </a>
         </div>
       </div>
-      <div className="pdf-canvas-area" ref={holder} data-page={page}>
-        {error ? (
-          <ErrorState error={new Error(error)} />
-        ) : textView ? (
+      <div
+        className="pdf-canvas-area"
+        ref={holder}
+        data-page={page}
+        tabIndex={0}
+        aria-label={t("PDF 阅读区域")}
+      >
+        {error && <ErrorState error={new Error(error)} />}
+        {showingText ? (
           <article className="pdf-text-view">
             <h3>{t("第 {0} 页 · 提取的原文", page)}</h3>
             <p>{pageText?.[0]?.text ?? t("正在加载原文…")}</p>
           </article>
         ) : (
           <>
-            {!pdf && <Spinner label={t("正在打开原始 PDF")} />}
+            {!pdf && !error && <Spinner label={t("正在打开原始 PDF")} />}
             {rendering && pdf && (
               <span className="pdf-rendering">
                 <Spinner label={t("正在渲染")} />
               </span>
             )}
-            <canvas
-              ref={canvas}
-              aria-label={t("PDF 第 {0} 页，共 {1} 页", page, count)}
-            />
+            <div className="pdf-page-surface" hidden={!!error || !pdf}>
+              <canvas
+                ref={canvas}
+                role={onExpand && !fullscreen ? "button" : "img"}
+                tabIndex={onExpand && !fullscreen ? 0 : undefined}
+                aria-label={
+                  onExpand && !fullscreen
+                    ? t("PDF 第 {0} 页，共 {1} 页；点击全屏阅读", page, count)
+                    : t("PDF 第 {0} 页，共 {1} 页", page, count)
+                }
+                onClick={
+                  onExpand && !fullscreen
+                    ? () => {
+                        setTextView(false);
+                        onExpand();
+                      }
+                    : undefined
+                }
+                onKeyDown={
+                  onExpand && !fullscreen
+                    ? (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onExpand();
+                        }
+                      }
+                    : undefined
+                }
+              />
+            </div>
           </>
         )}
       </div>
       <div className="reader-footer">
         <span className="status-dot" />
         {t("你正在阅读原始资料。")}
+        {onExpand && !fullscreen && (
+          <button
+            type="button"
+            className="reader-expand-link"
+            onClick={() => {
+              setTextView(false);
+              onExpand();
+            }}
+          >
+            <Expand size={13} />
+            {t("点击页面可全屏阅读")}
+          </button>
+        )}
         <span>{t("第 {0} 页", page)}</span>
       </div>
     </div>

@@ -47,13 +47,10 @@ export function ChatPanel({
   }
   return (
     <div className="chat-panel">
-      <div className="assistant-heading">
-        <div className="eyebrow">
-          <Sparkles size={14} />
-          {t("带着问题，一起理解")}
-        </div>
-        <h2>{t("从你的疑问开始。")}</h2>
-        <p>{t("每个好问题，都值得一个有依据的回答。")}</p>
+      <div className="chat-compact-heading">
+        <Sparkles size={14} />
+        <h2>{t("文档问答")}</h2>
+        <span>{t("回答附原文依据")}</span>
       </div>
       <div className="chat-messages">
         {error ? (

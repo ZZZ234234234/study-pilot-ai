@@ -22,6 +22,18 @@ Chinese interface copy is the lookup key in `apps/web/src/lib/translations.ts`; 
 
 The setting does not request document translation or change the provider configuration. It does not remount form components, mutate learning data or reissue AI-generation requests. Preference/store unit tests and static React rendering checks are distinct from the prepared browser interaction tests.
 
+## Reading layout
+
+`ReadingWorkspace` keeps the PDF and assistant in one stable React tree. Browser-viewport fullscreen is a fixed, labelled dialog-like reading surface, not a second PDF viewer or the native browser Fullscreen API. A shared focus-layer hook makes surrounding elements inert, traps keyboard focus, locks background scrolling, and restores prior focus/inert/scroll state on exit or unmount. The same hook serves the mobile navigation drawer.
+
+The navigation defaults to collapsed. Validated `studypilot:navigation` and `studypilot:assistant-layout` localStorage preferences use `useSyncExternalStore`, support blocked-storage visit-only fallbacks and cross-tab changes, and contain no document or AI content. Geometry remains in component memory. Mobile reading initially hides the assistant; source citations reveal the PDF without discarding the mounted assistant state.
+
+The default desktop divider favors the PDF (about 70%, constrained to usable pane widths). Pointer capture drives horizontal division, floating-window movement and anchored corner resizing; keyboard arrows support each operation. Window geometry is clamped to the visual viewport, including resize/rotation and on-screen-keyboard changes. Fullscreen always gives the entire reading surface to the PDF, with an optional floating assistant rather than a reserved docked column.
+
+PDF clicks or the fullscreen control expand the source image without re-uploading the document. PDF.js zoom is 50–300% relative to fit-to-width; raster allocation is limited to 16 million pixels and an 8192-pixel edge by reducing output pixel density without shrinking CSS zoom. A non-centering overflow surface leaves both page edges scrollable. Source text and stored answers are not translated, rewritten or reordered by layout controls.
+
+The chat and translation panels remain mounted across tab and layout switches, preserving unsent questions, in-flight requests and temporary translation results. Hiding the assistant does not cancel a model request. Refresh/navigation still discards unsaved client-only content; this change adds neither a backend endpoint nor a database migration.
+
 ## Translation
 
 The reader's Translation tab posts one page at a time to `/documents/{id}/translate`. The API verifies workspace ownership, checks page readiness, retrieves authoritative page text and sends it with terminology preferences to the existing JSON-compatible chat provider. It never uses embeddings. If parsing completed but indexing subsequently failed, the original reader and translation remain accessible without treating partially generated learning material as ready.

@@ -2,6 +2,33 @@ import { toolCopy } from "./tool-copy";
 // Chinese source copy is the stable lookup key. Only interface copy belongs here.
 export const english: Record<string, string> = {
   ...toolCopy,
+  收起导航: "Collapse navigation",
+  展开导航: "Expand navigation",
+  全屏阅读: "Fullscreen reader",
+  退出全屏: "Exit fullscreen",
+  资料阅读工作区: "Document reading workspace",
+  隐藏助手: "Hide assistant",
+  打开学习助手: "Open study assistant",
+  隐藏学习助手: "Hide study assistant",
+  拖动分隔线调整阅读宽度: "Drag the divider to resize the reading area",
+  移动助手窗口: "Move assistant window",
+  "拖动标题栏移动，方向键微调":
+    "Drag the title bar to move; use arrow keys for precise adjustments",
+  重置窗口位置: "Reset window position",
+  停靠右侧: "Dock on the right",
+  设为悬浮窗: "Float assistant",
+  "拖动标题栏移动 · 右下角调整大小":
+    "Drag the title bar · Resize from the corner",
+  调整助手窗口大小: "Resize assistant window",
+  "拖动调整大小，方向键微调":
+    "Drag to resize; use arrow keys for precise adjustments",
+  适应宽度: "Fit to width",
+  "PDF 阅读区域": "PDF reading area",
+  "PDF 第 {0} 页，共 {1} 页；点击全屏阅读":
+    "PDF page {0} of {1}; click to read fullscreen",
+  点击页面可全屏阅读: "Click the page to read fullscreen",
+  回答附原文依据: "Answers with sources",
+  "100% 表示适应阅读区宽度": "100% fits the reading area width",
   等待处理: "Queued",
   解析中: "Parsing",
   重点回顾: "Focused review",

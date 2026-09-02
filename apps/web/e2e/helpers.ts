@@ -40,7 +40,10 @@ export async function createDemo(request: APIRequestContext, baseURL: string) {
 }
 
 export async function showPanel(page: Page, panel: "PDF" | "学习助手") {
-  const button = page.getByRole("button", { name: panel, exact: true });
+  const button = page.getByRole("button", {
+    name: panel === "PDF" ? "隐藏助手" : "打开学习助手",
+    exact: true,
+  });
   if (await button.isVisible()) await button.click();
 }
 

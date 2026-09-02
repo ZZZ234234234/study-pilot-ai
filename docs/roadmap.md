@@ -8,6 +8,7 @@
 - Demo, OpenAI-compatible and Ollama-compatible provider adapters.
 - Source-linked knowledge points and document-scoped Q&A.
 - Explicit Chinese/English page translation with academic/clear styles, glossary preferences, verbatim source comparison, ten-page sequential batches, stop-after-current-page and bilingual TXT export. Real-provider quality validation is still pending.
+- Reading-first PDF workspace: collapsible navigation, browser-viewport fullscreen, 50–300% zoom, docked/floating/hidden assistant, bounded drag/resize, keyboard controls and retained in-document drafts. Real-browser interaction and accessibility acceptance are still pending.
 - Browser-local images-to-PDF, PDF-to-images, PNG/JPG/WebP conversion and PDF-to-TXT with ordering, page ranges, output quality, ZIP packaging and resource limits.
 - Study plans, flashcards, spaced reviews and quizzes.
 - Anonymous browser workspace ownership and document deletion.

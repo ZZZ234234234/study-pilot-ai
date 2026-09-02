@@ -6,6 +6,7 @@ import {
   expectCanvas,
   mutationHeaders,
   waitForDocument,
+  showPanel,
 } from "./helpers";
 
 test("an uploaded PDF gives Chinese setup guidance without a failed AI request", async ({
@@ -42,6 +43,7 @@ test("an uploaded PDF gives Chinese setup guidance without a failed AI request",
       aiRequests.push(request.url());
   });
   await page.goto(`/app/documents/${document.id}`);
+  await showPanel(page, "学习助手");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(
     page.getByRole("heading", { name: "原文已就绪，AI 功能还差一步。" }),

@@ -19,13 +19,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge, EmptyState, ErrorState, Modal, Skeleton, Spinner } from "./ui";
-import { PdfReader } from "./pdf-reader";
+import { ReadingWorkspace } from "./reading-workspace";
 import { TranslationPanel } from "./translation-panel";
 import { KnowledgePanel } from "./knowledge-panel";
 import { ChatPanel } from "./chat-panel";
 import { FlashcardsPanel } from "./flashcards-panel";
 import { QuizPanel } from "./quiz-panel";
-import { api, cn, errorMessage, post } from "@/lib/api";
+import { api, errorMessage, post } from "@/lib/api";
 import type { Document, SearchResult } from "@/lib/types";
 import { documentStatus } from "@/lib/locale";
 export function Highlight({ text, query }: { text: string; query: string }) {
@@ -66,8 +66,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
       ? "translation"
       : "chat";
   const [page, setPage] = useState(1);
-  const [mobile, setMobile] = useState("assistant");
-  const [split, setSplit] = useState(49);
+  const [sourceRequest, setSourceRequest] = useState(0);
   const [searchOpen, setSearchOpen] = useState(false);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<SearchResult[]>();
@@ -76,7 +75,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
   const [busy, setBusy] = useState(false);
   function jump(value: number) {
     setPage(value);
-    setMobile("pdf");
+    setSourceRequest((value) => value + 1);
     setSearchOpen(false);
     toast.info(t("原文出处 · 第 {0} 页", value));
   }
@@ -223,129 +222,90 @@ export function DocumentWorkspace({ id }: { id: string }) {
               {t("后，重新处理这份文档，即可生成知识点并进行问答。")}
             </div>
           )}
-          <div className="document-mobile-switch">
-            <button
-              className={mobile === "pdf" ? "active" : ""}
-              onClick={() => setMobile("pdf")}
-            >
-              <BookOpen size={16} />
-              PDF
-            </button>
-            <button
-              className={mobile === "assistant" ? "active" : ""}
-              onClick={() => setMobile("assistant")}
-            >
-              <MessageSquare size={16} />
-              {t("学习助手")}
-            </button>
-          </div>
-          <div
-            className="split-workspace"
-            style={{ "--reader-width": `${split}%` } as React.CSSProperties}
+          <ReadingWorkspace
+            key={id}
+            id={id}
+            page={page}
+            count={doc.page_count}
+            onPage={setPage}
+            sourceRequest={sourceRequest}
           >
-            <div
-              className={cn("reader-side", mobile !== "pdf" && "mobile-hidden")}
-            >
-              <PdfReader
-                key={id}
-                id={id}
-                page={page}
-                count={doc.page_count}
-                onPage={setPage}
-              />
-            </div>
-            <div className="split-handle">
-              <label className="sr-only" htmlFor="split">
-                {t("阅读区域宽度")}
-              </label>
-              <input
-                id="split"
-                type="range"
-                min={35}
-                max={65}
-                value={split}
-                onChange={(e) => setSplit(Number(e.target.value))}
-              />
-            </div>
-            <div
-              className={cn(
-                "assistant-side",
-                mobile !== "assistant" && "mobile-hidden",
-              )}
-            >
-              <nav className="document-tabs" aria-label={t("文档工具")}>
-                {tabs.map(({ id: tab, label, icon: Icon }) => (
-                  <button
-                    key={tab}
-                    className={active === tab ? "active" : ""}
-                    onClick={() =>
-                      router.replace(`${pathname}?tab=${tab}`, {
-                        scroll: false,
-                      })
-                    }
-                  >
-                    <Icon size={16} />
-                    {t(label)}
-                  </button>
-                ))}
-              </nav>
-              <div className="assistant-panel">
-                <div hidden={active !== "translation"}>
-                  <TranslationPanel
-                    key={id}
-                    id={id}
-                    title={doc.title}
-                    page={page}
-                    count={doc.page_count}
-                    onPage={setPage}
-                  />
-                </div>
-                {active === "translation" ? null : doc.ai_status ===
-                    "not_configured" || doc.status === "failed" ? (
-                  <div className="provider-notice" role="status">
-                    <EmptyState
-                      title={t("原文已就绪，AI 功能还差一步。")}
-                      description={t(
-                        "现在可以阅读、翻页和搜索 PDF。生成知识点、文档问答、闪卡与测验，需要先配置模型服务。",
-                      )}
-                    >
-                      <ol className="provider-steps">
-                        <li>{t("进入“模型设置”，生成服务端配置。")}</li>
-                        <li>
-                          {t("将配置应用到服务端，重启 API 与后台任务进程。")}
-                        </li>
-                        <li>{t("回到这里，点击“重新处理文档”。")}</li>
-                      </ol>
-                      <div className="provider-actions">
-                        <Link href="/app/settings" className="button primary">
-                          {t("前往模型设置")}
-                          <ArrowUpRight size={16} />
-                        </Link>
-                        <button
-                          className="button secondary"
-                          onClick={() => setMobile("pdf")}
-                        >
-                          {t("先阅读 PDF")}
-                        </button>
-                      </div>
-                    </EmptyState>
-                  </div>
-                ) : active === "chat" ? (
-                  <ChatPanel
-                    id={id}
-                    onPage={jump}
-                    isDemo={doc.ai_status === "demo"}
-                  />
-                ) : active === "knowledge" ? (
-                  <KnowledgePanel id={id} onPage={jump} />
-                ) : active === "flashcards" ? (
-                  <FlashcardsPanel id={id} onPage={jump} />
-                ) : (
-                  <QuizPanel id={id} onPage={jump} />
-                )}
+            <nav className="document-tabs" aria-label={t("文档工具")}>
+              {tabs.map(({ id: tab, label, icon: Icon }) => (
+                <button
+                  key={tab}
+                  className={active === tab ? "active" : ""}
+                  onClick={() =>
+                    router.replace(`${pathname}?tab=${tab}`, {
+                      scroll: false,
+                    })
+                  }
+                >
+                  <Icon size={16} />
+                  {t(label)}
+                </button>
+              ))}
+            </nav>
+            <div className="assistant-panel">
+              <div hidden={active !== "translation"}>
+                <TranslationPanel
+                  key={id}
+                  id={id}
+                  title={doc.title}
+                  page={page}
+                  count={doc.page_count}
+                  onPage={setPage}
+                />
               </div>
+              {doc.ai_status !== "not_configured" &&
+                doc.status !== "failed" && (
+                  <div className="chat-pane" hidden={active !== "chat"}>
+                    <ChatPanel
+                      id={id}
+                      onPage={jump}
+                      isDemo={doc.ai_status === "demo"}
+                    />
+                  </div>
+                )}
+              {active === "translation" ? null : doc.ai_status ===
+                  "not_configured" || doc.status === "failed" ? (
+                <div className="provider-notice" role="status">
+                  <EmptyState
+                    title={t("原文已就绪，AI 功能还差一步。")}
+                    description={t(
+                      "现在可以阅读、翻页和搜索 PDF。生成知识点、文档问答、闪卡与测验，需要先配置模型服务。",
+                    )}
+                  >
+                    <ol className="provider-steps">
+                      <li>{t("进入“模型设置”，生成服务端配置。")}</li>
+                      <li>
+                        {t("将配置应用到服务端，重启 API 与后台任务进程。")}
+                      </li>
+                      <li>{t("回到这里，点击“重新处理文档”。")}</li>
+                    </ol>
+                    <div className="provider-actions">
+                      <Link href="/app/settings" className="button primary">
+                        {t("前往模型设置")}
+                        <ArrowUpRight size={16} />
+                      </Link>
+                      <button
+                        className="button secondary"
+                        onClick={() => setSourceRequest((value) => value + 1)}
+                      >
+                        {t("先阅读 PDF")}
+                      </button>
+                    </div>
+                  </EmptyState>
+                </div>
+              ) : active === "chat" ? null : active === "knowledge" ? (
+                <KnowledgePanel id={id} onPage={jump} />
+              ) : active === "flashcards" ? (
+                <FlashcardsPanel id={id} onPage={jump} />
+              ) : (
+                <QuizPanel id={id} onPage={jump} />
+              )}
             </div>
-          </div>
+          </ReadingWorkspace>
         </>
       )}
       {searchOpen && (

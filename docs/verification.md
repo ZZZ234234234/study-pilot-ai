@@ -1,27 +1,35 @@
 # Verification record
 
-Translation and local-conversion update checked on **2026-09-02** in the project workspace. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
+Reading-layout, translation and local-conversion update checked on **2026-09-02** in the project workspace. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
 
 ## Current checks
 
-| Check                                     | Result                                                                                                                |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                                    |
-| Frontend production build                 | Passed, including standalone assets and `/app/tools`                                                                  |
-| TypeScript                                | Passed (`npm run typecheck`)                                                                                          |
-| Frontend lint                             | Passed (`npm run lint`)                                                                                               |
-| Formatting                                | Passed (`npm run format:check`)                                                                                       |
-| Frontend logic/component/conversion tests | 68 passed: including eleven static rendering, five jsdom translation interaction and seven Node-canvas runtime checks |
-| Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                                      |
-| Backend tests                             | 45 passed, including 24 translation schema and isolated endpoint checks                                               |
-| PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                              |
-| API end-to-end tests                      | 18 passed against the production frontend, temporary API, worker and PGlite                                           |
-| Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                              |
-| Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment                     |
-| Browser test collection                   | 16 desktop/mobile scenarios collected separately from the 18 API cases                                                |
-| Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed               |
+| Check                                     | Result                                                                                                                                                                       |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                                                                                           |
+| Frontend production build                 | Passed, including standalone assets and `/app/tools`                                                                                                                         |
+| TypeScript                                | Passed (`npm run typecheck`)                                                                                                                                                 |
+| Frontend lint                             | Passed (`npm run lint`)                                                                                                                                                      |
+| Formatting                                | Passed (`npm run format:check`)                                                                                                                                              |
+| Frontend logic/component/conversion tests | 103 passed: including 35 new reading geometry/navigation/viewer/workspace checks, eleven static rendering checks, five translation interactions and seven Node-canvas checks |
+| Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                                                                                             |
+| Backend tests                             | 45 passed, including 24 translation schema and isolated endpoint checks                                                                                                      |
+| PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                                                                                     |
+| API end-to-end tests                      | 18 passed against the production frontend, temporary API, worker and PGlite                                                                                                  |
+| Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                                                                                     |
+| Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment                                                                            |
+| Browser test collection                   | 20 desktop/mobile scenarios collected separately from the 18 API cases                                                                                                       |
+| Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed                                                                      |
 
-**131 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of translation accuracy. The Python run reports a Starlette TestClient/httpx deprecation warning, not a failing test; the existing HTTP client stack was not replaced merely to suppress it.
+**166 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of translation accuracy. The Python run reports a Starlette TestClient/httpx deprecation warning, not a failing test; the existing HTTP client stack was not replaced merely to suppress it. Dependencies and lockfile are unchanged by the reading-layout update; installation, audit, smoke workflow and eight-page Node rendering checks above were completed earlier on the same date.
+
+## Reading-layout checks
+
+- Thirteen pure geometry checks cover default/limited splits, moving, anchored resizing, reset positions, non-finite inputs, viewport offsets, 1920/1440/1366/iPad/phone dimensions, short keyboard-sized viewports and bounded PDF canvas allocation. They do not measure rendered CSS layout.
+- Thirteen jsdom workspace checks use a stubbed PDF component to test default proportions, preserved draft DOM nodes, floating/docking/hiding, simulated pointer capture and cancellation, keyboard movement/resize/divider controls, viewport clamping, source jumps on mobile, validated preferences and English controls. Fullscreen tests also check focus trapping/restoration, background inertness and scroll-lock cleanup.
+- Five navigation interaction checks cover default collapse, reopen/close focus, persistence, phone drawers, cross-tab updates and blocked-storage fallback.
+- Four viewer interaction checks use a stubbed PDF.js renderer to exercise the real canvas click/keyboard entry controls, 50–300% zoom and reset, original-image fullscreen with prior text-view restoration, page bounds and loading-task cleanup. These are not bitmap quality checks.
+- Prepared browser scenarios cover actual canvas entry, floating movement/resize, saved drafts, screenshots and navigation focus. They are collected, not executed here. Existing mobile tests now explicitly open the initially hidden assistant.
 
 ## Translation checks
 

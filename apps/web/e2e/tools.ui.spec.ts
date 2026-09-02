@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
-import { createDemo, mutationHeaders } from "./helpers";
+import { createDemo, mutationHeaders, showPanel } from "./helpers";
 
 const pixel = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3ioAAAAASUVORK5CYII=",
@@ -50,6 +50,7 @@ test("translation is available in the reader but does not fake demo output", asy
   const doc = await createDemo(page.request, baseURL!);
   try {
     await page.goto(`/app/documents/${doc.id}?tab=translation`);
+    await showPanel(page, "学习助手");
     await expect(
       page.getByRole("heading", { name: "论文对照翻译" }),
     ).toBeVisible();
