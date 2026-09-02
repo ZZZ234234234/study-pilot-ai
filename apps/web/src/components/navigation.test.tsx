@@ -70,6 +70,12 @@ it("does not force an open desktop navigation onto a phone", () => {
   expect(nav().hasAttribute("inert")).toBe(true);
   expect(document.body.style.overflow).toBe("");
   expect(document.activeElement).toBe(trigger);
+  fireEvent.click(trigger);
+  const backdrop = document.querySelector<HTMLButtonElement>(".nav-scrim")!;
+  expect(backdrop.hasAttribute("inert")).toBe(false);
+  expect(backdrop.tabIndex).toBe(-1);
+  fireEvent.click(backdrop);
+  expect(nav().hasAttribute("inert")).toBe(true);
 });
 it("follows cross-tab changes and resets safely when preferences are cleared", () => {
   render(<AppShell>Content</AppShell>);

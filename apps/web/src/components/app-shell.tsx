@@ -61,6 +61,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {compact && open && (
         <button
           className="nav-scrim"
+          data-layer-backdrop
+          tabIndex={-1}
+          aria-hidden="true"
           aria-label={t("关闭导航")}
           onClick={() => setOpen(false)}
         />

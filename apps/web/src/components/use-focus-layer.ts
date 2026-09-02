@@ -16,7 +16,11 @@ export function useFocusLayer(
     let branch: HTMLElement = layer;
     while (branch.parentElement) {
       for (const sibling of branch.parentElement.children) {
-        if (sibling !== branch && sibling instanceof HTMLElement) {
+        if (
+          sibling !== branch &&
+          sibling instanceof HTMLElement &&
+          !sibling.hasAttribute("data-layer-backdrop")
+        ) {
           siblings.push([sibling, sibling.hasAttribute("inert")]);
           sibling.setAttribute("inert", "");
         }
