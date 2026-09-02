@@ -1,0 +1,55 @@
+name: Windows desktop installer
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/desktop.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python -m pip install -e "apps/api[dev]" pyinstaller==6.16.0
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: python -m pytest apps/api/tests -q
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - run: python scripts/create_sample.py
+      - run: node desktop/prepare.mjs
+      - run: npm install --prefix desktop/bundle --omit=dev --ignore-scripts
+      - name: Freeze Python backend
+        run: >-
+          python -m PyInstaller --noconfirm --onedir
+          --name studypilot-backend --paths apps/api
+          --collect-submodules studypilot --collect-all psycopg
+          --collect-all psycopg_binary --collect-all pgvector
+          --collect-all uvicorn --collect-all sqlalchemy
+          --copy-metadata studypilot-api
+          --distpath desktop/bundle --workpath desktop/build
+          --specpath desktop/build desktop/backend.py
+      - shell: pwsh
+        run: Move-Item desktop/bundle/studypilot-backend desktop/bundle/backend
+      - run: npm ci --prefix desktop
+      - run: npm run pack --prefix desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StudyPilot-AI-1.0.0-Windows-x64-candidate
+          path: desktop/release/*Setup.exe
+          if-no-files-found: error
+          retention-days: 30
