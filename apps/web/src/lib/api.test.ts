@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError, api, cn, errorMessage, todayISO } from "./api";
+import { errorMessages } from "./locale";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -13,10 +14,10 @@ describe("API helpers", () => {
     );
   });
   it("retains safe error messages", () => {
-    expect(errorMessage(new ApiError("Try again", "offline", 503))).toBe(
-      "Try again",
+    expect(errorMessage(new ApiError("请重试。", "offline", 503))).toBe(
+      "请重试。",
     );
-    expect(errorMessage(null)).toBe("Please try again.");
+    expect(errorMessage(null)).toBe("请稍后重试。");
   });
   it("returns a local calendar date", () => {
     vi.useFakeTimers();
@@ -44,7 +45,7 @@ describe("API helpers", () => {
       ),
     );
     await expect(api("/documents/missing")).rejects.toMatchObject({
-      message: "Not found",
+      message: errorMessages.not_found,
       code: "not_found",
       status: 404,
     });

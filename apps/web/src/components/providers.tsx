@@ -3,6 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { SWRConfig } from "swr";
 import { Toaster } from "sonner";
 import { api } from "@/lib/api";
+import { LocaleProvider, SkipLink } from "./locale-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,8 +16,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <SWRConfig
         value={{ fetcher: api, revalidateOnFocus: false, errorRetryCount: 1 }}
       >
-        {children}
-        <Toaster position="bottom-right" richColors closeButton />
+        <LocaleProvider>
+          <SkipLink />
+          {children}
+          <Toaster position="bottom-right" richColors closeButton />
+        </LocaleProvider>
       </SWRConfig>
     </ThemeProvider>
   );

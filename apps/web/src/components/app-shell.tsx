@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -18,13 +19,13 @@ import {
 import { Logo, ThemeToggle, Badge } from "./ui";
 import type { Settings } from "@/lib/types";
 import { cn } from "@/lib/api";
-
 const nav = [
-  { href: "/app", label: "Overview", icon: LayoutDashboard },
-  { href: "/app/library", label: "My library", icon: Library },
-  { href: "/app/study-plan", label: "Study plan", icon: CalendarDays },
+  { href: "/app", label: "学习概览", icon: LayoutDashboard },
+  { href: "/app/library", label: "我的资料", icon: Library },
+  { href: "/app/study-plan", label: "复习计划", icon: CalendarDays },
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const { t } = useLocale();
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const { data } = useSWR<Settings>("/settings");
@@ -33,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {open && (
         <button
           className="nav-scrim"
-          aria-label="Close navigation"
+          aria-label={t("关闭导航")}
           onClick={() => setOpen(false)}
         />
       )}
@@ -42,7 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Logo />
           <button
             className="icon-button mobile-only"
-            aria-label="Close menu"
+            aria-label={t("关闭菜单")}
             onClick={() => setOpen(false)}
           >
             <X size={20} />
@@ -51,11 +52,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="workspace-label">
           <span className="workspace-avatar">P</span>
           <div>
-            Personal workspace<small>Your space to understand</small>
+            {t("个人学习空间")}
+            <small>{t("让知识慢慢变清晰")}</small>
           </div>
         </div>
-        <p className="nav-label">WORKSPACE</p>
-        <nav aria-label="Main navigation">
+        <p className="nav-label">{t("学习空间")}</p>
+        <nav aria-label={t("主要导航")}>
           {nav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -68,24 +70,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <Icon size={19} />
-              {label}
+              {t(label)}
             </Link>
           ))}
         </nav>
         <div className="sidebar-note">
           <Leaf size={23} />
           <strong>
-            A little progress,
+            {t("每天一点进步，")}
             <br />
-            every day.
+            {t("知识逐渐成形。")}
           </strong>
           <p>
-            Make knowledge yours.
+            {t("把知识变成自己的。")}
             <br />
-            One good question at a time.
+            {t("从一个好问题开始。")}
           </p>
           <Link href="/app/library" onClick={() => setOpen(false)}>
-            Open your library <ArrowUpRight size={15} />
+            {t("打开我的资料")}
+            <ArrowUpRight size={15} />
           </Link>
         </div>
         <div className="sidebar-bottom">
@@ -95,16 +98,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onClick={() => setOpen(false)}
           >
             <Settings2 size={18} />
-            Settings
+            {t("设置")}
           </Link>
           <Link href="/privacy" className="nav-link">
             <ShieldCheck size={18} />
-            Privacy & data
+            {t("隐私与数据")}
           </Link>
           <div className="profile">
             <span className="profile-dot" />
             <div>
-              Local-first mindset<small>Open source. Yours to build.</small>
+              {t("尊重你的数据边界")}
+              <small>{t("开源，自由搭建。")}</small>
             </div>
             <ThemeToggle />
           </div>
@@ -115,29 +119,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="breadcrumb">
             <button
               className="icon-button mobile-only"
-              aria-label="Open menu"
+              aria-label={t("打开菜单")}
               onClick={() => setOpen(true)}
             >
               <Menu size={22} />
             </button>
-            <span>Workspace</span>
+            <span>{t("学习空间")}</span>
             <ChevronRight size={13} />
             <strong>
               {path.includes("documents")
-                ? "Document workspace"
+                ? t("文档学习空间")
                 : path.includes("library")
-                  ? "My library"
+                  ? t("我的资料")
                   : path.includes("study-plan")
-                    ? "Study plan"
+                    ? t("复习计划")
                     : path.includes("settings")
-                      ? "Settings"
-                      : "Overview"}
+                      ? t("设置")
+                      : t("学习概览")}
             </strong>
           </div>
           <div className="topbar-right">
-            <span className="desktop-only">A clearer way to learn</span>
+            <span className="desktop-only">{t("学得更清楚一点")}</span>
             <Badge tone={data?.mode === "live" ? "green" : "amber"}>
-              {data?.mode === "live" ? "AI connected" : "Demo mode"}
+              {data?.mode === "live" ? t("已连接 AI") : t("演示模式")}
             </Badge>
           </div>
         </header>

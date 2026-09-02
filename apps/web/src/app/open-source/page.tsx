@@ -1,9 +1,11 @@
+"use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import { GitBranch, ArrowUpRight, ArrowLeft } from "lucide-react";
 import { Logo, ThemeToggle } from "@/components/ui";
 import { GITHUB_URL } from "@/lib/config";
-export const metadata = { title: "Open source" };
 export default function OpenSourcePage() {
+  const { t } = useLocale();
   const url = GITHUB_URL;
   return (
     <>
@@ -14,79 +16,69 @@ export default function OpenSourcePage() {
       <main id="main-content" className="prose-page">
         <Link href="/" className="back-link">
           <ArrowLeft size={16} />
-          Home
+          {t("首页")}
         </Link>
-        <p className="eyebrow">OPEN SOURCE / MIT LICENSE</p>
+        <p className="eyebrow">{t("开源项目 / MIT 许可证")}</p>
         <h1>
-          Made to be understood.
+          {t("源码清晰，")}
           <br />
-          Built to be extended.
+          {t("也留有继续创造的空间。")}
         </h1>
         <p className="prose-lead">
-          StudyPilot AI is a full-stack learning workspace: Next.js, FastAPI,
-          PostgreSQL, pgvector, and a provider adapter you can make your own.
+          {t(
+            "StudyPilot AI 是一个开源全栈学习助手，采用 Next.js、FastAPI、PostgreSQL 和 pgvector，可接入你选择的兼容模型服务。",
+          )}
         </p>
         {url ? (
           <a className="button primary" href={url}>
             <GitBranch size={18} />
-            View repository <ArrowUpRight size={17} />
+            {t("查看代码仓库")}
+            <ArrowUpRight size={17} />
           </a>
         ) : (
           <div className="form-note">
-            This deployment has not configured a public repository link yet. The
-            source is included in the project checkout. Set
-            NEXT_PUBLIC_GITHUB_URL after publishing your repository.
+            {t(
+              "当前部署尚未配置公开仓库链接。源码已包含在项目中；发布仓库后，可设置 NEXT_PUBLIC_GITHUB_URL。",
+            )}
           </div>
         )}
         <section>
-          <h2>Run it locally</h2>
+          <h2>{t("在自己的电脑上运行")}</h2>
           <pre className="doc-code">{`make install\nmake dev\n# Open http://localhost:3000`}</pre>
           <p>
-            The quick-start uses development-only PGlite with pgvector. Native
-            PostgreSQL deployment and Docker packaging are still on the roadmap.
-            Demo mode never pretends to be a live model.
+            {t(
+              "快速启动使用仅供开发的 PGlite 和 pgvector。原生 PostgreSQL 部署与 Docker 打包尚待验证。演示模式不会伪装成真实模型。",
+            )}
           </p>
         </section>
         <section>
-          <h2>Bring your own provider</h2>
+          <h2>{t("连接你选择的模型服务")}</h2>
           <p>
-            Set AI_PROVIDER, AI_BASE_URL, CHAT_MODEL, EMBEDDING_MODEL, and the
-            private AI_API_KEY on the API server. For local inference, use
-            AI_PROVIDER=ollama and OLLAMA_BASE_URL. Restart the API and worker,
-            then reprocess existing PDFs when changing embeddings.
+            {t(
+              "在服务端设置 AI_PROVIDER、AI_BASE_URL、CHAT_MODEL、EMBEDDING_MODEL，以及保密的 AI_API_KEY。使用本地模型时，设置 AI_PROVIDER=ollama 和 OLLAMA_BASE_URL。修改后重启 API 与后台任务进程；更换嵌入模型后，还需重新处理已有 PDF。",
+            )}
           </p>
         </section>
         <section>
-          <h2>Explore the code</h2>
+          <h2>{t("了解项目结构")}</h2>
           <ul>
-            <li>apps/web — the responsive learning interface</li>
-            <li>
-              apps/api — PDF processing, ownership checks, RAG, and study
-              scheduling
-            </li>
-            <li>
-              docs — architecture, verification notes, and original sample
-              material
-            </li>
-            <li>
-              scripts — local startup, sample generation, and quality checks
-            </li>
+            <li>{t("apps/web：支持电脑与手机布局的学习界面")}</li>
+            <li>{t("apps/api：PDF 处理、文档权限、检索问答与复习安排")}</li>
+            <li>{t("docs：架构说明、验证记录与原创样例")}</li>
+            <li>{t("scripts：本地启动、样例生成与检查脚本")}</li>
           </ul>
         </section>
         <section>
-          <h2>Honest first-release boundaries</h2>
+          <h2>{t("当前版本能做什么，还缺什么")}</h2>
           <p>
-            This is an alpha development preview, not a production-audited
-            service. Real-provider integration and complete browser regression
-            testing remain outstanding. Scanned-PDF OCR, recoverable account
-            login, multi-document conversations, and study groups are not
-            included in v0.1. Source citations are navigable evidence, not a
-            factuality guarantee. Short-answer quiz scoring uses transparent
-            keyword matching.
+            {t(
+              "这是 Alpha 开发预览版，尚未经过完整生产验收。真实模型联调和浏览器回归仍待完成。v0.1 不包含扫描件 OCR、可找回账号、跨文档问答或学习小组。引用便于核对原文，但不保证模型解释一定正确；简答题采用可解释的关键词匹配评分。",
+            )}
           </p>
         </section>
         <Link className="button secondary" href="/app">
-          Explore the workspace <ArrowUpRight size={17} />
+          {t("进入学习空间")}
+          <ArrowUpRight size={17} />
         </Link>
       </main>
     </>

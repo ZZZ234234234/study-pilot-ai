@@ -61,7 +61,7 @@ def ask(
     )
     if not chunks:
         result = {
-            "answer": "当前资料中没有找到足够依据。 / Not enough evidence in this document.",
+            "answer": "当前资料中没有找到足够依据。",
             "chunk_ids": [],
         }
     elif isinstance(provider, DemoProvider):
@@ -85,7 +85,7 @@ def ask(
     lookup = {c.id: c for c in chunks}
     supported = list(dict.fromkeys(cid for cid in result["chunk_ids"] if cid in lookup))
     if not supported:
-        result["answer"] = "当前资料中没有找到足够依据。 / Not enough evidence in this document."
+        result["answer"] = "当前资料中没有找到足够依据。"
     session = db.scalar(select(ChatSession).where(ChatSession.document_id == document_id))
     if not session:
         session = ChatSession(document_id=document_id)

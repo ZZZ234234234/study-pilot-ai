@@ -1,11 +1,11 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import { useState } from "react";
 import useSWR from "swr";
 import { ArrowUpRight, Check, CircleHelp } from "lucide-react";
 import { EmptyState, ErrorState, Spinner } from "./ui";
 import { errorMessage, post } from "@/lib/api";
 import type { Quiz, QuizResult } from "@/lib/types";
-
 export function QuizPanel({
   id,
   onPage,
@@ -13,6 +13,7 @@ export function QuizPanel({
   id: string;
   onPage: (page: number) => void;
 }) {
+  const { t } = useLocale();
   const {
     data: quiz,
     mutate,
@@ -58,15 +59,15 @@ export function QuizPanel({
       <div className="assistant-heading">
         <div className="eyebrow">
           <CircleHelp size={14} />
-          CHECK YOUR UNDERSTANDING
+          {t("看看自己理解了多少")}
         </div>
-        <h2>What stayed with you?</h2>
-        <p>Practice questions, rooted in what you’ve read.</p>
+        <h2>{t("哪些知识，你真正记住了？")}</h2>
+        <p>{t("根据读过的资料出题，让练习有据可依。")}</p>
       </div>
       {error && <ErrorState error={error} />}
       <div className="quiz-controls">
         <label className="field inline">
-          Questions
+          {t("题目数量")}
           <select
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
@@ -74,7 +75,7 @@ export function QuizPanel({
           >
             {[5, 10, 20].map((n) => (
               <option value={n} key={n}>
-                {n} questions
+                {t("{0} 道题", n)}
               </option>
             ))}
           </select>
@@ -85,23 +86,25 @@ export function QuizPanel({
           disabled={busy || !!quiz}
         >
           {busy ? (
-            <Spinner label="Preparing" />
+            <Spinner label={t("正在准备")} />
           ) : result ? (
-            "Practice again"
+            t("再练一次")
           ) : (
-            "Create quiz"
+            t("生成测验")
           )}
         </button>
       </div>
       {failure && (
         <p role="alert" className="form-error">
-          {failure}
+          {t(failure)}
         </p>
       )}
       {!quiz && !result && !busy && (
         <EmptyState
-          title="A question is a mirror."
-          description="Multiple choice, true / false, and short answers help reveal what you understand—and what to revisit."
+          title={t("用一个问题，看看理解到了哪里。")}
+          description={t(
+            "通过选择题、判断题和简答题，了解已经掌握的内容，以及还值得回顾的地方。",
+          )}
         />
       )}
       {quiz && (
@@ -114,14 +117,14 @@ export function QuizPanel({
               </legend>
               {q.kind === "short_answer" ? (
                 <textarea
-                  aria-label={`Answer question ${i + 1}`}
+                  aria-label={t("回答第 {0} 题", i + 1)}
                   rows={3}
                   maxLength={2000}
                   value={answers[i] ?? ""}
                   onChange={(e) =>
                     setAnswers((a) => ({ ...a, [i]: e.target.value }))
                   }
-                  placeholder="Explain it in your own words…"
+                  placeholder={t("试着用自己的话解释…")}
                 />
               ) : (
                 q.options.map((option) => (
@@ -151,48 +154,45 @@ export function QuizPanel({
             }
             onClick={submit}
           >
-            {busy ? (
-              <Spinner label="Checking answers" />
-            ) : (
-              "Check my understanding"
-            )}
+            {busy ? <Spinner label={t("正在核对答案")} /> : t("提交并查看反馈")}
           </button>
         </div>
       )}
       {result && (
         <div className="quiz-results">
           <div className="quiz-score">
-            <span>PRACTICE SCORE</span>
+            <span>{t("本次练习得分")}</span>
             <strong>
               {result.score}
               <small>/100</small>
             </strong>
             <p>
               {result.score >= 80
-                ? "The ideas are connecting."
-                : "Now you know what to revisit."}
+                ? t("知识正在慢慢连起来。")
+                : t("知道哪里还不熟悉，也是一种进步。")}
             </p>
           </div>
-          <p className="grading-note">{result.grading_note}</p>
+          <p className="grading-note">{t(result.grading_note)}</p>
           {result.results.map((q, i) => (
             <article key={i} className={q.correct ? "correct" : "incorrect"}>
               <span className="result-status">
                 {q.correct ? <Check size={15} /> : <CircleHelp size={15} />}
-                Question {i + 1} · {q.correct ? "Got it" : "Revisit this"}
+                {t("第 {0} 题 ·", i + 1)}
+                {q.correct ? t("已掌握") : t("建议回顾")}
               </span>
               <h3>{q.question}</h3>
               <p>
-                <strong>Your answer:</strong> {q.your_answer}
+                <strong>{t("你的答案：")}</strong> {q.your_answer}
               </p>
               <p>
-                <strong>Reference answer:</strong> {q.correct_answer}
+                <strong>{t("参考答案：")}</strong> {q.correct_answer}
               </p>
               <p>{q.explanation}</p>
               <button
                 className="source-link"
                 onClick={() => onPage(q.page_number)}
               >
-                Check source · Page {q.page_number}
+                {t("核对原文 · 第 {0} 页", q.page_number)}
                 <ArrowUpRight size={14} />
               </button>
             </article>

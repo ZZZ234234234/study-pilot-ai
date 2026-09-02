@@ -14,6 +14,14 @@ flowchart TD
   C --> G
 ```
 
+## Interface language
+
+The initial server-rendered interface is Simplified Chinese (`zh-CN`). Settings offers Chinese and English without changing routes or mounting a new application tree. `LocaleProvider` subscribes to a small external store using React's `useSyncExternalStore`; the preference is saved under `studypilot:locale` in browser localStorage. Unknown values fall back to Chinese. Storage failures retain a per-visit choice, and storage events synchronize open tabs.
+
+Chinese interface copy is the lookup key in `apps/web/src/lib/translations.ts`; English copy and parameterized labels live in the same dictionary. React text rendering escapes inserted values. Stable API enums, model identifiers, PDF text, document titles, citations and stored learning content are never used as translation keys. Common structured errors are localized at presentation time, so one cached API error can be displayed in either language. Dates use the active locale; the document's language attribute and browser title follow the preference after hydration.
+
+The setting does not request document translation or change the provider configuration. It does not remount form components, mutate learning data or reissue AI-generation requests. Preference/store unit tests and static React rendering checks are distinct from the prepared browser interaction tests.
+
 ## Document lifecycle
 
 Uploads create a queued document. The worker claims jobs, extracts page text with pypdf, creates page-bounded overlapping chunks, generates embeddings, and stores grounded knowledge points. Progress is committed during processing. Failures remain visible and can be retried. Ordinary uploads in demo mode retain reading/search capabilities without simulated AI knowledge.

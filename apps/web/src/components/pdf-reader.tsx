@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import useSWR from "swr";
@@ -13,7 +14,6 @@ import {
 import { ensureSession, errorMessage } from "@/lib/api";
 import { pdfDocumentOptions, PDF_WORKER_SRC } from "@/lib/pdf-options";
 import { ErrorState, Spinner } from "./ui";
-
 export function PdfReader({
   id,
   page,
@@ -25,6 +25,7 @@ export function PdfReader({
   count: number;
   onPage: (page: number) => void;
 }) {
+  const { t } = useLocale();
   const holder = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [pdf, setPdf] = useState<PDFDocumentProxy>();
@@ -33,9 +34,11 @@ export function PdfReader({
   const [error, setError] = useState<string>();
   const [rendering, setRendering] = useState(false);
   const [textView, setTextView] = useState(false);
-  const { data: pageText } = useSWR<{ text: string }[]>(
-    textView ? `/documents/${id}/pages?page=${page}` : null,
-  );
+  const { data: pageText } = useSWR<
+    {
+      text: string;
+    }[]
+  >(textView ? `/documents/${id}/pages?page=${page}` : null);
   useEffect(() => {
     const el = holder.current;
     if (!el) return;
@@ -102,7 +105,7 @@ export function PdfReader({
           e instanceof Error &&
           e.name !== "RenderingCancelledException"
         )
-          setError(e.message);
+          setError(errorMessage(e));
       } finally {
         if (!disposed) setRendering(false);
       }
@@ -116,10 +119,10 @@ export function PdfReader({
     <div className="pdf-reader">
       <div className="reader-toolbar">
         <div>
-          <span className="reader-label">ORIGINAL PDF</span>
+          <span className="reader-label">{t("原始 PDF")}</span>
           <button
             className="icon-button"
-            aria-label="Previous page"
+            aria-label={t("上一页")}
             disabled={page <= 1}
             onClick={() => onPage(page - 1)}
           >
@@ -127,7 +130,7 @@ export function PdfReader({
           </button>
           <label className="page-select">
             <select
-              aria-label="PDF page"
+              aria-label={t("PDF 页码")}
               value={page}
               onChange={(e) => onPage(Number(e.target.value))}
             >
@@ -141,7 +144,7 @@ export function PdfReader({
           </label>
           <button
             className="icon-button"
-            aria-label="Next page"
+            aria-label={t("下一页")}
             disabled={page >= count}
             onClick={() => onPage(page + 1)}
           >
@@ -151,7 +154,7 @@ export function PdfReader({
         <div>
           <button
             className="icon-button"
-            aria-label="Zoom out"
+            aria-label={t("缩小")}
             disabled={zoom <= 0.7}
             onClick={() => setZoom((v) => Math.max(0.7, v - 0.1))}
           >
@@ -160,7 +163,7 @@ export function PdfReader({
           <span className="zoom-label">{Math.round(zoom * 100)}%</span>
           <button
             className="icon-button"
-            aria-label="Zoom in"
+            aria-label={t("放大")}
             disabled={zoom >= 1.5}
             onClick={() => setZoom((v) => Math.min(1.5, v + 0.1))}
           >
@@ -168,14 +171,14 @@ export function PdfReader({
           </button>
           <button
             className={`icon-button ${textView ? "selected" : ""}`}
-            aria-label="Toggle accessible text view"
+            aria-label={t("切换文字阅读视图")}
             onClick={() => setTextView((v) => !v)}
           >
             <AlignLeft size={17} />
           </button>
           <a
             className="icon-button"
-            aria-label="Download original PDF"
+            aria-label={t("下载原始 PDF")}
             href={`/api/v1/documents/${id}/file`}
             target="_blank"
             rel="noreferrer"
@@ -189,24 +192,28 @@ export function PdfReader({
           <ErrorState error={new Error(error)} />
         ) : textView ? (
           <article className="pdf-text-view">
-            <h3>Page {page} · extracted text</h3>
-            <p>{pageText?.[0]?.text ?? "Loading text…"}</p>
+            <h3>{t("第 {0} 页 · 提取的原文", page)}</h3>
+            <p>{pageText?.[0]?.text ?? t("正在加载原文…")}</p>
           </article>
         ) : (
           <>
-            {!pdf && <Spinner label="Opening original PDF" />}
+            {!pdf && <Spinner label={t("正在打开原始 PDF")} />}
             {rendering && pdf && (
               <span className="pdf-rendering">
-                <Spinner label="Rendering" />
+                <Spinner label={t("正在渲染")} />
               </span>
             )}
-            <canvas ref={canvas} aria-label={`PDF page ${page} of ${count}`} />
+            <canvas
+              ref={canvas}
+              aria-label={t("PDF 第 {0} 页，共 {1} 页", page, count)}
+            />
           </>
         )}
       </div>
       <div className="reader-footer">
         <span className="status-dot" />
-        You’re reading the original source.<span>Page {page}</span>
+        {t("你正在阅读原始资料。")}
+        <span>{t("第 {0} 页", page)}</span>
       </div>
     </div>
   );

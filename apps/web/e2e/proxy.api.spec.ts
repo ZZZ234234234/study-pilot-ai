@@ -10,6 +10,57 @@ import {
 
 const root = path.resolve(__dirname, "../../..");
 
+test("public pages and metadata default to Simplified Chinese", async ({
+  request,
+}) => {
+  const home = await request.get("/");
+  const html = await home.text();
+  expect(html).toContain('lang="zh-CN"');
+  expect(html).toContain("把资料读懂");
+  expect(html).toContain("体验内置样例");
+  expect(html).toContain('content="zh_CN"');
+  expect(html).not.toContain("structured knowledge.");
+  const missing = await request.get("/missing-chinese-page");
+  expect(missing.status()).toBe(404);
+  expect(await missing.text()).toContain("这一页，暂时找不到了。");
+});
+
+test("Chinese demo questions find the correct original pages without translating quotes", async ({
+  request,
+  baseURL,
+}) => {
+  const document = await createDemo(request, baseURL!);
+  const headers = mutationHeaders(baseURL!);
+  const endpoint = `/api/v1/documents/${document.id}`;
+  for (const [question, page] of [
+    ["卷积为什么有用？", 4],
+    ["反向传播是怎样工作的？", 3],
+    ["验证集和测试集有什么区别？", 6],
+  ] as const) {
+    const response = await request.post(`${endpoint}/chat`, {
+      headers,
+      data: { question },
+    });
+    expect(response.status()).toBe(200);
+    const answer = await response.json();
+    expect(answer.content).toContain("不是真实 AI");
+    expect(
+      answer.citations.some(
+        (citation: { page_number: number }) => citation.page_number === page,
+      ),
+    ).toBe(true);
+    for (const citation of answer.citations) {
+      const source = await (
+        await request.get(`${endpoint}/pages?page=${citation.page_number}`)
+      ).json();
+      expect(source[0].text.replace(/\s+/g, " ")).toContain(
+        citation.quote.replace(/\s+/g, " "),
+      );
+    }
+  }
+  expect((await request.delete(endpoint, { headers })).status()).toBe(204);
+});
+
 for (const route of [
   "/",
   "/app",
@@ -25,6 +76,7 @@ for (const route of [
     expect(response.headers()["content-type"]).toContain("text/html");
     expect(response.headers()["x-content-type-options"]).toBe("nosniff");
     expect(response.headers()["x-frame-options"]).toBe("DENY");
+    expect(await response.text()).toContain('lang="zh-CN"');
   });
 }
 
@@ -114,11 +166,13 @@ test("sample, citations, byte ranges and workspace isolation work through the pr
   expect((await pdf.body()).subarray(0, 5).toString()).toBe("%PDF-");
   const answerResponse = await request.post(`${url}/chat`, {
     headers,
-    data: { question: "Why is convolution useful?" },
+    data: { question: "卷积为什么有用？" },
   });
   expect(answerResponse.status()).toBe(200);
   const answer = await answerResponse.json();
   expect(answer.citations[0].page_number).toBe(4);
+  expect(answer.content).toContain("演示");
+  expect(answer.citations[0].quote).toMatch(/[A-Za-z]/);
   const stranger = await playwright.request.newContext({ baseURL });
   try {
     await createSession(stranger, baseURL!);
@@ -198,4 +252,11 @@ test("settings expose demo status but not server credentials", async ({
   expect(settings.provider).toBe("demo");
   for (const key of ["api_key", "session_secret", "database_url"])
     expect(settings).not.toHaveProperty(key);
+  const check = await request.post("/api/v1/settings/test", {
+    headers: mutationHeaders(baseURL!),
+  });
+  expect(check.status()).toBe(200);
+  expect((await check.json()).message).toBe(
+    "演示模式运行正常，本次检查没有调用外部模型。",
+  );
 });

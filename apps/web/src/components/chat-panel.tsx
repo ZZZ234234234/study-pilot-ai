@@ -1,11 +1,12 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { ArrowUp, ArrowUpRight, BookOpen, Sparkles } from "lucide-react";
 import { ErrorState, Skeleton, Spinner } from "./ui";
 import { errorMessage, post } from "@/lib/api";
 import type { ChatMessage } from "@/lib/types";
-
+import { shouldSendQuestion } from "@/lib/keyboard";
 export function ChatPanel({
   id,
   onPage,
@@ -15,6 +16,7 @@ export function ChatPanel({
   onPage: (page: number) => void;
   isDemo: boolean;
 }) {
+  const { t } = useLocale();
   const { data, error, mutate } = useSWR<ChatMessage[]>(
     `/documents/${id}/chat`,
   );
@@ -48,10 +50,10 @@ export function ChatPanel({
       <div className="assistant-heading">
         <div className="eyebrow">
           <Sparkles size={14} />
-          YOUR THOUGHT PARTNER
+          {t("带着问题，一起理解")}
         </div>
-        <h2>Follow your curiosity.</h2>
-        <p>Good questions deserve grounded answers.</p>
+        <h2>{t("从你的疑问开始。")}</h2>
+        <p>{t("每个好问题，都值得一个有依据的回答。")}</p>
       </div>
       <div className="chat-messages">
         {error ? (
@@ -63,14 +65,21 @@ export function ChatPanel({
             <div className="chat-spark">
               <Sparkles size={25} />
             </div>
-            <h3>What would you like to understand?</h3>
-            <p>I’ll look in this document and bring the sources with me.</p>
+            <h3>{t("这份资料里，你想弄懂什么？")}</h3>
+            <p>{t("我会从这份文档中查找依据，并附上对应的原文。")}</p>
             <div className="suggested-questions">
-              {[
-                "Why is convolution useful?",
-                "How does backpropagation work?",
-                "What is the difference between validation and test data?",
-              ].map((q) => (
+              {(isDemo
+                ? [
+                    t("卷积为什么有用？"),
+                    t("反向传播是怎样工作的？"),
+                    t("验证集和测试集有什么区别？"),
+                  ]
+                : [
+                    t("这份资料的核心观点是什么？"),
+                    t("有哪些概念需要重点理解？"),
+                    t("作者给出了哪些依据或限制？"),
+                  ]
+              ).map((q) => (
                 <button key={q} onClick={() => ask(q)}>
                   {q}
                   <ArrowUpRight size={15} />
@@ -83,12 +92,12 @@ export function ChatPanel({
             <div key={message.id} className={`chat-message ${message.role}`}>
               <div className="message-label">
                 {message.role === "user" ? (
-                  "YOU"
+                  t("你")
                 ) : (
                   <>
                     <Sparkles size={13} />
                     {message.mode === "demo"
-                      ? "DEMO · SOURCE EXCERPTS"
+                      ? t("演示 · 原文摘录")
                       : "STUDYPILOT"}
                   </>
                 )}
@@ -96,7 +105,7 @@ export function ChatPanel({
               <div className="message-content">{message.content}</div>
               {message.citations?.length > 0 && (
                 <div className="citations">
-                  <span className="eyebrow">FOLLOW THE SOURCE</span>
+                  <span className="eyebrow">{t("查看回答依据")}</span>
                   {message.citations.map((c) => (
                     <button
                       className="citation"
@@ -105,7 +114,7 @@ export function ChatPanel({
                     >
                       <span>
                         <BookOpen size={15} />
-                        <strong>Page {c.page_number}</strong>
+                        <strong>{t("第 {0} 页", c.page_number)}</strong>
                         <ArrowUpRight size={14} />
                       </span>
                       <p>{c.quote}</p>
@@ -118,18 +127,18 @@ export function ChatPanel({
         )}
         {pending && (
           <div className="chat-message user">
-            <span className="message-label">YOU</span>
+            <span className="message-label">{t("你")}</span>
             <p>{pending}</p>
           </div>
         )}
         {busy && (
           <div className="chat-thinking">
-            <Spinner label="Finding the right pages…" />
+            <Spinner label={t("正在查找相关原文…")} />
           </div>
         )}
         {failure && (
           <p role="alert" className="form-error">
-            {failure}
+            {t(failure)}
           </p>
         )}
         <div ref={bottom} />
@@ -142,17 +151,17 @@ export function ChatPanel({
         }}
       >
         <label className="sr-only" htmlFor="question">
-          Ask about this document
+          {t("输入关于这份文档的问题")}
         </label>
         <textarea
           id="question"
-          placeholder="Ask about this document…"
+          placeholder={t("关于这份资料，你想问什么？")}
           maxLength={1200}
           rows={2}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (shouldSendQuestion(e.nativeEvent)) {
               e.preventDefault();
               void ask();
             }
@@ -160,17 +169,17 @@ export function ChatPanel({
         />
         <button
           className="send-button"
-          aria-label="Send question"
+          aria-label={t("发送问题")}
           disabled={busy || value.trim().length < 2}
         >
           <ArrowUp size={20} />
         </button>
-        <span>↵ to ask · Shift + ↵ for a new line</span>
+        <span>{t("回车发送 · Shift + 回车换行")}</span>
       </form>
       <p className="chat-disclaimer">
         {isDemo
-          ? "Demo uses deterministic source excerpts, not a live model."
-          : "AI can be wrong. Check important claims against the source."}
+          ? t("演示模式仅展示固定原文摘录，不调用真实 AI。")
+          : t("AI 也可能出错，重要结论请核对原文。")}
       </p>
     </div>
   );

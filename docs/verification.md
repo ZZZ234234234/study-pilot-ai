@@ -1,23 +1,36 @@
 # Verification record
 
-Checked on 2026-09-01 in the project workspace. Results describe this alpha snapshot, not a production certification.
+Bilingual-interface regression checked on 2026-09-02 in the project workspace. Dependency installation and audit results below are retained from 2026-09-01; this update did not change dependencies or the lockfile. Results describe this alpha snapshot, not a production certification.
 
-| Check                          | Result                                                                                               |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Locked dependency installation | Passed (`npm ci`)                                                                                    |
-| Next.js production build       | Passed, including standalone static asset packaging                                                  |
-| TypeScript                     | Passed (`npm run typecheck`)                                                                         |
-| Frontend lint                  | Passed without lint warnings (`npm run lint`)                                                        |
-| Formatting                     | Passed (`npm run format:check`); styles split without changing original rules or cascade order       |
-| Frontend unit tests            | 8 passed (`npm test`); Vitest collects only unit tests                                               |
-| Backend lint                   | Passed (`python -m ruff check apps/api scripts`)                                                     |
-| Backend unit tests             | 17 passed (`python -m pytest apps/api/tests`)                                                        |
-| PDF.js Node canvas             | All 8 original sample pages rendered with visible pixels and extractable text (`npm run test:pdf`)   |
-| API end-to-end tests           | 14 passed against the production frontend, temporary API, worker and PGlite (`npm run test:e2e:api`) |
-| Local API workflow             | Passed (`python scripts/smoke_test.py --start-services`)                                             |
-| Production dependency audit    | 0 reported vulnerabilities (`npm audit --omit=dev`)                                                  |
-| Browser test collection        | 6 desktop/mobile scenarios collected separately from the 14 API cases                                |
-| Browser test execution         | Blocked before page load: Playwright Chromium executable is not installed; not a pass                |
+| Check                          | Result                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Locked dependency installation | Passed on 2026-09-01 (`npm ci`); dependencies unchanged                                                            |
+| Next.js production build       | Passed, including standalone static asset packaging                                                                |
+| TypeScript                     | Passed (`npm run typecheck`)                                                                                       |
+| Frontend lint                  | Passed without lint warnings (`npm run lint`)                                                                      |
+| Formatting                     | Passed (`npm run format:check`); Chinese typography overrides follow the existing styles                           |
+| Frontend unit tests            | 36 passed (`npm test`), including preference persistence, dictionary coverage and bilingual static React rendering |
+| Backend lint                   | Passed (`python -m ruff check apps/api scripts`)                                                                   |
+| Backend unit tests             | 21 passed (`python -m pytest apps/api/tests`), including Chinese demo queries and source preservation              |
+| PDF.js Node canvas             | All 8 original sample pages rendered with visible pixels and extractable text (`npm run test:pdf`)                 |
+| API end-to-end tests           | 16 passed against the production frontend, temporary API, worker and PGlite (`npm run test:e2e:api`)               |
+| Local API workflow             | Passed (`python scripts/smoke_test.py --start-services`)                                                           |
+| Production dependency audit    | 0 reported on 2026-09-01 (`npm audit --omit=dev`); dependencies were unchanged in this interface update            |
+| Browser test collection        | 12 desktop/mobile scenarios collected separately from the 16 API cases                                             |
+| Browser test execution         | Not rerun: previous launch was blocked by a missing Chromium executable; not a pass                                |
+
+## Bilingual interface update
+
+- Default Chinese with a Chinese/English selector in Settings. The selector remains available when the settings API fails. The client preference store handles persistence, invalid values, blocked localStorage, cross-tab updates and listener cleanup; these behaviors passed unit tests.
+- Nine static React-rendering checks exercise English landing/preview, Settings and configuration snippets, navigation, privacy/open-source/404, model-setup guidance, citations, knowledge labels and cached errors. These checks use isolated fixtures and do not prove browser interaction, hydration, visual layout or mobile acceptance.
+- Prepared desktop/mobile browser tests cover default Chinese, selecting English without resetting unsaved model fields, navigation, reload persistence, switching back, overflow and backend failure. These tests are collected, but browser execution is still unavailable in this environment; they are not counted as passed.
+
+- Localized public pages, navigation, learning workspace, settings, form labels, empty/loading states, dates, document status, review grades and common errors without changing API enum values or stored user content.
+- Added Chinese model-setup guidance for normal uploads in Demo mode. AI panels are not mounted while configuration is missing; reading and search remain available. The prepared browser test checks this behavior, but it has not run successfully in a browser here.
+- Added Chinese font fallbacks and scoped typography adjustments while retaining the original layout and color palette. Chinese IME composition and Shift+Enter no longer trigger accidental question submission; unit tests cover the keyboard guard.
+- HTTP tests verify `zh-CN` on all public/app routes and Chinese metadata, 404 copy and model-check feedback. Three Chinese demo questions retrieve the expected original pages; every returned citation is checked against that page's actual extracted text.
+- Real-provider prompts request Simplified Chinese learning content and responses in the question's language. Source quotes, protocol keys and enums must remain unchanged. These prompt constraints are unit-tested, not live-model verified.
+- The bundled English PDF and its fixed knowledge content are unchanged. Chinese keyword aliases are deterministic demo lookup support, not a translation service or general-purpose AI.
 
 ## Fixes included in this snapshot
 

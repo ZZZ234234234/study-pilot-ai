@@ -56,8 +56,7 @@ async function proxy(
   } catch {
     return Response.json(
       {
-        detail:
-          "The API is unavailable. Start the backend and PDF worker, then retry.",
+        detail: "暂时无法连接后端。请启动 API 和 PDF 后台处理服务，再重试。",
         code: "api_unavailable",
       },
       { status: 503 },

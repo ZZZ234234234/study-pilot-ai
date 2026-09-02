@@ -1,11 +1,11 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import { useRef, useState } from "react";
 import { UploadCloud, FileText, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Modal, Spinner } from "./ui";
 import { errorMessage, uploadPdf } from "@/lib/api";
 import type { Document } from "@/lib/types";
-
 export function UploadDialog({
   onClose,
   onUploaded,
@@ -13,6 +13,7 @@ export function UploadDialog({
   onClose: () => void;
   onUploaded: (doc: Document) => void;
 }) {
+  const { t } = useLocale();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File>();
   const [progress, setProgress] = useState(0);
@@ -23,11 +24,11 @@ export function UploadDialog({
     setError("");
     if (!value) return;
     if (!value.name.toLowerCase().endsWith(".pdf")) {
-      setError("Please choose a PDF document.");
+      setError(t("请选择 PDF 格式的文档。"));
       return;
     }
     if (value.size > 20 * 1024 * 1024) {
-      setError("Choose a PDF smaller than 20 MB.");
+      setError(t("请选择小于 20 MB 的 PDF。"));
       return;
     }
     setFile(value);
@@ -38,9 +39,7 @@ export function UploadDialog({
     setError("");
     try {
       const doc = await uploadPdf<Document>(file, setProgress);
-      toast.success(
-        "PDF uploaded. Your knowledge workspace is being prepared.",
-      );
+      toast.success(t("PDF 已上传，正在准备你的学习空间。"));
       onUploaded(doc);
     } catch (e) {
       setError(errorMessage(e));
@@ -50,19 +49,17 @@ export function UploadDialog({
   }
   return (
     <Modal
-      title="Start with a document."
+      title={t("从一份资料开始。")}
       onClose={() => {
         if (!busy) onClose();
       }}
     >
-      <p className="muted">
-        Bring the material. We’ll help you find the meaning.
-      </p>
+      <p className="muted">{t("带上你的资料，一起把知识梳理清楚。")}</p>
       <input
         ref={input}
         type="file"
         accept="application/pdf,.pdf"
-        aria-label="Choose PDF file"
+        aria-label={t("选择 PDF 文件")}
         className="sr-only"
         onChange={(e) => choose(e.target.files?.[0])}
       />
@@ -85,11 +82,9 @@ export function UploadDialog({
         <span>
           <UploadCloud size={30} strokeWidth={1.4} />
         </span>
-        <strong>
-          {file ? "Choose a different PDF" : "Drop your PDF here"}
-        </strong>
-        <p>or click to browse your files</p>
-        <small>PDF only · up to 20 MB · text-based documents</small>
+        <strong>{file ? t("更换 PDF 文件") : t("将 PDF 拖到这里")}</strong>
+        <p>{t("或点击选择本地文件")}</p>
+        <small>{t("仅支持 PDF · 不超过 20 MB · 建议使用文字版文档")}</small>
       </button>
       {file && (
         <div className="selected-file">
@@ -108,13 +103,14 @@ export function UploadDialog({
       )}
       {error && (
         <p role="alert" className="form-error">
-          {error}
+          {t(error)}
         </p>
       )}
       <p className="privacy-hint">
         <ShieldCheck size={15} />
-        Your PDF is private to this browser workspace. In live AI mode, text is
-        sent to your configured provider.
+        {t(
+          "PDF 归属于当前浏览器的学习空间。启用真实 AI 后，相关文本会发送到你配置的模型服务。",
+        )}
       </p>
       <button
         disabled={!file || busy}
@@ -123,11 +119,12 @@ export function UploadDialog({
       >
         {busy ? (
           <Spinner
-            label={progress === 100 ? "Queuing document" : "Uploading PDF"}
+            label={progress === 100 ? t("正在加入处理队列") : t("正在上传 PDF")}
           />
         ) : (
           <>
-            Upload & prepare <UploadCloud size={17} />
+            {t("上传并开始整理")}
+            <UploadCloud size={17} />
           </>
         )}
       </button>

@@ -63,4 +63,4 @@ def test_schedule_requires_knowledge():
 def test_no_evidence_has_no_citations():
     result = demo_answer("unrelated question", [])
     assert result["chunk_ids"] == []
-    assert "Not enough evidence" in result["answer"]
+    assert result["answer"] == "当前资料中没有找到足够依据。"

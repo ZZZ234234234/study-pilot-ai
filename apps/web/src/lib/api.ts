@@ -1,10 +1,13 @@
+import { chineseErrorMessage } from "./locale";
+import { getLocale, translateText, type Locale } from "./i18n";
+
 export class ApiError extends Error {
   constructor(
     message: string,
     public code: string,
     public status: number,
   ) {
-    super(message);
+    super(chineseErrorMessage(message, code));
   }
 }
 let sessionPromise: Promise<void> | undefined;
@@ -41,7 +44,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({
-      detail: "The request could not be completed.",
+      detail: "请求未能完成，请稍后重试。",
       code: "network",
     }));
     if (response.status === 401) sessionPromise = undefined;
@@ -72,12 +75,9 @@ export async function uploadPdf<T>(
       if (event.lengthComputable)
         progress(Math.round((100 * event.loaded) / event.total));
     };
-    xhr.onerror = () =>
-      reject(
-        new Error("Upload interrupted. Check your connection and try again."),
-      );
+    xhr.onerror = () => reject(new Error("上传中断，请检查网络后重试。"));
     xhr.ontimeout = () =>
-      reject(new Error("Upload timed out. Try a smaller PDF."));
+      reject(new Error("上传超时，请稍后重试，或选择较小的 PDF。"));
     xhr.onload = () => {
       try {
         const result = JSON.parse(xhr.responseText);
@@ -85,13 +85,13 @@ export async function uploadPdf<T>(
         else
           reject(
             new ApiError(
-              result.detail ?? "Upload failed.",
+              result.detail ?? "上传失败，请稍后重试。",
               result.code,
               xhr.status,
             ),
           );
       } catch {
-        reject(new Error("The server returned an invalid response."));
+        reject(new Error("服务返回的数据异常，请稍后重试。"));
       }
     };
     const body = new FormData();
@@ -100,12 +100,24 @@ export async function uploadPdf<T>(
   });
 }
 
-export function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Please try again.";
+export function errorMessage(
+  error: unknown,
+  locale: Locale = getLocale(),
+): string {
+  return error instanceof Error
+    ? translateText(
+        chineseErrorMessage(
+          translateText(error.message, "zh-CN"),
+          error instanceof ApiError ? error.code : undefined,
+        ),
+        locale,
+      )
+    : translateText("请稍后重试。", locale);
 }
-export function dateLabel(value: string): string {
-  return new Date(`${value.slice(0, 10)}T12:00:00`).toLocaleDateString("en", {
-    month: "short",
+export function dateLabel(value: string, locale: Locale = getLocale()): string {
+  const date = new Date(value.length === 10 ? `${value}T12:00:00` : value);
+  return date.toLocaleDateString(locale, {
+    month: locale === "en" ? "short" : "long",
     day: "numeric",
   });
 }

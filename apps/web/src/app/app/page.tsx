@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import useSWR from "swr";
 import {
@@ -22,8 +23,9 @@ import {
 import { DemoButton } from "@/components/demo-button";
 import type { Dashboard } from "@/lib/types";
 import { dateLabel, errorMessage, patch } from "@/lib/api";
-
+import { documentStatus, taskKind } from "@/lib/locale";
 export default function DashboardPage() {
+  const { t } = useLocale();
   const { data, error, mutate } = useSWR<Dashboard>("/dashboard", {
     refreshInterval: 5000,
   });
@@ -33,7 +35,7 @@ export default function DashboardPage() {
     try {
       await patch(`/tasks/${id}`, { completed: true });
       await mutate();
-      toast.success("A little progress, saved.");
+      toast.success(t("已记录这次进步。"));
     } catch (e) {
       toast.error(errorMessage(e));
     }
@@ -41,21 +43,25 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeading
-        eyebrow="YOUR LEARNING, IN FOCUS"
-        title="A good day to understand more."
-        description="Pick up a thought. Make a little progress. Keep going."
+        eyebrow={t("专注于你的学习")}
+        title={t("今天，再多理解一点。")}
+        description={t("接着上次的思路，完成今天的一小步。")}
       >
         <Link href="/app/library?upload=1" className="button primary">
           <Plus size={18} />
-          Upload a PDF
+          {t("上传 PDF")}
         </Link>
       </PageHeading>
       <div className="dashboard-stats">
         {[
-          [data.document_count, "Documents", "A growing collection"],
-          [data.knowledge_count, "Knowledge points", "Ideas worth keeping"],
-          [data.reviews_today, "Reviews today", "Small steps, real progress"],
-          [`${data.study_minutes}m`, "Study time", "From completed tasks"],
+          [data.document_count, t("学习资料"), t("收集，也记得理解")],
+          [data.knowledge_count, t("知识点"), t("值得留下的知识")],
+          [data.reviews_today, t("今日待复习"), t("每天一点，慢慢巩固")],
+          [
+            t("{0} 分钟", data.study_minutes),
+            t("已完成学习时长"),
+            t("根据已完成任务统计"),
+          ],
         ].map(([value, label, note]) => (
           <div key={label}>
             <span>{label}</span>
@@ -70,16 +76,19 @@ export default function DashboardPage() {
       <div className="dashboard-grid">
         <section>
           <div className="section-heading">
-            <h2>Continue learning</h2>
+            <h2>{t("继续学习")}</h2>
             <Link href="/app/library">
-              View library <ArrowUpRight size={16} />
+              {t("查看全部资料")}
+              <ArrowUpRight size={16} />
             </Link>
           </div>
           {!data.documents.length ? (
             <div className="panel">
               <EmptyState
-                title="Your next chapter starts here."
-                description="Upload a PDF to build your first knowledge map, or explore our original sample."
+                title={t("下一段学习，从这里开始。")}
+                description={t(
+                  "上传 PDF 开始阅读，或先通过原创样例体验知识地图与复习工具。",
+                )}
               >
                 <DemoButton onCreated={() => mutate()} />
               </EmptyState>
@@ -95,27 +104,28 @@ export default function DashboardPage() {
                   <div className="book-cover">
                     <BookOpen size={38} strokeWidth={1.2} />
                     <span>
-                      FIELD
+                      {t("学习")}
                       <br />
-                      NOTES
+                      {t("笔记")}
                     </span>
                   </div>
                   <div className="continue-info">
                     <div>
                       <Badge tone={doc.status === "ready" ? "green" : "amber"}>
-                        {doc.status === "ready" ? "Ready to learn" : doc.status}
+                        {t(documentStatus[doc.status])}
                       </Badge>
                       {doc.is_demo && (
-                        <span className="muted tiny">Original sample</span>
+                        <span className="muted tiny">{t("原创英文样例")}</span>
                       )}
                     </div>
                     <h3>{doc.title}</h3>
                     <p>
-                      {doc.page_count} pages <span>·</span>{" "}
-                      {doc.knowledge_count} knowledge points
+                      {t("{0} 页", doc.page_count)}
+                      <span>·</span> {t("{0} 个知识点", doc.knowledge_count)}
                     </p>
                     <span className="text-button">
-                      Open workspace <ArrowRight size={15} />
+                      {t("进入学习空间")}
+                      <ArrowRight size={15} />
                     </span>
                   </div>
                   <ArrowUpRight className="continue-arrow" size={23} />
@@ -128,18 +138,18 @@ export default function DashboardPage() {
               <Sparkles size={22} />
             </span>
             <div>
-              <p className="eyebrow">MAKE IT STICK</p>
+              <p className="eyebrow">{t("让理解真正留下来")}</p>
               <h3>
-                Reading gives you information.
+                {t("阅读带来信息，")}
                 <br />
-                Retrieval makes it yours.
+                {t("回忆让它变成你的知识。")}
               </h3>
-              <p>Try explaining one concept before looking at your notes.</p>
+              <p>{t("翻开笔记前，先试着解释一个刚学过的概念。")}</p>
             </div>
           </div>
           <div className="section-heading">
-            <h2>Recent questions</h2>
-            <span className="muted tiny">Your curiosity, collected</span>
+            <h2>{t("最近的问题")}</h2>
+            <span className="muted tiny">{t("记下每一次好奇")}</span>
           </div>
           <div className="recent-questions">
             {data.recent_questions.length ? (
@@ -151,7 +161,7 @@ export default function DashboardPage() {
               ))
             ) : (
               <p className="muted">
-                No questions yet. Open a document and follow an idea.
+                {t("还没有提问记录。打开一份资料，从好奇的地方开始吧。")}
               </p>
             )}
           </div>
@@ -159,7 +169,7 @@ export default function DashboardPage() {
         <aside className="dashboard-aside">
           <section className="panel today-panel">
             <div className="section-heading">
-              <h2>On your desk today</h2>
+              <h2>{t("今天的学习安排")}</h2>
               <span className="tiny muted">
                 {dateLabel(new Date().toISOString())}
               </span>
@@ -167,16 +177,16 @@ export default function DashboardPage() {
             <div className="today-count">
               <strong>{data.tasks.length + data.due_cards.length}</strong>
               <span>
-                things to revisit
+                {t("项待学习或复习")}
                 <br />
-                <small>A little at a time.</small>
+                <small>{t("一次，做好一点。")}</small>
               </span>
               <Clock3 size={25} />
             </div>
             {data.tasks.slice(0, 4).map((task) => (
               <div className="task-row" key={task.id}>
                 <button
-                  aria-label={`Complete ${task.title}`}
+                  aria-label={t("完成：{0}", task.title)}
                   className="task-check"
                   onClick={() => complete(task.id)}
                 >
@@ -185,7 +195,7 @@ export default function DashboardPage() {
                 <div>
                   <strong>{task.title}</strong>
                   <span>
-                    {task.kind} · {task.minutes} min
+                    {t(taskKind[task.kind])} · {t("{0} 分钟", task.minutes)}
                   </span>
                 </div>
               </div>
@@ -196,26 +206,29 @@ export default function DashboardPage() {
                 className="review-callout"
               >
                 <BookOpen size={17} />
-                {data.due_cards.length} flashcards ready
+                {t("{0} 张闪卡待复习", data.due_cards.length)}
                 <ChevronRight size={16} />
               </Link>
             )}
             {!data.tasks.length && !data.due_cards.length && (
               <p className="calm-empty">
-                A clear desk. Create a study plan or flashcards to schedule your
-                next session.
+                {t(
+                  "今天暂无安排。创建复习计划或知识闪卡，为下一次学习留一点时间。",
+                )}
               </p>
             )}
             <Link className="button secondary full" href="/app/study-plan">
-              View study plan <ArrowUpRight size={16} />
+              {t("查看复习计划")}
+              <ArrowUpRight size={16} />
             </Link>
           </section>
           <section className="progress-panel">
             <div>
-              <p className="eyebrow">THE BIGGER PICTURE</p>
-              <h3>Every session counts.</h3>
+              <p className="eyebrow">{t("让知识逐渐成体系")}</p>
+              <h3>{t("每一次学习，都算数。")}</h3>
               <p>
-                {data.completed_tasks} of {data.total_tasks} tasks complete
+                {data.completed_tasks} / {data.total_tasks}
+                {t("项任务已完成")}
               </p>
             </div>
             <div
@@ -233,9 +246,9 @@ export default function DashboardPage() {
           <div className="workspace-privacy">
             <span className="status-dot" />
             <p>
-              This is your personal browser workspace.
+              {t("这是属于当前浏览器的个人学习空间。")}
               <br />
-              <Link href="/privacy">How your data is stored ↗</Link>
+              <Link href="/privacy">{t("了解数据如何保存 ↗")}</Link>
             </p>
           </div>
         </aside>

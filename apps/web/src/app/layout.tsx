@@ -4,15 +4,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "StudyPilot AI — Turn PDFs into structured knowledge",
+    default: "StudyPilot AI｜把资料读懂，把知识留下",
     template: "%s · StudyPilot AI",
   },
   description:
-    "An open-source AI study workspace. Extract knowledge from PDFs, build a review plan, and ask questions grounded in the original pages.",
+    "开源 AI 学习助手：阅读 PDF、梳理知识点、制定复习计划，用带原文引用的问答帮助你真正理解资料。",
   openGraph: {
     title: "StudyPilot AI",
-    description: "Upload. Understand. Review. Ask.",
+    description: "读懂资料，梳理知识，循序复习。",
     type: "website",
+    locale: "zh_CN",
   },
   icons: { icon: "/logo.svg" },
 };
@@ -20,11 +21,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to content
-        </a>
         <Providers>{children}</Providers>
       </body>
     </html>

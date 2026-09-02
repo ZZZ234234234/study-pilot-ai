@@ -1,10 +1,11 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import useSWR from "swr";
 import { useState } from "react";
 import { ArrowUpRight, ChevronDown, ListTree, Search } from "lucide-react";
 import { Badge, EmptyState, ErrorState, Skeleton } from "./ui";
 import type { KnowledgePoint } from "@/lib/types";
-
+import { importanceLabel, difficultyLabel } from "@/lib/locale";
 export function KnowledgePanel({
   id,
   onPage,
@@ -12,6 +13,7 @@ export function KnowledgePanel({
   id: string;
   onPage: (page: number) => void;
 }) {
+  const { t } = useLocale();
   const { data, error, mutate } = useSWR<KnowledgePoint[]>(
     `/documents/${id}/knowledge`,
   );
@@ -29,27 +31,31 @@ export function KnowledgePanel({
       <div className="assistant-heading">
         <div className="eyebrow">
           <ListTree size={14} />
-          THE BIGGER PICTURE
+          {t("让知识逐渐成体系")}
         </div>
-        <h2>A map of what matters.</h2>
-        <p>{data.length} ideas, connected to the original pages.</p>
+        <h2>{t("重点，慢慢清晰起来。")}</h2>
+        <p>{t("{0} 个知识点，每一个都能回到原文。", data.length)}</p>
       </div>
       <label className="search-input compact">
         <Search size={16} />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Find a concept…"
-          aria-label="Search knowledge points"
+          placeholder={t("查找一个概念…")}
+          aria-label={t("搜索知识点")}
         />
       </label>
       {!data.length ? (
         <EmptyState
-          title="Knowledge is one step away."
-          description="Configure an AI provider and reprocess this PDF to extract its knowledge. The original text is already searchable."
+          title={t("再进一步，生成知识地图。")}
+          description={t(
+            "先配置 AI 模型，再重新处理这份 PDF，即可提取知识点。现在已经可以阅读和搜索原文。",
+          )}
         />
       ) : !filtered.length ? (
-        <p className="calm-empty">No matching concepts. Try another keyword.</p>
+        <p className="calm-empty">
+          {t("没有找到匹配的概念，换个关键词试试。")}
+        </p>
       ) : (
         <div className="knowledge-tree">
           {Object.entries(chapters).map(([chapter, points]) => (
@@ -77,9 +83,12 @@ export function KnowledgePanel({
                       <Badge
                         tone={point.importance === "high" ? "green" : "neutral"}
                       >
-                        {point.importance} importance
+                        {t(importanceLabel[point.importance])}
                       </Badge>
-                      <Badge>{point.difficulty} difficulty</Badge>
+                      <Badge>
+                        {t("难度：")}
+                        {t(difficultyLabel[point.difficulty])}
+                      </Badge>
                     </div>
                     <p>{point.explanation}</p>
                     <div className="keyword-list">
@@ -92,7 +101,7 @@ export function KnowledgePanel({
                       className="source-link"
                       onClick={() => onPage(point.page_number)}
                     >
-                      Read source · Page {point.page_number}
+                      {t("阅读原文 · 第 {0} 页", point.page_number)}
                       <ArrowUpRight size={14} />
                     </button>
                   </div>

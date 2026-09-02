@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import { useState } from "react";
 import useSWR from "swr";
 import { ArrowUpRight, Layers3, RotateCw } from "lucide-react";
@@ -6,7 +7,7 @@ import { toast } from "sonner";
 import { EmptyState, ErrorState, Spinner } from "./ui";
 import { dateLabel, errorMessage, post, todayISO } from "@/lib/api";
 import type { Flashcard } from "@/lib/types";
-
+import { reviewGrade } from "@/lib/locale";
 export function FlashcardsPanel({
   id,
   onPage,
@@ -14,6 +15,7 @@ export function FlashcardsPanel({
   id: string;
   onPage: (page: number) => void;
 }) {
+  const { t } = useLocale();
   const { data, error, mutate } = useSWR<Flashcard[]>(
     `/documents/${id}/flashcards`,
   );
@@ -26,7 +28,7 @@ export function FlashcardsPanel({
     try {
       await post(`/documents/${id}/flashcards`);
       await mutate();
-      toast.success("Source-linked flashcards created.");
+      toast.success(t("知识闪卡已生成，每张卡片都附有原文出处。"));
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -43,7 +45,7 @@ export function FlashcardsPanel({
       setFlipped(false);
       await mutate();
       toast.success(
-        `Review saved · next on ${dateLabel(updated.next_review_date)}`,
+        t("复习已记录 · 下次安排在 {0}", dateLabel(updated.next_review_date)),
       );
     } catch (e) {
       toast.error(errorMessage(e));
@@ -55,10 +57,11 @@ export function FlashcardsPanel({
     <div className="flashcards-panel">
       <div className="assistant-heading">
         <div className="eyebrow">
-          <Layers3 size={14} />A LITTLE PRACTICE, OFTEN
+          <Layers3 size={14} />
+          {t("少量练习，经常回顾")}
         </div>
-        <h2>Make the ideas stick.</h2>
-        <p>Try recalling the answer before turning the card.</p>
+        <h2>{t("让知识留得更久。")}</h2>
+        <p>{t("先试着回忆，再翻开卡片核对答案。")}</p>
       </div>
       {error ? (
         <ErrorState error={error} retry={() => mutate()} />
@@ -66,81 +69,86 @@ export function FlashcardsPanel({
         <Spinner />
       ) : !data.length ? (
         <EmptyState
-          title="One idea. One good question."
-          description="Create source-linked cards from this document’s knowledge points."
+          title={t("一个知识点，一个好问题。")}
+          description={t("从这份文档的知识点生成闪卡，随时回到原文核对。")}
         >
           <button className="button primary" onClick={create} disabled={busy}>
-            {busy ? <Spinner /> : "Create flashcards"}
+            {busy ? <Spinner /> : t("生成知识闪卡")}
           </button>
         </EmptyState>
       ) : !card ? (
         <EmptyState
-          title="You’ve made room for tomorrow."
-          description={`All ${data.length} cards are scheduled. Next review: ${dateLabel(data.reduce((a, b) => (a.next_review_date < b.next_review_date ? a : b)).next_review_date)}.`}
+          title={t("今天的练习，先到这里。")}
+          description={t(
+            "全部 {0} 张卡片均已安排复习。下次复习：{1}。",
+            data.length,
+            dateLabel(
+              data.reduce((a, b) =>
+                a.next_review_date < b.next_review_date ? a : b,
+              ).next_review_date,
+            ),
+          )}
         >
           <button className="button secondary" onClick={create} disabled={busy}>
-            Sync new knowledge
+            {t("同步新增知识点")}
           </button>
         </EmptyState>
       ) : (
         <>
           <div className="card-progress">
-            <span>{due.length} due today</span>
-            <span>{data.length} total cards</span>
+            <span>{t("{0} 张今日待复习", due.length)}</span>
+            <span>{t("{0} 张闪卡", data.length)}</span>
           </div>
           <button
             className={`flashcard ${flipped ? "flipped" : ""}`}
             onClick={() => setFlipped((v) => !v)}
-            aria-label={
-              flipped ? "Show question" : "Flip card to reveal answer"
-            }
+            aria-label={flipped ? t("查看问题") : t("翻开卡片查看答案")}
           >
             <span className="eyebrow">
-              {flipped ? "THE IDEA" : "RECALL FIRST"}
+              {flipped ? t("参考答案") : t("先试着回忆")}
             </span>
             <h3>{flipped ? card.answer : card.question}</h3>
             <span className="flip-hint">
               <RotateCw size={14} />
-              {flipped ? "Tap to see question" : "Tap to reveal answer"}
+              {flipped ? t("点击返回问题") : t("点击查看答案")}
             </span>
           </button>
           <button
             className="source-link"
             onClick={() => onPage(card.page_number)}
           >
-            Original source · Page {card.page_number}
+            {t("查看原文 · 第 {0} 页", card.page_number)}
             <ArrowUpRight size={14} />
           </button>
           {flipped ? (
             <div className="review-grades">
-              {["again", "hard", "good", "easy"].map((grade) => (
+              {(["again", "hard", "good", "easy"] as const).map((grade) => (
                 <button
                   key={grade}
                   className={`grade-${grade}`}
                   disabled={busy}
                   onClick={() => void gradeAction(grade)}
                 >
-                  {grade}
+                  {t(reviewGrade[grade])}
                   <small>
                     {grade === "again"
-                      ? "Revisit soon"
+                      ? t("明天再复习")
                       : grade === "hard"
-                        ? "A little longer"
+                        ? t("还需要巩固")
                         : grade === "good"
-                          ? "I remembered"
-                          : "Very clear"}
+                          ? t("基本记住了")
+                          : t("掌握得很清楚")}
                   </small>
                 </button>
               ))}
             </div>
           ) : (
             <p className="calm-empty">
-              Recall it in your own words. Then reveal and rate.
+              {t("先用自己的话回忆，再查看答案，选择掌握程度。")}
             </p>
           )}
           <p className="tiny muted">
-            An explainable spaced-review schedule. “Again” means tomorrow;
-            successful recall increases the interval.
+            {t("选择“没记住”，明天会再次复习；回忆越熟练，下次复习间隔越长。")}
           </p>
         </>
       )}

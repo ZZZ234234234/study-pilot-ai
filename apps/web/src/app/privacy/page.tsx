@@ -1,8 +1,10 @@
+"use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { Logo, ThemeToggle } from "@/components/ui";
-export const metadata = { title: "Privacy & data" };
 export default function PrivacyPage() {
+  const { t } = useLocale();
   return (
     <>
       <header className="landing-nav">
@@ -12,89 +14,73 @@ export default function PrivacyPage() {
       <main id="main-content" className="prose-page">
         <Link href="/app" className="back-link">
           <ArrowLeft size={16} />
-          Workspace
+          {t("学习空间")}
         </Link>
-        <p className="eyebrow">PRIVACY / PLAIN LANGUAGE</p>
+        <p className="eyebrow">{t("隐私说明 / 把规则说清楚")}</p>
         <h1>
-          Your knowledge.
+          {t("你的知识，")}
           <br />
-          Your boundaries.
+          {t("你的数据边界。")}
         </h1>
         <p className="prose-lead">
-          StudyPilot is self-hostable software. The deployment operator chooses
-          where your files are stored and which AI provider receives text.
+          {t(
+            "StudyPilot 支持自行部署。部署者决定文件存放在哪里，以及由哪个模型服务接收相关文本。",
+          )}
         </p>
         <div className="privacy-callout">
           <ShieldCheck size={25} />
-          <p>
-            No advertising trackers. No analytics SDK. No API keys in the
-            browser.
-          </p>
+          <p>{t("不接入广告追踪和统计 SDK，不把 API 密钥发送到浏览器。")}</p>
         </div>
         <section>
-          <h2>What is stored?</h2>
+          <h2>{t("会保存哪些数据？")}</h2>
           <p>
-            PDF files are saved under the server’s DATA_DIR/uploads directory
-            using generated IDs. PostgreSQL stores extracted pages, chunks,
-            embeddings, knowledge points, chat messages, citations, plans,
-            cards, review records, and quiz attempts. The database and upload
-            directory both require persistent storage in production.
+            {t(
+              "PDF 以自动生成的编号保存到服务端 DATA_DIR/uploads 目录。数据库保存提取的页面、文本片段、向量、知识点、问答、引用、计划、闪卡和练习记录。正式部署时，数据库与上传目录都需要持久化保存。",
+            )}
           </p>
         </section>
         <section>
-          <h2>Who can see it?</h2>
+          <h2>{t("谁可以访问这些数据？")}</h2>
           <p>
-            A signed, HttpOnly cookie identifies your personal workspace. API
-            requests check document ownership. The deployment administrator can
-            access the underlying database and files. This release is not an
-            encrypted vault, and it does not include an account recovery or
-            cross-device sign-in system. Clearing the cookie loses access to
-            that workspace.
+            {t(
+              "系统通过签名的 HttpOnly Cookie 识别个人学习空间，并检查文档归属。部署管理员可以访问底层数据库与文件。当前版本不是加密保险箱，也不支持账号找回和跨设备登录；清除 Cookie 后，将无法再访问原学习空间。",
+            )}
           </p>
         </section>
         <section>
-          <h2>When does text leave the server?</h2>
+          <h2>{t("什么时候会把文本发送给模型服务？")}</h2>
           <p>
-            Demo mode makes no external AI calls. Live OpenAI-compatible mode
-            sends text chunks to the embedding service; selected chunks and
-            questions are sent to the chat model. Knowledge extraction processes
-            all chunks in bounded batches. Ollama can run locally so model
-            inputs remain inside your own infrastructure. Your chosen provider’s
-            policies also apply.
+            {t(
+              "演示模式不调用外部 AI。启用真实模型后，文本片段会发送给嵌入服务，问题与检索到的片段会发送给对话模型；提取知识点时，会分批处理全文片段。Ollama 可以在本地运行，让模型输入留在自己的设备或服务器内。使用第三方服务时，还应了解其数据政策。",
+            )}
           </p>
         </section>
         <section>
-          <h2>What happens when I delete a PDF?</h2>
+          <h2>{t("删除 PDF 后，相关记录会怎样？")}</h2>
           <p>
-            Deletion removes the original file and cascades through its pages,
-            chunks, vectors, knowledge points, chats, citations, plans, cards,
-            reviews, and quizzes. Operator backups may retain older copies until
-            their retention period expires. There is no undo button.
+            {t(
+              "删除操作会移除原始 PDF，以及关联的页面、片段、向量、知识点、问答、引用、计划、闪卡和测验记录。部署者的备份可能保留旧副本，直到备份保留期结束。此操作无法撤销。",
+            )}
           </p>
         </section>
         <section>
-          <h2>What should deployment operators configure?</h2>
+          <h2>{t("部署者需要配置什么？")}</h2>
           <p>
-            Use HTTPS, a strong SESSION_SECRET, secure cookies, an explicit
-            ALLOWED_ORIGINS list, private database access, access controls at
-            your hosting edge, encrypted storage, quotas, and backup retention.
-            PDF parsing has size and page limits but is not a hardened malware
-            sandbox. Do not treat this first release as a public,
-            abuse-resistant multi-tenant SaaS.
+            {t(
+              "请配置 HTTPS、足够强的 SESSION_SECRET、安全 Cookie、明确的 ALLOWED_ORIGINS、私有数据库访问、入口权限控制、加密存储、使用额度和备份策略。PDF 解析虽有大小与页数限制，但不是经过加固的恶意文件沙箱。当前版本不适合直接作为无限制公开的多租户服务。",
+            )}
           </p>
         </section>
         <section>
-          <h2>What about the AI’s answers?</h2>
+          <h2>{t("AI 的回答可靠吗？")}</h2>
           <p>
-            PDF content is treated as untrusted reference data, not
-            instructions. Retrieval is scoped to one document, and cited source
-            IDs are validated. These controls reduce risk; they cannot guarantee
-            that a model’s interpretation is correct. Verify important claims
-            against the original pages.
+            {t(
+              "PDF 内容仅作为参考资料，不作为指令执行。检索限定在当前文档内，引用来源也会经过校验。这些措施能够降低风险，但不能保证模型理解正确。重要结论仍需对照原文核实。",
+            )}
           </p>
         </section>
         <Link href="/app" className="button primary">
-          Back to learning
+          {t("返回学习空间")}
         </Link>
       </main>
     </>

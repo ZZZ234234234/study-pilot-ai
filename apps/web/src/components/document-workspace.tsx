@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -16,7 +17,7 @@ import {
   CircleHelp,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge, ErrorState, Modal, Skeleton, Spinner } from "./ui";
+import { Badge, EmptyState, ErrorState, Modal, Skeleton, Spinner } from "./ui";
 import { PdfReader } from "./pdf-reader";
 import { KnowledgePanel } from "./knowledge-panel";
 import { ChatPanel } from "./chat-panel";
@@ -24,7 +25,7 @@ import { FlashcardsPanel } from "./flashcards-panel";
 import { QuizPanel } from "./quiz-panel";
 import { api, cn, errorMessage, post } from "@/lib/api";
 import type { Document, SearchResult } from "@/lib/types";
-
+import { documentStatus } from "@/lib/locale";
 export function Highlight({ text, query }: { text: string; query: string }) {
   const index = text.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
   return index < 0 ? (
@@ -37,14 +38,14 @@ export function Highlight({ text, query }: { text: string; query: string }) {
     </>
   );
 }
-
 const tabs = [
-  { id: "chat", label: "Ask AI", icon: MessageSquare },
-  { id: "knowledge", label: "Knowledge", icon: ListTree },
-  { id: "flashcards", label: "Flashcards", icon: Layers3 },
-  { id: "quiz", label: "Quiz", icon: CircleHelp },
+  { id: "chat", label: "文档问答", icon: MessageSquare },
+  { id: "knowledge", label: "知识地图", icon: ListTree },
+  { id: "flashcards", label: "知识闪卡", icon: Layers3 },
+  { id: "quiz", label: "理解测验", icon: CircleHelp },
 ];
 export function DocumentWorkspace({ id }: { id: string }) {
+  const { t } = useLocale();
   const {
     data: doc,
     error,
@@ -72,7 +73,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
     setPage(value);
     setMobile("pdf");
     setSearchOpen(false);
-    toast.info(`Original source · Page ${value}`);
+    toast.info(t("原文出处 · 第 {0} 页", value));
   }
   async function search() {
     if (!q.trim()) return;
@@ -95,7 +96,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
       await post(`/documents/${id}/reprocess`);
       setReprocess(false);
       mutate();
-      toast.success("Document queued for reprocessing.");
+      toast.success(t("已加入队列，将重新处理这份文档。"));
     } catch (e) {
       toast.error(errorMessage(e));
     } finally {
@@ -110,32 +111,32 @@ export function DocumentWorkspace({ id }: { id: string }) {
         <div>
           <Link className="back-link" href="/app/library">
             <ArrowLeft size={15} />
-            My library
+            {t("我的资料")}
           </Link>
           <h1>{doc.title}</h1>
           <div className="document-meta">
-            <span>{doc.page_count} pages</span>
+            <span>{t("{0} 页", doc.page_count)}</span>
             <span>·</span>
-            <span>{doc.knowledge_count} knowledge points</span>
+            <span>{t("{0} 个知识点", doc.knowledge_count)}</span>
             <Badge tone={doc.status === "ready" ? "green" : "amber"}>
-              {doc.status}
+              {t(documentStatus[doc.status])}
             </Badge>
             {doc.ai_status === "demo" && (
-              <Badge tone="amber">Demo sample</Badge>
+              <Badge tone="amber">{t("演示样例")}</Badge>
             )}
           </div>
         </div>
         <div className="document-top-actions">
           <button
             className="icon-button"
-            aria-label="Search original PDF"
+            aria-label={t("搜索 PDF 原文")}
             onClick={() => setSearchOpen(true)}
           >
             <Search size={20} />
           </button>
           <button
             className="icon-button"
-            aria-label="Reprocess document"
+            aria-label={t("重新处理文档")}
             onClick={() => setReprocess(true)}
             disabled={["queued", "parsing", "indexing"].includes(doc.status)}
           >
@@ -143,7 +144,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
           </button>
           <Link href="/app/study-plan" className="button secondary small">
             <CalendarDays size={16} />
-            <span>Plan your study</span>
+            <span>{t("制定复习计划")}</span>
           </Link>
         </div>
       </div>
@@ -154,52 +155,59 @@ export function DocumentWorkspace({ id }: { id: string }) {
           </div>
           <p className="eyebrow">
             {doc.status === "failed"
-              ? "LET’S TRY A DIFFERENT APPROACH"
-              : "MAKING SENSE OF YOUR MATERIAL"}
+              ? t("我们换个方式再试试")
+              : t("正在整理你的资料")}
           </p>
           <h2>
             {doc.status === "failed"
-              ? "This PDF needs a little attention."
+              ? t("这份 PDF 暂时未能处理完成。")
               : doc.status === "queued"
-                ? "Your document is in the queue."
+                ? t("文档已加入处理队列。")
                 : doc.status === "parsing"
-                  ? "Reading, one page at a time."
-                  : "Connecting the ideas."}
+                  ? t("正在逐页解析文档。")
+                  : t("正在建立知识索引。")}
           </h2>
           <p>
-            {doc.error ??
-              "Keep this page open or come back later. Processing continues in the background."}
+            {doc.error
+              ? errorMessage(new Error(doc.error))
+              : t("你可以留在这里，也可以稍后回来。文档会继续在后台处理。")}
           </p>
           <div className="upload-progress">
             <span style={{ width: `${doc.progress}%` }} />
           </div>
           <div className="processing-steps">
-            {["Upload", "Parse", "Index", "Knowledge", "Ready"].map(
-              (step, i) => (
-                <span
-                  className={doc.progress > i * 24 ? "complete" : ""}
-                  key={step}
-                >
-                  {String(i + 1).padStart(2, "0")} {step}
-                </span>
-              ),
-            )}
+            {[
+              t("上传"),
+              t("解析"),
+              t("建立索引"),
+              t("知识地图"),
+              t("已就绪"),
+            ].map((step, i) => (
+              <span
+                className={doc.progress > i * 24 ? "complete" : ""}
+                key={step}
+              >
+                {String(i + 1).padStart(2, "0")} {step}
+              </span>
+            ))}
           </div>
           {doc.status === "failed" ? (
             <button className="button primary" onClick={retry} disabled={busy}>
-              Retry document
+              {t("重新尝试")}
             </button>
           ) : (
-            <Spinner label={`${doc.progress}% · ${doc.status}`} />
+            <Spinner
+              label={`${doc.progress}% · ${t(documentStatus[doc.status])}`}
+            />
           )}
         </section>
       ) : (
         <>
           {doc.ai_status === "not_configured" && (
             <div className="mode-notice">
-              Your PDF is parsed and searchable.{" "}
-              <Link href="/app/settings">Configure an AI Provider</Link> to
-              generate knowledge and answers, then reprocess this document.
+              {t("PDF 已解析，可以阅读和搜索。")}{" "}
+              <Link href="/app/settings">{t("配置 AI 模型")}</Link>{" "}
+              {t("后，重新处理这份文档，即可生成知识点并进行问答。")}
             </div>
           )}
           <div className="document-mobile-switch">
@@ -215,7 +223,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
               onClick={() => setMobile("assistant")}
             >
               <MessageSquare size={16} />
-              Learning assistant
+              {t("学习助手")}
             </button>
           </div>
           <div
@@ -235,7 +243,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
             </div>
             <div className="split-handle">
               <label className="sr-only" htmlFor="split">
-                Reader width
+                {t("阅读区域宽度")}
               </label>
               <input
                 id="split"
@@ -252,7 +260,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
                 mobile !== "assistant" && "mobile-hidden",
               )}
             >
-              <nav className="document-tabs" aria-label="Document tools">
+              <nav className="document-tabs" aria-label={t("文档工具")}>
                 {tabs.map(({ id: tab, label, icon: Icon }) => (
                   <button
                     key={tab}
@@ -264,12 +272,41 @@ export function DocumentWorkspace({ id }: { id: string }) {
                     }
                   >
                     <Icon size={16} />
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </nav>
               <div className="assistant-panel">
-                {active === "chat" ? (
+                {doc.ai_status === "not_configured" ? (
+                  <div className="provider-notice" role="status">
+                    <EmptyState
+                      title={t("原文已就绪，AI 功能还差一步。")}
+                      description={t(
+                        "现在可以阅读、翻页和搜索 PDF。生成知识点、文档问答、闪卡与测验，需要先配置模型服务。",
+                      )}
+                    >
+                      <ol className="provider-steps">
+                        <li>{t("进入“模型设置”，生成服务端配置。")}</li>
+                        <li>
+                          {t("将配置应用到服务端，重启 API 与后台任务进程。")}
+                        </li>
+                        <li>{t("回到这里，点击“重新处理文档”。")}</li>
+                      </ol>
+                      <div className="provider-actions">
+                        <Link href="/app/settings" className="button primary">
+                          {t("前往模型设置")}
+                          <ArrowUpRight size={16} />
+                        </Link>
+                        <button
+                          className="button secondary"
+                          onClick={() => setMobile("pdf")}
+                        >
+                          {t("先阅读 PDF")}
+                        </button>
+                      </div>
+                    </EmptyState>
+                  </div>
+                ) : active === "chat" ? (
                   <ChatPanel
                     id={id}
                     onPage={jump}
@@ -289,7 +326,7 @@ export function DocumentWorkspace({ id }: { id: string }) {
       )}
       {searchOpen && (
         <Modal
-          title="Find it in the original."
+          title={t("在原文里找一找。")}
           onClose={() => setSearchOpen(false)}
         >
           <form
@@ -302,8 +339,8 @@ export function DocumentWorkspace({ id }: { id: string }) {
             <label className="search-input">
               <Search size={18} />
               <input
-                aria-label="Search PDF text"
-                placeholder="A word, phrase, or idea…"
+                aria-label={t("搜索 PDF 内容")}
+                placeholder={t("输入关键词或一句话…")}
                 maxLength={120}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -314,17 +351,17 @@ export function DocumentWorkspace({ id }: { id: string }) {
               className="button primary small"
               disabled={searching || !q.trim()}
             >
-              {searching ? <Spinner /> : "Find"}
+              {searching ? <Spinner /> : t("搜索")}
             </button>
           </form>
           <div className="search-results">
             {results?.length === 0 ? (
-              <p className="calm-empty">No matches found in this document.</p>
+              <p className="calm-empty">{t("这份文档中没有找到匹配内容。")}</p>
             ) : (
               results?.map((r) => (
                 <button key={r.page_number} onClick={() => jump(r.page_number)}>
                   <strong>
-                    Page {r.page_number}
+                    {t("第 {0} 页", r.page_number)}
                     <ArrowUpRight size={16} />
                   </strong>
                   <p>
@@ -338,23 +375,23 @@ export function DocumentWorkspace({ id }: { id: string }) {
       )}
       {reprocess && (
         <Modal
-          title="Rebuild this workspace?"
+          title={t("重新整理这份文档？")}
           onClose={() => setReprocess(false)}
         >
           <p>
-            Reprocessing uses the current AI provider. Existing knowledge, chat
-            history, plans, cards, and quizzes for this document will be
-            replaced. The original PDF is kept.
+            {t(
+              "将使用当前配置的 AI 模型重新处理。此文档已有的知识点、问答记录、计划、闪卡和测验将被替换，原始 PDF 会保留。",
+            )}
           </p>
           <div className="modal-actions">
             <button
               className="button secondary"
               onClick={() => setReprocess(false)}
             >
-              Cancel
+              {t("取消")}
             </button>
             <button className="button primary" onClick={retry} disabled={busy}>
-              {busy ? <Spinner /> : "Reprocess document"}
+              {busy ? <Spinner /> : t("重新处理文档")}
             </button>
           </div>
         </Modal>

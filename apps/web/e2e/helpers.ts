@@ -39,10 +39,7 @@ export async function createDemo(request: APIRequestContext, baseURL: string) {
   return waitForDocument(request, document.id);
 }
 
-export async function showPanel(
-  page: Page,
-  panel: "PDF" | "Learning assistant",
-) {
+export async function showPanel(page: Page, panel: "PDF" | "学习助手") {
   const button = page.getByRole("button", { name: panel, exact: true });
   if (await button.isVisible()) await button.click();
 }

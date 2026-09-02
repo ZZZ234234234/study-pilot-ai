@@ -3,12 +3,14 @@
 ## Included in the alpha implementation
 
 - Responsive frontend routes and light/dark themes.
+- Default Simplified Chinese interface with a persistent Chinese/English choice in Settings, localized API feedback and dates, Chinese input-method-safe question submission, and actionable model-setup guidance.
 - PDF upload, page extraction, chunking, asynchronous processing and search.
 - Demo, OpenAI-compatible and Ollama-compatible provider adapters.
 - Source-linked knowledge points and document-scoped Q&A.
 - Study plans, flashcards, spaced reviews and quizzes.
 - Anonymous browser workspace ownership and document deletion.
 - Original eight-page learning sample and local PGlite quick-start.
+- Fixed Chinese keyword aliases for questions about the original English demo; evidence and stored user content remain in their original language.
 - Isolated Playwright API tests with a temporary demo stack; separate desktop/mobile browser suites are prepared but not yet browser-verified.
 - Self-hosted PDF.js worker, fonts and decoding assets, plus a Node canvas compatibility check.
 
@@ -25,7 +27,6 @@
 
 ## Later, if useful
 
-- Chinese interface localization.
 - Recoverable accounts and cross-device learning state.
 - OCR with explicit cost and privacy controls.
 - Multi-document retrieval and exportable learning notes.

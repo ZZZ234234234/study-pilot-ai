@@ -9,7 +9,7 @@ from .demo_content import CHAPTERS
 from .errors import AppError
 from .models import Chunk, Document, KnowledgePoint
 from .pdf import normalize
-from .providers import DemoProvider, Provider, tokens
+from .providers import DemoProvider, Provider, demo_search_text, tokens
 from .schemas import ExtractionResponse
 
 
@@ -89,7 +89,8 @@ def retrieve(
             "reindex_required",
             409,
         )
-    vector = provider.embeddings([question])[0]
+    query = demo_search_text(question) if isinstance(provider, DemoProvider) else question
+    vector = provider.embeddings([query])[0]
     distance = Chunk.embedding.cosine_distance(vector)
     results = db.execute(
         select(Chunk, distance.label("distance"))
@@ -102,11 +103,11 @@ def retrieve(
 
 def demo_answer(question: str, chunks: list[Chunk]) -> dict:
     # Extractive preview, not generated prose. Require actual lexical overlap as well as hashed ranking.
-    query = set(tokens(question))
+    query = set(tokens(demo_search_text(question)))
     candidates = [c for c in chunks if len(query & set(tokens(c.text))) >= 1]
     if not candidates:
         return {
-            "answer": "当前资料中没有找到足够依据。 / Not enough evidence in this document.",
+            "answer": "当前资料中没有找到足够依据。",
             "chunk_ids": [],
         }
     best = candidates[:2]
@@ -116,7 +117,8 @@ def demo_answer(question: str, chunks: list[Chunk]) -> dict:
         sentences.sort(key=lambda x: len(query & set(tokens(x))), reverse=True)
         snippets.append(f"{sentences[0][:500].rstrip('.')}.")
     return {
-        "answer": "Demo · source excerpts (not a live AI response)\n\n" + "\n\n".join(snippets),
+        "answer": "演示 · 以下为英文样例的原文摘录，不是真实 AI 生成的回答。\n\n"
+        + "\n\n".join(snippets),
         "chunk_ids": [c.id for c in best],
     }
 
@@ -207,7 +209,7 @@ def build_schedule(
     if used[final] + 10 <= daily_minutes:
         tasks.append(
             dict(
-                title="Final recall · connect the key ideas",
+                title="综合回顾 · 串联核心知识点",
                 scheduled_date=final,
                 minutes=10,
                 kind="sprint",

@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import useSWR from "swr";
 import { useState } from "react";
@@ -15,8 +16,8 @@ import {
 } from "@/components/ui";
 import { dateLabel, errorMessage, patch, post, todayISO } from "@/lib/api";
 import type { Document, StudyPlan, StudyTask } from "@/lib/types";
-
 export default function StudyPlanPage() {
+  const { t, locale } = useLocale();
   const { data: plans, error, mutate } = useSWR<StudyPlan[]>("/plans");
   const { data: documents } = useSWR<Document[]>("/documents");
   const [open, setOpen] = useState(false);
@@ -52,7 +53,7 @@ export default function StudyPlanPage() {
       setSelected(result.id);
       await mutate();
       setOpen(false);
-      toast.success("A realistic learning plan, ready for you.");
+      toast.success(t("复习计划已生成，按自己的节奏开始吧。"));
     } catch (e) {
       setFailure(errorMessage(e));
     } finally {
@@ -70,13 +71,13 @@ export default function StudyPlanPage() {
   return (
     <>
       <PageHeading
-        eyebrow="STEADY IS A SUPERPOWER"
-        title="A little better, every day."
-        description="Make a plan that fits your life—not the other way around."
+        eyebrow={t("稳稳地学，慢慢地进步")}
+        title={t("每天，学得更扎实一点。")}
+        description={t("让计划适合你的时间，而不是让生活追着计划走。")}
       >
         <button className="button primary" onClick={() => setOpen(true)}>
           <Plus size={18} />
-          Create study plan
+          {t("创建复习计划")}
         </button>
       </PageHeading>
       {error ? (
@@ -86,11 +87,14 @@ export default function StudyPlanPage() {
       ) : !plan ? (
         <div className="panel">
           <EmptyState
-            title="Give your learning a rhythm."
-            description="Choose a document, a target date, and a little time each day. We’ll schedule learning, spaced review, and a final recall session."
+            title={t("让学习，有自己的节奏。")}
+            description={t(
+              "选择资料和目标日期，留出每天可用的时间。系统会安排初次学习、间隔复习和最后的知识回顾。",
+            )}
           >
             <button className="button primary" onClick={() => setOpen(true)}>
-              Build my first plan <ArrowUpRight size={16} />
+              {t("创建第一个计划")}
+              <ArrowUpRight size={16} />
             </button>
           </EmptyState>
         </div>
@@ -98,16 +102,18 @@ export default function StudyPlanPage() {
         <>
           <div className="plan-overview">
             <div>
-              <Badge tone="green">YOUR ACTIVE PLAN</Badge>
+              <Badge tone="green">{t("当前学习计划")}</Badge>
               <h2>
                 {documents?.find((d) => d.id === plan.document_id)?.title}
               </h2>
               <p>
                 <CalendarDays size={16} />
-                Target: {dateLabel(plan.exam_date)} <span>·</span>
+                {t("目标日期：")}
+                {dateLabel(plan.exam_date)} <span>·</span>
                 <Clock3 size={16} />
-                {plan.daily_minutes} min / day <span>·</span>
-                {plan.days_per_week} days / week
+                {t("{0} 分钟 / 天", plan.daily_minutes)}
+                <span>·</span>
+                {t("{0} 天 / 周", plan.days_per_week)}
               </p>
             </div>
             <div className="plan-completion">
@@ -115,30 +121,32 @@ export default function StudyPlanPage() {
                 {plan.tasks.filter((t) => t.completed).length}
                 <span> / {plan.tasks.length}</span>
               </strong>
-              <small>TASKS COMPLETE</small>
+              <small>{t("已完成任务")}</small>
             </div>
           </div>
           <div className="plan-toolbar">
-            <h2>Your learning path</h2>
+            <h2>{t("你的学习路径")}</h2>
             {plans.length > 1 && (
               <select
-                aria-label="Choose study plan"
+                aria-label={t("选择复习计划")}
                 value={plan.id}
                 onChange={(e) => setSelected(e.target.value)}
               >
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
                     {documents?.find((d) => d.id === p.document_id)?.title ??
-                      "Study plan"}
+                      t("复习计划")}
                   </option>
                 ))}
               </select>
             )}
             <div className="plan-legend">
               <span className="learn-dot" />
-              Learn <span className="review-dot" />
-              Review <span className="focus-dot" />
-              Focus
+              {t("学习")}
+              <span className="review-dot" />
+              {t("复习")}
+              <span className="focus-dot" />
+              {t("重点复习")}
             </div>
           </div>
           <div className="plan-timeline">
@@ -146,13 +154,19 @@ export default function StudyPlanPage() {
               <section className="plan-day" key={day}>
                 <div className="plan-date">
                   <span>
-                    {new Date(`${day}T12:00:00`).toLocaleDateString("en", {
+                    {new Date(`${day}T12:00:00`).toLocaleDateString(locale, {
                       weekday: "short",
                     })}
                   </span>
                   <strong>{new Date(`${day}T12:00:00`).getDate()}</strong>
-                  <small>{dateLabel(day).split(" ")[0]}</small>
-                  {day === todayISO() && <Badge tone="green">Today</Badge>}
+                  <small>
+                    {new Date(`${day}T12:00:00`).toLocaleDateString(locale, {
+                      month: "short",
+                    })}
+                  </small>
+                  {day === todayISO() && (
+                    <Badge tone="green">{t("今天")}</Badge>
+                  )}
                 </div>
                 <div className="plan-day-tasks">
                   {tasks?.map((task) => (
@@ -162,7 +176,7 @@ export default function StudyPlanPage() {
                     >
                       <button
                         className={`task-check ${task.completed ? "checked" : ""}`}
-                        aria-label={`${task.completed ? "Mark incomplete" : "Complete"} ${task.title}`}
+                        aria-label={`${task.completed ? t("标记为未完成") : t("完成")} ${task.title}`}
                         onClick={() => complete(task)}
                       >
                         <Check size={16} />
@@ -170,19 +184,21 @@ export default function StudyPlanPage() {
                       <div>
                         <span className={`task-kind kind-${task.kind}`}>
                           {task.kind === "learn"
-                            ? "FIRST LEARNING"
+                            ? t("初次学习")
                             : task.kind === "focus"
-                              ? "KEY CONCEPT REVIEW"
+                              ? t("重点知识回顾")
                               : task.kind === "sprint"
-                                ? "FINAL RECALL"
-                                : "SPACED REVIEW"}
+                                ? t("综合回顾")
+                                : t("间隔复习")}
                         </span>
                         <h3>{task.title}</h3>
                       </div>
-                      <span className="task-duration">{task.minutes} min</span>
+                      <span className="task-duration">
+                        {t("{0} 分钟", task.minutes)}
+                      </span>
                       <Link
                         className="icon-button"
-                        aria-label={`Open source for ${task.title}`}
+                        aria-label={t("查看原文：{0}", task.title)}
                         href={`/app/documents/${task.document_id}?tab=knowledge`}
                       >
                         <ArrowUpRight size={17} />
@@ -197,22 +213,24 @@ export default function StudyPlanPage() {
       )}
       {open && (
         <Modal
-          title="Make a little time for progress."
+          title={t("为每天的进步，留一点时间。")}
           onClose={() => setOpen(false)}
         >
           {!available.length ? (
             <EmptyState
-              title="Start with a knowledge map."
-              description="Add the original sample or process a PDF with an AI provider before creating a plan."
+              title={t("先准备一份知识地图。")}
+              description={t(
+                "先添加原创样例，或连接 AI 模型处理自己的 PDF，再创建复习计划。",
+              )}
             >
               <Link href="/app/library" className="button primary">
-                Go to library
+                {t("前往我的资料")}
               </Link>
             </EmptyState>
           ) : (
             <form onSubmit={create} className="plan-form">
               <label className="field">
-                Document
+                {t("学习资料")}
                 <select
                   value={docId || available[0]?.id}
                   onChange={(e) => setDocId(e.target.value)}
@@ -226,7 +244,7 @@ export default function StudyPlanPage() {
               </label>
               <div className="form-grid">
                 <label className="field">
-                  Target / exam date
+                  {t("目标 / 考试日期")}
                   <input
                     type="date"
                     value={exam}
@@ -236,7 +254,7 @@ export default function StudyPlanPage() {
                   />
                 </label>
                 <label className="field">
-                  Minutes per day
+                  {t("每天学习时长（分钟）")}
                   <input
                     type="number"
                     min={15}
@@ -246,45 +264,44 @@ export default function StudyPlanPage() {
                   />
                 </label>
                 <label className="field">
-                  Days per week
+                  {t("每周学习天数")}
                   <select
                     value={days}
                     onChange={(e) => setDays(Number(e.target.value))}
                   >
                     {[1, 2, 3, 4, 5, 6, 7].map((d) => (
                       <option value={d} key={d}>
-                        {d} days
+                        {t("{0} 天", d)}
                       </option>
                     ))}
                   </select>
                 </label>
                 <label className="field">
-                  Priority
+                  {t("学习顺序")}
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
                   >
-                    <option value="balanced">Follow the document</option>
-                    <option value="important">Important concepts first</option>
+                    <option value="balanced">{t("按文档顺序")}</option>
+                    <option value="important">{t("优先学习重点")}</option>
                   </select>
                 </label>
               </div>
               <div className="form-note">
-                Learning time adapts to difficulty; review is spaced by at least
-                one day. An existing plan for this document will be replaced.
-                Schedules that exceed your capacity are rejected, not silently
-                overbooked.
+                {t(
+                  "学习时长会根据难度调整，复习至少间隔一天。创建后会替换这份文档已有的计划；如果时间不足，系统会提示调整，不会强行塞入超出容量的任务。",
+                )}
               </div>
               {failure && (
                 <p role="alert" className="form-error">
-                  {failure}
+                  {t(failure)}
                 </p>
               )}
               <button className="button primary full" disabled={busy}>
                 {busy ? (
-                  <Spinner label="Building your plan" />
+                  <Spinner label={t("正在制定计划")} />
                 ) : (
-                  "Create my study plan"
+                  t("生成我的复习计划")
                 )}
               </button>
             </form>

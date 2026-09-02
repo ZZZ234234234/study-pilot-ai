@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -12,10 +13,10 @@ import {
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
 import { cn, errorMessage } from "@/lib/api";
-
 export function Logo({ compact = false }: { compact?: boolean }) {
+  const { t } = useLocale();
   return (
-    <Link href="/" className="logo" aria-label="StudyPilot home">
+    <Link href="/" className="logo" aria-label={t("StudyPilot 首页")}>
       <span className="logo-mark">
         <svg viewBox="0 0 28 28" aria-hidden="true">
           <path d="M5 6h7l4 4H9v5h10v7h-7l-4-4h7v-5H5z" fill="currentColor" />
@@ -30,11 +31,12 @@ export function Logo({ compact = false }: { compact?: boolean }) {
   );
 }
 export function ThemeToggle() {
+  const { t } = useLocale();
   const { resolvedTheme, setTheme } = useTheme();
   return (
     <button
       className="icon-button theme-toggle"
-      aria-label="Toggle color theme"
+      aria-label={t("切换明暗主题")}
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       <Sun size={18} className="sun" />
@@ -42,11 +44,12 @@ export function ThemeToggle() {
     </button>
   );
 }
-export function Spinner({ label = "Loading" }: { label?: string }) {
+export function Spinner({ label }: { label?: string }) {
+  const { t } = useLocale();
   return (
     <span className="loading-inline" role="status">
       <LoaderCircle size={17} className="spin" />
-      {label}
+      {label ?? t("加载中")}
     </span>
   );
 }
@@ -57,15 +60,17 @@ export function ErrorState({
   error: unknown;
   retry?: () => void;
 }) {
+  const { t, locale } = useLocale();
   return (
     <div className="error-state" role="alert">
       <AlertCircle size={23} />
       <div>
-        <strong>We couldn’t complete that.</strong>
-        <p>{errorMessage(error)}</p>
+        <strong>{t("暂时未能完成操作。")}</strong>
+        <p>{errorMessage(error, locale)}</p>
         {retry && (
           <button className="text-button" onClick={retry}>
-            Try again <ArrowUpRight size={14} />
+            {t("重试")}
+            <ArrowUpRight size={14} />
           </button>
         )}
       </div>
@@ -124,8 +129,13 @@ export function Badge({
   return <span className={cn("badge", `badge-${tone}`)}>{children}</span>;
 }
 export function Skeleton({ lines = 3 }: { lines?: number }) {
+  const { t } = useLocale();
   return (
-    <div className="skeleton-group" aria-label="Loading content" role="status">
+    <div
+      className="skeleton-group"
+      aria-label={t("正在加载内容")}
+      role="status"
+    >
       {Array.from({ length: lines }, (_, i) => (
         <div
           key={i}
@@ -145,6 +155,7 @@ export function Modal({
   children: React.ReactNode;
   onClose: () => void;
 }) {
+  const { t } = useLocale();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = ref.current;
@@ -164,7 +175,7 @@ export function Modal({
         <h2>{title}</h2>
         <button
           className="icon-button"
-          aria-label="Close dialog"
+          aria-label={t("关闭对话框")}
           onClick={onClose}
         >
           <X size={20} />

@@ -1,3 +1,5 @@
+"use client";
+import { useLocale } from "@/components/locale-provider";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -14,22 +16,23 @@ import { Logo, ThemeToggle } from "@/components/ui";
 import { DemoButton } from "@/components/demo-button";
 import { ProductPreview } from "@/components/product-preview";
 import { GITHUB_URL } from "@/lib/config";
-
 const github = GITHUB_URL;
 export default function Landing() {
+  const { t } = useLocale();
   return (
     <div className="landing">
       <header className="landing-nav">
         <Logo />
-        <nav aria-label="Website">
-          <a href="#features">The workspace</a>
-          <a href="#how-it-works">How it works</a>
-          <Link href="/open-source">Open source</Link>
+        <nav aria-label={t("网站导航")}>
+          <a href="#features">{t("功能介绍")}</a>
+          <a href="#how-it-works">{t("如何使用")}</a>
+          <Link href="/open-source">{t("开源说明")}</Link>
         </nav>
         <div>
           <ThemeToggle />
           <Link href="/app" className="button small primary">
-            Start learning <ArrowUpRight size={16} />
+            {t("开始学习")}
+            <ArrowUpRight size={16} />
           </Link>
         </div>
       </header>
@@ -37,35 +40,41 @@ export default function Landing() {
         <section className="hero">
           <div className="hero-eyebrow">
             <span />
-            OPEN SOURCE. OPEN POSSIBILITIES.
+            {t("开源，让知识更自由。")}
           </div>
           <h1>
-            Turn PDFs into
+            {t("把资料读懂，")}
             <br />
-            <span>structured knowledge.</span>
+            <span>{t("把知识留下。")}</span>
           </h1>
           <p>
-            Your reading has a next chapter.
-            <br />A thoughtful workspace to understand, remember, and connect
-            the ideas that matter.
+            {t("阅读，不止于翻过最后一页。")}
+            <br />
+            {t(
+              "从梳理知识到循序复习，在一个安静的空间里，把重要的内容真正学会。",
+            )}
           </p>
           <div className="hero-actions">
             <Link href="/app" className="button primary">
-              Start Learning <ArrowRight size={18} />
+              {t("开始学习")}
+              <ArrowRight size={18} />
             </Link>
             <a href={github} className="button secondary">
               <GitBranch size={17} />
-              View on GitHub <ArrowUpRight size={16} />
+              {t("查看 GitHub 源码")}
+              <ArrowUpRight size={16} />
             </a>
           </div>
           <div className="hero-footnote">
-            <span>Upload.</span> Understand. Review. Ask.
-            <span className="hero-dot">·</span>No AI key needed to explore.
+            <span>{t("阅读。")}</span>
+            {t("理解。复习。提问。")}
+            <span className="hero-dot">·</span>
+            {t("体验内置样例，无需 AI 密钥。")}
           </div>
           <div className="hero-preview">
             <div className="preview-floating-note">
-              <span>LESS SCROLLING</span>
-              <strong>More understanding.</strong>
+              <span>{t("少一点来回翻找")}</span>
+              <strong>{t("多一点真正理解。")}</strong>
               <svg
                 width="65"
                 height="35"
@@ -84,88 +93,101 @@ export default function Landing() {
           </div>
         </section>
         <section className="principles-strip">
-          <span>Built for the way curious minds work.</span>
+          <span>{t("让每一次好奇，都有迹可循。")}</span>
           <div>
             <BookOpen size={17} />
-            Your sources
+            {t("原文可查")}
           </div>
           <div>
             <ListTree size={17} />
-            Your structure
+            {t("知识成体系")}
           </div>
           <div>
             <ShieldCheck size={17} />
-            Your control
+            {t("数据由你掌握")}
           </div>
         </section>
         <section className="landing-section" id="features">
           <div className="section-intro">
-            <p className="eyebrow">01 / A CALMER WAY TO LEARN</p>
+            <p className="eyebrow">{t("01 / 更从容地学习")}</p>
             <h2>
-              Not another chat window.
+              {t("不只是一个聊天窗口。")}
               <br />
-              Your entire learning loop.
+              {t("而是一套学习路径。")}
             </h2>
-            <p>
-              Reading is only the beginning. Give every idea a place to go—and a
-              reason to come back.
-            </p>
+            <p>{t("阅读只是开始。让知识有条理，也让每一次复习都有方向。")}</p>
           </div>
           <div className="feature-grid">
             <article className="feature-large">
               <div className="feature-icon">
                 <ListTree />
               </div>
-              <h3>See the bigger picture.</h3>
+              <h3>{t("把零散内容，连成知识地图。")}</h3>
               <p>
-                Turn dense pages into a navigable knowledge tree. Chapters,
-                concepts, importance, and difficulty—connected to the source.
+                {t(
+                  "按章节梳理概念，标记重点与难度。每个知识点，都能回到原文核对。",
+                )}
               </p>
               <div className="feature-tree">
-                <span>Neural networks</span>
+                <span>{t("神经网络")}</span>
                 <div>
-                  <span>Training the network</span>
+                  <span>{t("训练神经网络")}</span>
                   <div>
-                    <b>Loss & gradient descent</b>
+                    <b>{t("损失函数与梯度下降")}</b>
                     <b>
-                      Backpropagation <small>p. 3</small>
+                      {t("反向传播")}
+                      <small>{t("第 3 页")}</small>
                     </b>
                   </div>
                 </div>
               </div>
-              <span className="feature-index">01 / KNOWLEDGE EXTRACTION</span>
+              <span className="feature-index">{t("01 / 梳理知识点")}</span>
             </article>
             <article>
               <div className="feature-icon">
                 <ScanText />
               </div>
-              <h3>Answers with receipts.</h3>
+              <h3>{t("回答有出处，理解有依据。")}</h3>
               <p>
-                Ask a question. Follow the citation back to the exact PDF page.
-                No evidence? The assistant says so.
+                {t(
+                  "带着问题阅读，沿着引用找到对应页。资料里没有依据时，助手会明确告诉你。",
+                )}
               </p>
               <div className="source-demo">
                 <span>
-                  “Weight sharing lets the same feature detector operate at
-                  different positions.”
+                  {t(
+                    "“权重共享让同一组特征检测器在不同位置发挥作用。”（样例原文译意）",
+                  )}
                 </span>
                 <small>
-                  NEURAL NETWORKS <b>↗ p. 4</b>
+                  {t("神经网络入门")}
+                  <b>{t("↗ 第 4 页")}</b>
                 </small>
               </div>
-              <span className="feature-index">02 / SOURCE-GROUNDED Q&A</span>
+              <span className="feature-index">
+                {t("02 / 带原文引用的问答")}
+              </span>
             </article>
             <article>
               <div className="feature-icon">
                 <Sparkles />
               </div>
-              <h3>Remember for longer.</h3>
+              <h3>{t("不只学过，更能记住。")}</h3>
               <p>
-                A realistic study plan, focused flashcards, and spaced reviews.
-                Small sessions. Lasting understanding.
+                {t(
+                  "用可执行的计划、知识闪卡和间隔复习，把学习拆成每天能完成的一小步。",
+                )}
               </p>
               <div className="mini-week">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                {[
+                  t("一"),
+                  t("二"),
+                  t("三"),
+                  t("四"),
+                  t("五"),
+                  t("六"),
+                  t("日"),
+                ].map((d, i) => (
                   <div key={i}>
                     <span>{d}</span>
                     <b className={i < 4 ? "done" : ""}>
@@ -174,39 +196,40 @@ export default function Landing() {
                   </div>
                 ))}
               </div>
-              <span className="feature-index">03 / YOUR REVIEW DASHBOARD</span>
+              <span className="feature-index">{t("03 / 规划与复习")}</span>
             </article>
           </div>
         </section>
         <section className="workflow-section" id="how-it-works">
           <div>
-            <p className="eyebrow">02 / FROM FILE TO FLUENCY</p>
+            <p className="eyebrow">{t("02 / 从资料到理解")}</p>
             <h2>
-              One document.
-              <br />A clearer path forward.
+              {t("从一份资料，")}
+              <br />
+              {t("走向清晰的学习路径。")}
             </h2>
           </div>
           <div className="workflow-steps">
             {[
               [
                 "01",
-                "Upload",
-                "Bring your PDF. We keep its pages, structure, and sources intact.",
+                t("上传"),
+                t("上传 PDF，保留原始页面，让后续理解始终有据可查。"),
               ],
               [
                 "02",
-                "Understand",
-                "Explore a knowledge map distilled from your material.",
+                t("理解"),
+                t("顺着知识地图梳理章节、概念和它们之间的联系。"),
               ],
               [
                 "03",
-                "Review",
-                "Make space for a little practice, at the right time.",
+                t("复习"),
+                t("按自己的节奏安排练习，在合适的时候再回顾一次。"),
               ],
               [
                 "04",
-                "Ask",
-                "Follow your curiosity. Find answers grounded in the original.",
+                t("提问"),
+                t("提出疑问，从原文中寻找答案和支持它的依据。"),
               ],
             ].map(([n, t, d]) => (
               <div key={n}>
@@ -221,66 +244,70 @@ export default function Landing() {
           <div className="privacy-visual">
             <LockKeyhole size={48} strokeWidth={1} />
             <span>
-              YOUR KNOWLEDGE.
+              {t("你的知识。")}
               <br />
-              <strong>YOUR BOUNDARIES.</strong>
+              <strong>{t("你的数据边界。")}</strong>
             </span>
             <div>
               <i />
-              Self-hosted <i />
-              Local AI compatible
+              {t("支持自行部署")}
+              <i />
+              {t("可连接本地模型")}
             </div>
           </div>
           <div>
-            <p className="eyebrow">03 / PRIVATE BY DESIGN</p>
+            <p className="eyebrow">{t("03 / 清楚知道数据去向")}</p>
             <h2>
-              Your notes shouldn’t
+              {t("自己的学习资料，")}
               <br />
-              come with fine print.
+              {t("数据去向也该清清楚楚。")}
             </h2>
             <p>
-              Self-host your workspace. Choose an OpenAI-compatible provider or
-              keep model inference local with Ollama. API keys stay on the
-              server. Deleting a document removes its learning data, too.
+              {t(
+                "你可以自行部署，连接 OpenAI 兼容服务，或通过 Ollama 使用本地模型。密钥只保存在服务端；删除文档时，相关学习记录也会一并删除。",
+              )}
             </p>
             <Link href="/privacy" className="text-button">
-              Understand your data <ArrowUpRight size={17} />
+              {t("了解数据如何处理")}
+              <ArrowUpRight size={17} />
             </Link>
           </div>
         </section>
         <section className="open-source-section">
-          <p className="eyebrow">MADE TO BE YOURS</p>
+          <p className="eyebrow">{t("开源，也属于你")}</p>
           <h2>
-            Open the source.
+            {t("打开源码，")}
             <br />
-            Build your own next chapter.
+            {t("搭建自己的学习空间。")}
           </h2>
           <p>
             Next.js · FastAPI · PostgreSQL · pgvector
             <br />
-            MIT licensed. No locked-in model. No invented metrics.
+            {t("采用 MIT 许可证，不绑定模型，不虚构使用数据。")}
           </p>
           <div>
             <a className="button secondary" href={github}>
               <GitBranch size={18} />
-              Explore the source <ArrowUpRight size={16} />
+              {t("查看项目源码")}
+              <ArrowUpRight size={16} />
             </a>
-            <DemoButton>Try the original sample</DemoButton>
+            <DemoButton>{t("体验内置样例")}</DemoButton>
           </div>
         </section>
         <section className="landing-cta">
-          <span>Make something of what you read.</span>
+          <span>{t("让读过的内容，真正成为你的知识。")}</span>
           <Link href="/app" className="button primary">
-            Let’s start learning <ArrowRight size={18} />
+            {t("开始学习")}
+            <ArrowRight size={18} />
           </Link>
         </section>
       </main>
       <footer className="landing-footer">
         <Logo />
-        <span>Less collecting. More connecting.</span>
+        <span>{t("少一点收藏，多一点理解。")}</span>
         <div>
-          <Link href="/privacy">Privacy & data</Link>
-          <Link href="/open-source">Documentation</Link>
+          <Link href="/privacy">{t("隐私与数据")}</Link>
+          <Link href="/open-source">{t("使用文档")}</Link>
           <span>© 2026 StudyPilot AI</span>
         </div>
       </footer>

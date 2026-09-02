@@ -117,7 +117,7 @@ def create_cards(
                 Flashcard(
                     document_id=document_id,
                     knowledge_id=point.id,
-                    question=f"Explain: {point.title}",
+                    question=f"请解释：{point.title}",
                     answer=point.explanation,
                     page_number=point.page_number,
                 )

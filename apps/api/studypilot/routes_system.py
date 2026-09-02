@@ -86,9 +86,9 @@ def test_provider(user: User = Depends(current_user)):
         "ok": True,
         "dimensions": len(vector[0]),
         "mode": get_settings().ai_provider,
-        "message": "Demo adapter is ready. No external model was contacted."
+        "message": "演示模式运行正常，本次检查没有调用外部模型。"
         if get_settings().ai_provider == "demo"
-        else "Embedding endpoint is reachable. Chat is validated when you process a document.",
+        else "嵌入模型接口连接正常。对话模型尚未在本次检查中验证，请通过处理文档进一步测试。",
     }
 
 

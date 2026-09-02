@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { DocumentWorkspace } from "@/components/document-workspace";
 import { Skeleton } from "@/components/ui";
-export const metadata = { title: "Document workspace" };
+export const metadata = { title: "文档学习空间" };
 export default async function DocumentPage({
   params,
 }: {

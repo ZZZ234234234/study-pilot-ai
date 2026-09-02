@@ -68,7 +68,7 @@ def generate(
             point = points[i % len(points)]
             if i % 3 == 0:
                 question = {
-                    "question": f"Which topic is described by this source statement?\n{point.source_excerpt}",
+                    "question": f"下面的原文描述了哪个知识点？\n{point.source_excerpt}",
                     "kind": "multiple_choice",
                     "options": [points[(i + k) % len(points)].title for k in range(4)],
                     "correct_answer": point.title,
@@ -81,17 +81,17 @@ def generate(
                 claim = (
                     point.source_excerpt
                     if is_true
-                    else f"The source says that {point.title.lower()} is always unnecessary for every learning task."
+                    else f"原文认为，在任何学习任务中都不需要 {point.title}。"
                 )
                 question = {
-                    "question": claim,
+                    "question": f"判断下面的说法是否符合原文：\n{claim}",
                     "kind": "true_false",
-                    "options": ["True", "False"],
-                    "correct_answer": "True" if is_true else "False",
+                    "options": ["正确", "错误"],
+                    "correct_answer": "正确" if is_true else "错误",
                 }
             else:
                 question = {
-                    "question": f"In your own words, explain {point.title.lower()}.",
+                    "question": f"请用自己的话解释：{point.title}。",
                     "kind": "short_answer",
                     "options": [],
                     "correct_answer": point.explanation,
@@ -206,5 +206,5 @@ def submit(
     return {
         "score": quiz.score,
         "results": results,
-        "grading_note": "Short answers use keyword matching for practice, not expert grading. Compare your reasoning with the source.",
+        "grading_note": "简答题采用关键词匹配，仅供练习参考，并非专家评分。请结合原文核对自己的理解；英文样例的评分关键词也来自英文原文。",
     }
