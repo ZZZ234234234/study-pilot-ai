@@ -17,10 +17,12 @@ vi.mock("pdfjs-dist", async () => {
     getDocument: (options: object) =>
       real.getDocument({
         ...options,
-        standardFontDataUrl: path.join(
-          path.dirname(require.resolve("pdfjs-dist/package.json")),
-          "standard_fonts/",
-        ),
+        standardFontDataUrl: path
+          .join(
+            path.dirname(require.resolve("pdfjs-dist/package.json")),
+            "standard_fonts/",
+          )
+          .replaceAll("\\", "/"),
       }),
   };
 });

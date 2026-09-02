@@ -47,6 +47,9 @@ jobs:
       - run: npm run pack --prefix desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Install and restart packaged application
+        shell: pwsh
+        run: ./desktop/test-install.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: StudyPilot-AI-1.0.0-Windows-x64-candidate

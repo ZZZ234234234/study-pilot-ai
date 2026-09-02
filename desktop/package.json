@@ -19,6 +19,7 @@
     "asar": true,
     "files": [
       "main.cjs",
+      "smoke.cjs",
       "package.json"
     ],
     "directories": {

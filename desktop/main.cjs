@@ -9,6 +9,13 @@ const { spawn } = require("node:child_process");
 const net = require("node:net");
 const path = require("node:path");
 const fs = require("node:fs/promises");
+const smokeArgument = process.argv.find((arg) =>
+  arg.startsWith("--smoke-directory="),
+);
+const smokeDirectory = smokeArgument
+  ? path.resolve(smokeArgument.slice("--smoke-directory=".length))
+  : null;
+if (smokeDirectory) app.setPath("userData", smokeDirectory);
 
 let window;
 let stopping = false;
@@ -53,6 +60,12 @@ async function shutdown() {
 function fail(message) {
   if (stopping) return;
   exitCode = 1;
+  if (smokeDirectory) {
+    void fs
+      .writeFile(path.join(smokeDirectory, "failure.txt"), message)
+      .finally(shutdown);
+    return;
+  }
   dialog.showErrorBox(
     "StudyPilot AI 启动失败",
     `${message}\n学习资料不会被删除。`,
@@ -227,6 +240,10 @@ async function start() {
     "PDF 后台处理",
   );
   await window.loadURL(`${origin}/app`);
+  if (smokeDirectory) {
+    await require("./smoke.cjs")(origin, smokeDirectory);
+    await shutdown();
+  }
 }
 
 if (!app.requestSingleInstanceLock()) app.quit();
