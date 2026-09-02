@@ -5,6 +5,15 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const bundle = path.join(root, "desktop/bundle");
 await mkdir(bundle, { recursive: true });
+await mkdir(path.join(bundle, "runtime"), { recursive: true });
+await cp(
+  process.execPath,
+  path.join(
+    bundle,
+    "runtime",
+    process.platform === "win32" ? "node.exe" : "node",
+  ),
+);
 const icon = createCanvas(512, 512);
 icon
   .getContext("2d")
@@ -26,7 +35,7 @@ for (const [from, to] of [
   await cp(path.join(root, from), path.join(bundle, to), { recursive: true });
 await appendFile(
   path.join(bundle, "db.mjs"),
-  '\nprocess.parentPort?.on("message", ({ data }) => { if (data === "shutdown") void stop(); });\n',
+  '\nprocess.on("message", (data) => { if (data === "shutdown") void stop(); });\nprocess.on("disconnect", () => void stop());\n',
 );
 // Separate minimal dependency tree: no workspace, development data or API keys.
 await writeFile(

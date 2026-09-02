@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: apps/api/pyproject.toml
       - run: npm ci
       - run: python -m pip install -e "apps/api[dev]" pyinstaller==6.16.0
       - run: npm run typecheck

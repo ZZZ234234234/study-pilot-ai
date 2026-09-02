@@ -1,10 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  dialog,
-  utilityProcess,
-  session,
-} = require("electron");
+const { app, BrowserWindow, dialog, session } = require("electron");
 const { spawn } = require("node:child_process");
 const net = require("node:net");
 const path = require("node:path");
@@ -42,10 +36,10 @@ function monitor(child, name) {
     diagnostic = (diagnostic + chunk.toString()).slice(-6000);
   });
   child.once("error", () => fail(`${name} 无法启动。`));
-  child.once("exit", () => {
+  child.once("exit", (code) => {
     if (!stopping)
       fail(
-        `${name} 已意外退出。请重新打开应用。${smokeDirectory ? diagnostic : ""}`,
+        `${name} 已意外退出。请重新打开应用。${smokeDirectory ? ` Exit ${code}: ${diagnostic}` : ""}`,
       );
   });
   return child;
@@ -57,7 +51,7 @@ async function shutdown() {
   // Worker first, then HTTP services, then database. Keep user files on disk.
   for (const child of [...children].reverse()) {
     const exited = new Promise((resolve) => child.once("exit", resolve));
-    if (child === databaseProcess) child.postMessage("shutdown");
+    if (child === databaseProcess && child.connected) child.send("shutdown");
     else child.kill();
     await Promise.race([exited, sleep(5000).then(() => child.kill())]);
   }
@@ -98,6 +92,11 @@ async function start() {
     ? path.join(process.resourcesPath, "bundle")
     : path.join(__dirname, "bundle");
   const data = path.join(app.getPath("userData"), "data");
+  const node = path.join(
+    bundle,
+    "runtime",
+    process.platform === "win32" ? "node.exe" : "node",
+  );
   await fs.mkdir(data, { recursive: true });
   const dbPort = await freePort();
   let apiPort = await freePort();
@@ -178,10 +177,11 @@ async function start() {
       ),
   );
   databaseProcess = monitor(
-    utilityProcess.fork(path.join(bundle, "db.mjs"), [], {
+    spawn(node, [path.join(bundle, "db.mjs")], {
       env,
       cwd: bundle,
-      stdio: ["ignore", "ignore", "pipe"],
+      windowsHide: true,
+      stdio: ["ignore", "ignore", "pipe", "ipc"],
     }),
     "本地数据库",
   );
@@ -260,9 +260,10 @@ async function start() {
     "PDF 服务",
   );
   monitor(
-    utilityProcess.fork(path.join(bundle, "web/apps/web/server.js"), [], {
+    spawn(node, [path.join(bundle, "web/apps/web/server.js")], {
       env,
       cwd: bundle,
+      windowsHide: true,
       stdio: ["ignore", "ignore", "pipe"],
     }),
     "阅读界面",
