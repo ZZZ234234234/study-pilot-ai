@@ -2,22 +2,22 @@
 
 Bilingual-interface regression checked on 2026-09-02 in the project workspace. Dependency installation and audit results below are retained from 2026-09-01; this update did not change dependencies or the lockfile. Results describe this alpha snapshot, not a production certification.
 
-| Check                          | Result                                                                                                             |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| Locked dependency installation | Passed on 2026-09-01 (`npm ci`); dependencies unchanged                                                            |
-| Next.js production build       | Passed, including standalone static asset packaging                                                                |
-| TypeScript                     | Passed (`npm run typecheck`)                                                                                       |
-| Frontend lint                  | Passed without lint warnings (`npm run lint`)                                                                      |
-| Formatting                     | Passed (`npm run format:check`); Chinese typography overrides follow the existing styles                           |
-| Frontend unit tests            | 36 passed (`npm test`), including preference persistence, dictionary coverage and bilingual static React rendering |
-| Backend lint                   | Passed (`python -m ruff check apps/api scripts`)                                                                   |
-| Backend unit tests             | 21 passed (`python -m pytest apps/api/tests`), including Chinese demo queries and source preservation              |
-| PDF.js Node canvas             | All 8 original sample pages rendered with visible pixels and extractable text (`npm run test:pdf`)                 |
-| API end-to-end tests           | 16 passed against the production frontend, temporary API, worker and PGlite (`npm run test:e2e:api`)               |
-| Local API workflow             | Passed (`python scripts/smoke_test.py --start-services`)                                                           |
-| Production dependency audit    | 0 reported on 2026-09-01 (`npm audit --omit=dev`); dependencies were unchanged in this interface update            |
-| Browser test collection        | 12 desktop/mobile scenarios collected separately from the 16 API cases                                             |
-| Browser test execution         | Not rerun: previous launch was blocked by a missing Chromium executable; not a pass                                |
+| Check                          | Result                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Locked dependency installation | Passed on 2026-09-01 (`npm ci`); dependencies unchanged                                                             |
+| Next.js production build       | Passed, including standalone static asset packaging                                                                 |
+| TypeScript                     | Passed (`npm run typecheck`)                                                                                        |
+| Frontend lint                  | Passed without lint warnings (`npm run lint`)                                                                       |
+| Formatting                     | Passed (`npm run format:check`); Chinese typography overrides follow the existing styles                            |
+| Frontend unit tests            | 36 passed (`npm test`), including preference persistence, dictionary coverage and bilingual static React rendering  |
+| Backend lint                   | Passed (`python -m ruff check apps/api scripts`)                                                                    |
+| Backend unit tests             | 21 passed (`python -m pytest apps/api/tests`), including Chinese demo queries and source preservation               |
+| PDF.js Node canvas             | All 8 original sample pages rendered with visible pixels and extractable text (`npm run test:pdf`)                  |
+| API end-to-end tests           | 16 passed against the production frontend, temporary API, worker and PGlite (`npm run test:e2e:api`)                |
+| Local API workflow             | Passed (`python scripts/smoke_test.py --start-services`)                                                            |
+| Production dependency audit    | 0 reported on 2026-09-01 (`npm audit --omit=dev`); dependencies were unchanged in this interface update             |
+| Browser test collection        | 12 desktop/mobile scenarios collected separately from the 16 API cases                                              |
+| Browser test execution         | Not passed: local Chromium was unavailable; a later cloud-browser attempt could not connect to the isolated preview |
 
 ## Bilingual interface update
 
@@ -40,7 +40,7 @@ Bilingual-interface regression checked on 2026-09-02 in the project workspace. D
 - Added standalone resource copying to the build and a compatible production start command. Startup failures now propagate instead of being reported as successful shutdowns; supervisors clean up their child services.
 - Added explicit Prettier configuration, ignored generated assets and split the compressed stylesheet into nine readable, ordered files.
 
-The Node canvas check exercises the upgraded rendering engine, **not** DOM rendering, actual browsers, all uploaded PDF variants or visual design acceptance. The browser attempt used `npm run test:e2e -- --project=desktop --grep 'sample onboarding' --max-failures=1`; it stopped at browser launch with `Executable doesn't exist`. No browser screenshot or successful UI interaction is claimed. Browser acquisition had also failed during the preceding audit, so the missing browser was not treated as an application regression.
+The Node canvas check exercises the upgraded rendering engine, **not** DOM rendering, actual browsers, all uploaded PDF variants or visual design acceptance. The local browser attempt used `npm run test:e2e -- --project=desktop --grep 'sample onboarding' --max-failures=1`; it stopped at browser launch with `Executable doesn't exist`. Browser acquisition had also failed during the preceding audit. A subsequent cloud-browser attempt on 2026-09-02 returned `ERR_CONNECTION_REFUSED` when opening the isolated local Settings preview; no application page loaded. These environment blockers do not constitute a UI test pass or evidence of an application regression. No browser screenshot or successful UI interaction is claimed.
 
 To run the prepared UI suites on a machine with supported browser dependencies: install project dependencies, run `npm run build`, `npx playwright install chromium`, then `npm run test:e2e`. The mobile project is Chromium device emulation, not a Safari/iPhone hardware test. Local HTML reports and optional screenshots/traces are generated under `apps/web/playwright-report/` and `apps/web/test-results/`; these generated files are intentionally not committed.
 
