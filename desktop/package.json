@@ -25,12 +25,7 @@
     "directories": {
       "output": "release"
     },
-    "extraResources": [
-      {
-        "from": "bundle",
-        "to": "bundle"
-      }
-    ],
+    "afterPack": "./after-pack.cjs",
     "win": {
       "icon": "bundle/icon.png",
       "target": "nsis",
