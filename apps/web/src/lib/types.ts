@@ -38,6 +38,8 @@ export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   mode: string;
+  model_label?: string | null;
+  retrieval?: string | null;
   citations: Citation[];
   created_at: string;
 };
@@ -93,6 +95,28 @@ export type Settings = {
   max_upload_mb: number;
   max_pdf_pages: number;
   mode: string;
+  chat_available?: boolean;
+  default_profile_id?: string | null;
+  chat_connection?: string | null;
+};
+export type AIProfile = {
+  id: string;
+  name: string;
+  provider: "deepseek" | "zhipu";
+  base_url: string;
+  model: string;
+  has_api_key: boolean;
+  revision: number;
+};
+export type AIProfiles = {
+  profiles: AIProfile[];
+  default_id: string | null;
+  providers: {
+    id: AIProfile["provider"];
+    base_url: string;
+    models: string[];
+    checked_on: string;
+  }[];
 };
 export type SearchResult = {
   page_number: number;

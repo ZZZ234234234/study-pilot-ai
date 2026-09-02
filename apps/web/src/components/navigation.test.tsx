@@ -38,6 +38,14 @@ it("defaults to a collapsed navigation with an accessible reopen control", () =>
   expect(nav().hasAttribute("inert")).toBe(true);
   fireEvent.click(screen.getByRole("button", { name: "展开导航" }));
   expect(nav().hasAttribute("inert")).toBe(false);
+  expect(
+    screen.getByRole("link", { name: "API 接入" }).getAttribute("href"),
+  ).toBe("/app/models");
+  expect(
+    screen
+      .getByRole("button", { name: "收起导航", expanded: true })
+      .classList.contains("navigation-toggle"),
+  ).toBe(true);
   expect(localStorage.getItem("studypilot:navigation")).toBe("open");
   fireEvent.click(screen.getAllByRole("button", { name: "收起导航" })[0]);
   expect(nav().hasAttribute("inert")).toBe(true);

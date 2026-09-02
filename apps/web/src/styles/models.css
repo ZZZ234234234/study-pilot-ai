@@ -1,0 +1,331 @@
+/* Quiet editorial settings; compact controls in the reader, not a second dashboard. */
+.connections-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 48px;
+  align-items: start;
+}
+.connections-main {
+  min-width: 0;
+}
+.connections-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.connections-heading h2 {
+  font-size: 23px;
+  font-weight: 600;
+}
+.connections-heading .eyebrow {
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.connections-empty {
+  padding: 60px 10px;
+  max-width: 520px;
+}
+.connections-empty > svg {
+  color: var(--green);
+  margin-bottom: 22px;
+}
+.connections-empty h3 {
+  font-size: 23px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.connections-empty p {
+  color: var(--muted);
+  margin: 14px 0 28px;
+  font-size: 14px;
+}
+.connections-empty > span {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--green);
+}
+.connection-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.connection-monogram {
+  width: 42px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--green);
+  font-size: 22px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.connection-identity {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.connection-identity h3 {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.connection-identity h3 > span {
+  font-size: 11px;
+  color: var(--green);
+  background: var(--accent-soft);
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+.connection-identity p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0;
+}
+.connection-identity small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.connection-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 150px;
+  gap: 3px;
+}
+.connection-actions .text-button {
+  font-size: 12px;
+}
+.connections-guide {
+  border-left: 1px solid var(--line);
+  padding-left: 28px;
+}
+.connections-guide > svg {
+  color: var(--green);
+  margin-bottom: 20px;
+}
+.connections-guide h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+.connections-guide p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-block: 16px;
+}
+.connections-guide a {
+  color: var(--green);
+  font-size: 13px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.connection-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.connection-form .field {
+  margin-bottom: 14px;
+}
+.connection-form .field input,
+.connection-form .field select {
+  width: 100%;
+  min-width: 0;
+}
+.connection-form-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.model-suggestions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-height: 104px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.model-suggestions button {
+  font-size: 12px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--green);
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.connection-consent,
+.chat-model-consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.connection-consent input,
+.chat-model-consent input {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  accent-color: var(--green);
+}
+.connection-success {
+  font-size: 13px;
+  color: var(--green);
+  display: flex;
+  gap: 8px;
+  margin: 15px 0;
+}
+.settings-api-link {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 22px;
+  margin: 24px 0;
+}
+.settings-api-link > span {
+  margin-left: auto;
+}
+.settings-api-link strong {
+  color: var(--green);
+}
+.settings-api-link p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.advanced-provider-settings > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 12px 0 22px;
+}
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+  margin: 2px 12px 8px;
+}
+.model-selector label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  border-radius: 7px;
+  padding: 5px 8px;
+  flex: 1;
+  min-width: 0;
+  color: var(--green);
+}
+.model-selector label svg {
+  flex-shrink: 0;
+}
+.model-selector select {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+.model-selector > a {
+  font-size: 12px;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.chat-model-consent {
+  margin: 0 14px 8px;
+  flex-shrink: 0;
+}
+.translation-controls .model-selector {
+  margin: 0;
+}
+.message-label {
+  overflow-wrap: anywhere;
+}
+.reading-workspace .document-tabs {
+  scrollbar-width: none;
+  gap: 12px;
+}
+.reading-workspace .document-tabs::-webkit-scrollbar {
+  display: none;
+}
+.reading-workspace .document-tabs button {
+  padding-inline: 3px;
+}
+.reading-workspace .chat-composer {
+  background: var(--soft);
+  border-color: transparent;
+  border-radius: 10px;
+}
+.reading-workspace .chat-composer:focus-within {
+  border-color: var(--line);
+  background: var(--surface);
+}
+.reading-workspace .chat-composer textarea {
+  min-height: 56px;
+  background: transparent;
+}
+.reading-workspace .suggested-questions {
+  gap: 8px;
+}
+.reading-workspace .suggested-questions button {
+  background: var(--soft);
+  border-color: transparent;
+  border-radius: 7px;
+}
+.reading-workspace .suggested-questions button:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+@media (max-width: 1000px) {
+  .connections-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .connections-guide {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 24px 0 0;
+  }
+}
+@media (max-width: 520px) {
+  .connections-heading {
+    align-items: flex-start;
+  }
+  .connections-heading h2 {
+    font-size: 20px;
+  }
+  .connection-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .connection-actions {
+    width: 100%;
+    max-width: none;
+  }
+}

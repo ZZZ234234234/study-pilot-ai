@@ -26,7 +26,7 @@ import { ChatPanel } from "./chat-panel";
 import { FlashcardsPanel } from "./flashcards-panel";
 import { QuizPanel } from "./quiz-panel";
 import { api, errorMessage, post } from "@/lib/api";
-import type { Document, SearchResult } from "@/lib/types";
+import type { AIProfiles, Document, SearchResult } from "@/lib/types";
 import { documentStatus } from "@/lib/locale";
 export function Highlight({ text, query }: { text: string; query: string }) {
   const index = text.toLocaleLowerCase().indexOf(query.toLocaleLowerCase());
@@ -49,6 +49,11 @@ const tabs = [
 ];
 export function DocumentWorkspace({ id }: { id: string }) {
   const { t } = useLocale();
+  const { data: connections, error: connectionError } =
+    useSWR<AIProfiles>("/ai/profiles");
+  const [modelChoice, setModelChoice] = useState<string>();
+  const modelId = modelChoice ?? connections?.default_id ?? "server";
+  const selectedModel = connections?.profiles.find((p) => p.id === modelId);
   const {
     data: doc,
     error,
@@ -215,11 +220,11 @@ export function DocumentWorkspace({ id }: { id: string }) {
               )}
             </div>
           )}
-          {doc.ai_status === "not_configured" && (
+          {doc.ai_status === "not_configured" && !selectedModel && (
             <div className="mode-notice">
               {t("PDF 已解析，可以阅读和搜索。")}{" "}
-              <Link href="/app/settings">{t("配置 AI 模型")}</Link>{" "}
-              {t("后，重新处理这份文档，即可生成知识点并进行问答。")}
+              <Link href="/app/models">{t("API 接入")}</Link>{" "}
+              {t("保存模型后即可问答与翻译，无需重新上传。")}
             </div>
           )}
           <ReadingWorkspace
@@ -255,19 +260,29 @@ export function DocumentWorkspace({ id }: { id: string }) {
                   page={page}
                   count={doc.page_count}
                   onPage={setPage}
+                  connections={connections}
+                  modelId={modelId}
+                  onModel={setModelChoice}
+                  connectionError={!!connectionError}
                 />
               </div>
-              {doc.ai_status !== "not_configured" &&
-                doc.status !== "failed" && (
-                  <div className="chat-pane" hidden={active !== "chat"}>
-                    <ChatPanel
-                      id={id}
-                      onPage={jump}
-                      isDemo={doc.ai_status === "demo"}
-                    />
-                  </div>
-                )}
-              {active === "translation" ? null : doc.ai_status ===
+              {doc.status !== "failed" && (
+                <div className="chat-pane" hidden={active !== "chat"}>
+                  <ChatPanel
+                    id={id}
+                    onPage={jump}
+                    isDemo={doc.ai_status === "demo"}
+                    connections={connections}
+                    modelId={modelId}
+                    onModel={setModelChoice}
+                    connectionError={!!connectionError}
+                    serverAvailable={doc.ai_status !== "not_configured"}
+                  />
+                </div>
+              )}
+              {active === "translation" ||
+              (active === "chat" &&
+                doc.status !== "failed") ? null : doc.ai_status ===
                   "not_configured" || doc.status === "failed" ? (
                 <div className="provider-notice" role="status">
                   <EmptyState

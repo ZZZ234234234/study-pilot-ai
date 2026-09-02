@@ -209,13 +209,24 @@ export default function SettingsPage() {
         description={t("自由选择模型服务，让密钥留在服务端。")}
       />
       <LanguageSettings />
-      {error ? (
-        <ErrorState error={error} retry={() => mutate()} />
-      ) : data ? (
-        <Configuration settings={data} />
-      ) : (
-        <Skeleton lines={4} />
-      )}
+      <Link className="settings-api-link" href="/app/models">
+        <KeyRound size={22} />
+        <div>
+          <strong>{t("API 接入")}</strong>
+          <p>{t("DeepSeek、智谱：在界面保存密钥与型号，即时生效。")}</p>
+        </div>
+        <span>↗</span>
+      </Link>
+      <details className="advanced-provider-settings">
+        <summary>{t("高级：原有索引与本地模型配置")}</summary>
+        {error ? (
+          <ErrorState error={error} retry={() => mutate()} />
+        ) : data ? (
+          <Configuration settings={data} />
+        ) : (
+          <Skeleton lines={4} />
+        )}
+      </details>
     </>
   );
 }

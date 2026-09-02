@@ -20,6 +20,23 @@ class User(Base):
     __tablename__ = "users"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+    # Workspace preference, deliberately not a foreign key (profiles belong to users).
+    ai_profile_id: Mapped[str | None] = mapped_column(String(36))
+
+
+class AIProfile(Base):
+    __tablename__ = "ai_profiles"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(60))
+    provider: Mapped[str] = mapped_column(String(20))
+    base_url: Mapped[str] = mapped_column(String(200))
+    model: Mapped[str] = mapped_column(String(120))
+    # Server-private database only. Never serialize this model using row_dict.
+    # Not encrypted at rest: protect the data directory/database and its backups.
+    api_key: Mapped[str] = mapped_column(Text)
+    revision: Mapped[int] = mapped_column(default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
 class Document(Base):
@@ -164,6 +181,9 @@ class ChatMessage(Base):
     role: Mapped[str] = mapped_column(String(12))
     content: Mapped[str] = mapped_column(Text)
     mode: Mapped[str] = mapped_column(String(20))
+    # Immutable provenance survives a profile rename or deletion.
+    model_label: Mapped[str | None] = mapped_column(String(220))
+    retrieval: Mapped[str | None] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 

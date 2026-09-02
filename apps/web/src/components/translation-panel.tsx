@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { Download, Languages, Square } from "lucide-react";
 import { api, errorMessage } from "@/lib/api";
-import type { Settings } from "@/lib/types";
+import type { AIProfiles, Settings } from "@/lib/types";
+import { ModelSelector } from "./model-selector";
 import { downloadBlob, safeDownloadName } from "@/lib/download";
 import {
   translationKey,
@@ -23,12 +24,20 @@ export function TranslationPanel({
   page,
   count,
   onPage,
+  connections,
+  modelId = "server",
+  onModel = () => {},
+  connectionError = false,
 }: {
   id: string;
   title: string;
   page: number;
   count: number;
   onPage: (page: number) => void;
+  connections?: AIProfiles;
+  modelId?: string;
+  onModel?: (id: string) => void;
+  connectionError?: boolean;
 }) {
   const { t } = useLocale();
   const { data: settings, error: settingsError } =
@@ -41,7 +50,7 @@ export function TranslationPanel({
   const [scope, setScope] = useState("current");
   const [from, setFrom] = useState(1);
   const [to, setTo] = useState(Math.min(count, 10));
-  const [consent, setConsent] = useState(false);
+  const [consentKey, setConsentKey] = useState("");
   const [cache, setCache] = useState<Record<string, PageTranslation>>({});
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -56,13 +65,20 @@ export function TranslationPanel({
       stop.current = true;
     };
   }, []);
+  const selectedModel = connections?.profiles.find((p) => p.id === modelId);
+  const modelKey = `${modelId}:${selectedModel?.revision ?? settings?.chat_model ?? ""}`;
+  const consent = consentKey === modelKey;
   const configured =
-    settings &&
-    settings.provider !== "demo" &&
-    (settings.provider === "ollama" || settings.has_api_key);
-  const current = cache[translationKey(page, options)];
+    modelId !== "server"
+      ? !!selectedModel
+      : settings &&
+        settings.provider !== "demo" &&
+        (settings.provider === "ollama" || settings.has_api_key);
+  const cacheKey = (page: number) =>
+    `${modelKey}:${translationKey(page, options)}`;
+  const current = cache[cacheKey(page)];
   const matching = Object.entries(cache)
-    .filter(([key, item]) => key === translationKey(item.page, options))
+    .filter(([key, item]) => key === cacheKey(item.page))
     .map(([, item]) => item)
     .sort((a, b) => a.page - b.page);
 
@@ -87,7 +103,7 @@ export function TranslationPanel({
     try {
       for (let i = 0; i < pages.length; i++) {
         if (stop.current) break;
-        const key = translationKey(pages[i], options);
+        const key = cacheKey(pages[i]);
         if (!cache[key]) {
           const result = await api<PageTranslation>(
             `/documents/${id}/translate`,
@@ -97,6 +113,8 @@ export function TranslationPanel({
                 ...options,
                 glossary: options.glossary.trim(),
                 page: pages[i],
+                profile_id: modelId,
+                profile_revision: selectedModel?.revision,
               }),
             },
           );
@@ -150,11 +168,18 @@ export function TranslationPanel({
                   "翻译需要真实聊天模型，演示模式不会生成假译文。无需嵌入模型或重新建立索引。",
                 )
               : t("正在读取模型配置…")}
-          <Link href="/app/settings">{t("前往模型设置")}</Link>
+          <Link href="/app/models">{t("API 接入")}</Link>
         </div>
       )}
       <fieldset className="translation-controls" disabled={busy}>
         <legend className="sr-only">{t("翻译选项")}</legend>
+        <ModelSelector
+          data={connections}
+          value={modelId}
+          onChange={onModel}
+          disabled={busy}
+          failed={connectionError}
+        />
         <div className="tool-fields">
           <label>
             {t("目标语言")}
@@ -236,7 +261,7 @@ export function TranslationPanel({
           <input
             type="checkbox"
             checked={consent}
-            onChange={(e) => setConsent(e.target.checked)}
+            onChange={(e) => setConsentKey(e.target.checked ? modelKey : "")}
           />
           <span>
             {t(

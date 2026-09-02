@@ -46,12 +46,15 @@ test("an uploaded PDF gives Chinese setup guidance without a failed AI request",
   await showPanel(page, "学习助手");
   await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
   await expect(
-    page.getByRole("heading", { name: "原文已就绪，AI 功能还差一步。" }),
+    page.getByText("请先添加模型连接，或重新选择可用型号。"),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "前往模型设置" }),
-  ).toHaveAttribute("href", "/app/settings");
-  for (const name of ["知识地图", "知识闪卡", "理解测验", "文档问答"]) {
+    page
+      .getByRole("link", { name: "管理", exact: true })
+      .filter({ visible: true }),
+  ).toHaveAttribute("href", "/app/models");
+  await expect(page.getByRole("button", { name: "发送问题" })).toBeDisabled();
+  for (const name of ["知识地图", "知识闪卡", "理解测验"]) {
     await page.getByRole("button", { name, exact: true }).click();
     await expect(page.locator(".provider-notice")).toBeVisible();
   }

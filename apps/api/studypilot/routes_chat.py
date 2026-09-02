@@ -5,15 +5,17 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .ai_profiles import ProfileProvider, selected_profile
 from .config import get_settings
 from .db import get_db
 from .errors import AppError
 from .learning import demo_answer, retrieve
 from .models import ChatMessage, ChatSession, Citation, User
 from .pdf import normalize
+from .profile_retrieval import profile_retrieve
 from .providers import DemoProvider, get_provider
 from .schemas import AnswerResponse, ChatRequest
-from .security import current_user, owned_document, require_ai
+from .security import current_user, owned_document, require_ai, require_ready
 from .serialization import row_dict
 
 router = APIRouter(prefix="/documents/{document_id}/chat", tags=["chat"])
@@ -53,12 +55,18 @@ def ask(
     user: User = Depends(current_user),
 ):
     doc = owned_document(db, user, document_id)
-    require_ai(doc)
     settings = get_settings()
-    provider = get_provider()
-    chunks = retrieve(
-        db, doc, body.question, provider, settings.retrieval_top_k, settings.min_similarity
-    )
+    profile = selected_profile(db, user, body.profile_id, body.profile_revision)
+    if profile:
+        require_ready(doc)
+        provider = ProfileProvider(profile)
+        chunks = profile_retrieve(db, doc, body.question, provider, settings.retrieval_top_k)
+    else:
+        require_ai(doc)
+        provider = get_provider()
+        chunks = retrieve(
+            db, doc, body.question, provider, settings.retrieval_top_k, settings.min_similarity
+        )
     if not chunks:
         result = {
             "answer": "当前资料中没有找到足够依据。",
@@ -94,7 +102,14 @@ def ask(
     mode = "demo" if isinstance(provider, DemoProvider) else "live"
     question = ChatMessage(session_id=session.id, role="user", content=body.question, mode=mode)
     answer = ChatMessage(
-        session_id=session.id, role="assistant", content=result["answer"], mode=mode
+        session_id=session.id,
+        role="assistant",
+        content=result["answer"],
+        mode=mode,
+        model_label=f"{profile.name} · {profile.model}"
+        if profile
+        else (settings.chat_model if mode == "live" else None),
+        retrieval="ai-terms-lexical" if profile else "vector",
     )
     db.add_all([question, answer])
     db.flush()

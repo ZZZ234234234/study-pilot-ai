@@ -1,29 +1,38 @@
 # Verification record
 
-Reading-layout, translation and local-conversion update checked on **2026-09-02** in the project workspace. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
+Private DeepSeek/Zhipu connections and the compact reading-layout update checked on **2026-09-02**. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
 
 ## Current checks
 
-| Check                                     | Result                                                                                                                                                                       |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                                                                                           |
-| Frontend production build                 | Passed, including standalone assets and `/app/tools`                                                                                                                         |
-| TypeScript                                | Passed (`npm run typecheck`)                                                                                                                                                 |
-| Frontend lint                             | Passed (`npm run lint`)                                                                                                                                                      |
-| Formatting                                | Passed (`npm run format:check`)                                                                                                                                              |
-| Frontend logic/component/conversion tests | 103 passed: including 35 new reading geometry/navigation/viewer/workspace checks, eleven static rendering checks, five translation interactions and seven Node-canvas checks |
-| Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                                                                                             |
-| Backend tests                             | 45 passed, including 24 translation schema and isolated endpoint checks                                                                                                      |
-| PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                                                                                     |
-| API end-to-end tests                      | 18 passed against the production frontend, temporary API, worker and PGlite                                                                                                  |
-| Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                                                                                     |
-| Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment                                                                            |
-| Browser test collection                   | 20 desktop/mobile scenarios collected separately from the 18 API cases                                                                                                       |
-| Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed                                                                      |
+| Check                                     | Result                                                                                                  |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                      |
+| Frontend production build                 | Passed, including standalone assets and `/app/models`                                                   |
+| TypeScript                                | Passed (`npm run typecheck`)                                                                            |
+| Frontend lint                             | Passed (`npm run lint`)                                                                                 |
+| Formatting                                | Passed (`npm run format:check`)                                                                         |
+| Frontend logic/component/conversion tests | 110 passed: includes six new model-management/chat checks and model-scoped translation caching          |
+| Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                        |
+| Backend tests                             | 70 passed: includes 24 profile/HTTP/retrieval/integration checks and one migration preservation check   |
+| PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                |
+| API end-to-end tests                      | 20 passed against production frontend, temporary API, worker and PGlite                                 |
+| Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                |
+| Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment       |
+| Browser test collection                   | 20 desktop/mobile scenarios collected separately from the 20 API cases                                  |
+| Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed |
 
-**166 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of translation accuracy. The Python run reports a Starlette TestClient/httpx deprecation warning, not a failing test; the existing HTTP client stack was not replaced merely to suppress it. Dependencies and lockfile are unchanged by the reading-layout update; installation, audit, smoke workflow and eight-page Node rendering checks above were completed earlier on the same date.
+**200 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of model quality. Python reports a Starlette TestClient/httpx deprecation warning, not a failing test. Dependencies and lockfile are unchanged by this update. Installation, audit, smoke workflow and eight-page Node rendering checks above were completed earlier on the same date; they are retained checks, not a fresh installation on Windows/macOS.
 
-## Reading-layout checks
+## New model-connection checks
+
+- Six jsdom tests exercise editing without a returned key, explicit paid-test confirmation, testing unsaved exact IDs, clearing keys when providers change, Q&A profile selection, preserved drafts/history, revision-scoped consent and refusal of deleted selections.
+- Twenty-four isolated backend checks cover private serializers, persistence/defaults, blank-key preservation, provider-change key requirements, cross-workspace denial, connection limits, reference-vs-live lists, draft model tests, official URL allowlists, redacted representations, exact HTTP contracts, no redirects/retries, sanitized errors, truncated JSON rejection, lexical ranking and question-only bilingual query conversion. Mock HTTP replaces every real provider call.
+- A full saved-profile route test uses an uploaded-paper fixture, switches DeepSeek/Zhipu for answers and translation without embeddings, preserves source and original index signatures, retains answer labels after rename/deletion and rejects stale configuration revisions.
+- An additive-migration test preserves old user/message rows and tolerates already-present columns. API end-to-end startup also applies migrations to a fresh temporary PGlite database.
+- Two new HTTP end-to-end scenarios check `/app/models`, private configuration CRUD/defaults, same-origin mutation protection, actual workspace isolation and sanitized validation errors through the production proxy. No real key is used and no successful live-provider request is attempted.
+- The UI keeps the established cream/green theme. Fixed navigation and a compact flex-height normal reader are implemented in CSS; no rendered-browser visual acceptance is claimed.
+
+## Retained reading-layout checks
 
 - Thirteen pure geometry checks cover default/limited splits, moving, anchored resizing, reset positions, non-finite inputs, viewport offsets, 1920/1440/1366/iPad/phone dimensions, short keyboard-sized viewports and bounded PDF canvas allocation. They do not measure rendered CSS layout.
 - Thirteen jsdom workspace checks use a stubbed PDF component to test default proportions, preserved draft DOM nodes, floating/docking/hiding, simulated pointer capture and cancellation, keyboard movement/resize/divider controls, viewport clamping, source jumps on mobile, validated preferences and English controls. Fullscreen tests also check focus trapping/restoration, background inertness and scroll-lock cleanup.
@@ -38,7 +47,7 @@ Reading-layout, translation and local-conversion update checked on **2026-09-02*
 - Missing, repeated, mismatched, blank or extra structured fields are rejected. Unsupported languages/styles, invalid pages and oversized terminology fail validation.
 - Isolated endpoint tests use real SQLAlchemy queries over temporary SQLite tables, with a deterministic fake chat provider. They verify ownership, original-source preservation, missing pages, and refusal of Demo/missing-key requests. The fake provider rejects any embedding call.
 - Parsed pages remain translatable after indexing failure. Active parsing cannot translate stale pages; other learning tools do not become falsely ready.
-- Five jsdom component tests verify confirmation before requests, reuse of completed pages, new requests after terminology changes, stopping after the current page, preserving results after a later failure, export availability and Demo disabling. Model calls and the download helper are mocked.
+- Six jsdom translation tests verify explicit confirmation, option/model-specific caching, consent after model changes, stopping after the current page, preserving results after failure and export availability. Model calls and downloads are mocked.
 - Real frontend/API checks exercise Chinese toolkit content, page ownership and refusal to simulate Demo translations.
 
 ## Conversion checks and visual inspection

@@ -13,6 +13,7 @@ from .config import get_settings
 from .errors import AppError
 from .routes_chat import router as chat_router
 from .routes_documents import router as documents_router
+from .routes_profiles import router as profiles_router
 from .routes_quiz import router as quiz_router
 from .routes_study import router as study_router
 from .routes_system import router as system_router
@@ -131,6 +132,7 @@ async def handle_unexpected(request: Request, exc: Exception):
 
 
 for router in (
+    profiles_router,
     system_router,
     documents_router,
     chat_router,

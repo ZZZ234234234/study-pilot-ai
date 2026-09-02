@@ -151,8 +151,11 @@ describe("server-rendered interface copy (not browser interaction)", () => {
     };
     const html = renderToStaticMarkup(<DocumentWorkspace id="document" />);
     expect(html).toContain("我的原始资料");
-    expect(html).toContain("Connect AI when you");
-    expect(html).toContain("Read the PDF");
+    expect(html).toContain("API connections");
+    expect(html).toContain(
+      "Add a model connection or select an available model",
+    );
+    expect(html).toContain("Fullscreen reader");
     expect(html).toContain("8 pages");
     expect(visibleCopy(html).replace("我的原始资料", "")).not.toMatch(
       /[\u3400-\u9fff]/,

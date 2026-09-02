@@ -18,6 +18,7 @@ import {
   Files,
   PanelLeftClose,
   PanelLeftOpen,
+  Cable,
 } from "lucide-react";
 import { Logo, ThemeToggle, Badge } from "./ui";
 import type { Settings } from "@/lib/types";
@@ -56,6 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         "app-shell",
         !expanded && "nav-collapsed",
         compact && "nav-overlay",
+        path.includes("/documents/") && "reading-shell",
       )}
     >
       {compact && open && (
@@ -140,6 +142,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="sidebar-bottom">
           <Link
+            href="/app/models"
+            className={cn("nav-link", path === "/app/models" && "active")}
+            onClick={() => setOpen(false)}
+          >
+            <Cable size={18} />
+            {t("API 接入")}
+          </Link>
+          <Link
             href="/app/settings"
             className={cn("nav-link", path === "/app/settings" && "active")}
             onClick={() => setOpen(false)}
@@ -202,15 +212,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ? t("复习计划")
                     : path.includes("tools")
                       ? t("学习工具箱")
-                      : path.includes("settings")
-                        ? t("设置")
-                        : t("学习概览")}
+                      : path.includes("models")
+                        ? t("API 接入")
+                        : path.includes("settings")
+                          ? t("设置")
+                          : t("学习概览")}
             </strong>
           </div>
           <div className="topbar-right">
             <span className="desktop-only">{t("学得更清楚一点")}</span>
-            <Badge tone={data?.mode === "live" ? "green" : "amber"}>
-              {data?.mode === "live" ? t("已连接 AI") : t("演示模式")}
+            <Badge
+              tone={
+                data?.chat_available || data?.mode === "live"
+                  ? "green"
+                  : "amber"
+              }
+            >
+              {data?.chat_available
+                ? t("AI 已配置")
+                : data?.mode === "live"
+                  ? t("已连接 AI")
+                  : t("演示模式")}
             </Badge>
           </div>
         </header>

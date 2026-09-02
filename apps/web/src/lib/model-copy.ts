@@ -1,0 +1,106 @@
+export const modelCopy: Record<string, string> = {
+  "这个模型连接已在其他页面更新。请刷新页面，重新选择并确认模型后再试。":
+    "This model connection changed on another page. Refresh, select and confirm the model again.",
+  "API 接入": "API connections",
+  "AI 已配置": "AI configured",
+  本次使用的模型: "Model for this request",
+  模型列表读取失败: "Could not load model connections",
+  "原有服务 / 演示": "Server configuration / demo",
+  "模型已移除，请重新选择": "Model removed — select another",
+  "管理 API 接入": "Manage API connections",
+  管理: "Manage",
+  "已保存，问答与翻译中可立即选择。":
+    "Saved. Available immediately in Q&A and translation.",
+  我的模型: "My model",
+  "连接测试通过：{0}。保存后才会更新配置。":
+    "Connection test passed: {0}. Save to apply these settings.",
+  "连接，由你选择": "YOUR CONNECTIONS",
+  我的模型连接: "My model connections",
+  添加模型: "Add model",
+  "把熟悉的 AI，带进你的阅读空间。":
+    "Bring your preferred AI into your reading space.",
+  "先选择服务商，再填入密钥与型号。无需编辑文件，无需重启。":
+    "Choose a provider, then enter its key and model ID. No file editing or restart.",
+  智谱: "Zhipu",
+  默认: "Default",
+  "密钥已保存 · 使用前请测试": "Key saved · Test before use",
+  设为默认: "Set default",
+  "编辑 {0}": "Edit {0}",
+  "删除 {0}": "Delete {0}",
+  "每个连接对应一个准确型号；同一服务商可添加多个。最多保存 12 个。":
+    "Each connection uses one exact model ID. Add multiple models from one provider, up to 12 connections.",
+  "密钥留在后端，选择留给你。":
+    "Your keys stay server-side. The choice stays yours.",
+  "密钥保存到当前学习空间的后端数据库，不会回传浏览器或写入 Git。数据库尚未加密，请保护电脑、data 目录和备份，不要把它们公开。":
+    "Keys are saved in this workspace's backend database, never returned to the browser or committed to Git. The database is not encrypted at rest. Protect your computer, data directory and backups; do not share them publicly.",
+  "第一版仅允许 DeepSeek、智谱的官方通用 API 地址，不支持中转站或 Coding Plan 专用接口。":
+    "This version supports only official general-purpose DeepSeek and Zhipu endpoints, not gateways or Coding Plan endpoints.",
+  "新连接用于文档问答和翻译。知识地图、闪卡与测验仍使用原有服务端配置。":
+    "New connections power document Q&A and translation. Knowledge maps, flashcards and quizzes still use the original server configuration.",
+  "学习空间绑定浏览器 Cookie，不是登录账号。清除 Cookie 后无法找回原空间。":
+    "Your workspace is tied to a browser cookie, not an account. Clearing it loses access to the original workspace.",
+  "DeepSeek 开放平台": "DeepSeek platform",
+  智谱开放平台: "Zhipu platform",
+  编辑模型连接: "Edit model connection",
+  添加模型连接: "Add model connection",
+  服务商: "Provider",
+  连接备注名: "Connection nickname",
+  "例如：论文阅读助手": "e.g. Paper reading assistant",
+  留空保留已保存的密钥: "Leave blank to keep the saved key",
+  "粘贴此服务商的 API 密钥": "Paste this provider's API key",
+  "准确模型 ID": "Exact model ID",
+  "选择下方型号，或输入官方完整 ID":
+    "Choose below or enter the complete official ID",
+  读取官方模型列表: "Fetch official model list",
+  "型号来自当前官方接口；具体调用权限仍需测试。":
+    "IDs returned by the official API. Test to confirm your access to a specific model.",
+  "这些是官方文档参考型号，不代表你的账号已开通。可输入其他准确型号，不会自动猜测或替换。":
+    "These are documented reference IDs, not confirmed account permissions. You can enter another exact ID; it will not be guessed or replaced.",
+  "允许发送一条小型测试请求，可能产生少量 API 费用；不会发送论文。":
+    "Allow one small test request that may incur a small API charge. No document will be sent.",
+  测试这个型号: "Test this model",
+  保存连接: "Save connection",
+  "删除模型连接？": "Delete model connection?",
+  "将移除 {0} 的密钥与配置，历史回答和模型标签仍保留。服务商账单与备份不会自动删除。":
+    "Remove the key and settings for {0}. Past answers and model labels stay. Provider billing records and backups are not deleted automatically.",
+  确认删除: "Confirm deletion",
+  "适合你的模型，随时切换。": "Your models. Ready when you are.",
+  "连接 DeepSeek 与智谱，让问答和翻译按你的习惯工作。":
+    "Connect DeepSeek and Zhipu for Q&A and translation that fit your workflow.",
+  "保存模型后即可问答与翻译，无需重新上传。":
+    "Save a model to start Q&A and translation without uploading again.",
+  "允许向 {0} 发送问题与相关原文，可能产生费用。":
+    "Allow sending questions and relevant source text to {0}. API charges may apply.",
+  "请先添加模型连接，或重新选择可用型号。":
+    "Add a model connection or select an available model.",
+  "跨语言检索词 + 本地关键词检索；重要结论请核对原文。":
+    "Cross-language search terms + local keyword retrieval. Verify important conclusions against the source.",
+  "DeepSeek、智谱：在界面保存密钥与型号，即时生效。":
+    "DeepSeek and Zhipu: save keys and model IDs here, with immediate effect.",
+  "高级：原有索引与本地模型配置":
+    "Advanced: original indexing and local model configuration",
+  "不接入广告追踪。手动输入的 API 密钥只发送到本项目后端保存；后端不会将已保存的密钥回传浏览器。":
+    "No ad tracking. API keys you enter are sent only to this application's backend for storage. Saved keys are never returned to the browser.",
+  "请选择对应服务商的官方 API 地址；第一版不支持自定义中转地址。":
+    "Use the selected provider's official API endpoint. Custom gateways are not supported in this version.",
+  "请输入当前服务商的 API 密钥；更换服务商后需重新填写。":
+    "Enter this provider's API key. A different provider needs its own key.",
+  "这个模型连接已删除或不属于当前空间，请重新选择。":
+    "This connection was deleted or does not belong to your workspace. Select another.",
+  "密钥或型号权限未通过验证，请在 API 接入中检查。":
+    "The key or model access was rejected. Check API connections.",
+  "请检查 API 余额、额度与调用频率，稍后再试。":
+    "Check API balance, quota and request frequency, then retry.",
+  "调用未成功，请核对准确型号、JSON 输出支持及账号权限。":
+    "Request rejected. Check the exact model ID, JSON output support and account access.",
+  "未能读取模型列表。可手动输入官网提供的准确型号。":
+    "Could not read the model list. You can enter an exact ID from the official documentation.",
+  "最多保存 12 个模型连接，请先删除不再使用的连接。":
+    "Up to 12 model connections are allowed. Remove an unused connection first.",
+  "这个连接只支持聊天，不提供嵌入模型。":
+    "This connection supports chat, not embeddings.",
+  "翻译需要真实聊天模型。请在 API 接入中保存模型；无需重启或重新建立索引。":
+    "Translation needs a real chat model. Save one in API connections; no restart or re-indexing is needed.",
+  "PDF 可以继续阅读和搜索。请在“API 接入”添加问答模型；原有知识功能可在“模型设置”配置后重新处理。":
+    "You can still read and search the PDF. Add a Q&A model in API connections; for the original knowledge features, configure Settings and reprocess the document.",
+};

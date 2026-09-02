@@ -10,6 +10,8 @@ class RenameRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=2, max_length=1200)
+    profile_id: str | None = Field(default=None, pattern=r"^(server|[a-f0-9-]{36})$")
+    profile_revision: int | None = Field(default=None, ge=1)
 
 
 class PlanRequest(BaseModel):

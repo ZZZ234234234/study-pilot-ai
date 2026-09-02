@@ -5,16 +5,27 @@ import useSWR from "swr";
 import { ArrowUp, ArrowUpRight, BookOpen, Sparkles } from "lucide-react";
 import { ErrorState, Skeleton, Spinner } from "./ui";
 import { errorMessage, post } from "@/lib/api";
-import type { ChatMessage } from "@/lib/types";
+import type { AIProfiles, ChatMessage } from "@/lib/types";
+import { ModelSelector } from "./model-selector";
 import { shouldSendQuestion } from "@/lib/keyboard";
 export function ChatPanel({
   id,
   onPage,
   isDemo,
+  connections,
+  modelId = "server",
+  onModel = () => {},
+  connectionError = false,
+  serverAvailable = true,
 }: {
   id: string;
   onPage: (page: number) => void;
   isDemo: boolean;
+  connections?: AIProfiles;
+  modelId?: string;
+  onModel?: (id: string) => void;
+  connectionError?: boolean;
+  serverAvailable?: boolean;
 }) {
   const { t } = useLocale();
   const { data, error, mutate } = useSWR<ChatMessage[]>(
@@ -24,18 +35,28 @@ export function ChatPanel({
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState("");
   const [failure, setFailure] = useState("");
+  const [consentKey, setConsentKey] = useState("");
+  const selected = connections?.profiles.find((p) => p.id === modelId);
+  const selectionKey = selected ? `${selected.id}:${selected.revision}` : "";
+  const available = modelId === "server" ? serverAvailable : !!selected;
+  const allowed =
+    available && (modelId === "server" || consentKey === selectionKey);
   const bottom = useRef<HTMLDivElement>(null);
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [data, busy]);
   async function ask(question = value) {
-    if (question.trim().length < 2 || busy) return;
+    if (question.trim().length < 2 || busy || !allowed) return;
     setBusy(true);
     setPending(question);
     setValue("");
     setFailure("");
     try {
-      await post(`/documents/${id}/chat`, { question });
+      await post(`/documents/${id}/chat`, {
+        question,
+        profile_id: modelId,
+        profile_revision: selected?.revision,
+      });
       await mutate();
     } catch (e) {
       setFailure(errorMessage(e));
@@ -52,6 +73,36 @@ export function ChatPanel({
         <h2>{t("文档问答")}</h2>
         <span>{t("回答附原文依据")}</span>
       </div>
+      <ModelSelector
+        data={connections}
+        value={modelId}
+        onChange={onModel}
+        disabled={busy}
+        failed={connectionError}
+      />
+      {selected && (
+        <label className="chat-model-consent">
+          <input
+            type="checkbox"
+            checked={consentKey === selectionKey}
+            disabled={busy}
+            onChange={(e) =>
+              setConsentKey(e.target.checked ? selectionKey : "")
+            }
+          />
+          <span>
+            {t(
+              "允许向 {0} 发送问题与相关原文，可能产生费用。",
+              selected.provider === "deepseek" ? "DeepSeek" : t("智谱"),
+            )}
+          </span>
+        </label>
+      )}
+      {!available && (
+        <p className="chat-disclaimer" role="status">
+          {t("请先添加模型连接，或重新选择可用型号。")}
+        </p>
+      )}
       <div className="chat-messages">
         {error ? (
           <ErrorState error={error} retry={() => mutate()} />
@@ -77,7 +128,11 @@ export function ChatPanel({
                     t("作者给出了哪些依据或限制？"),
                   ]
               ).map((q) => (
-                <button key={q} onClick={() => ask(q)}>
+                <button
+                  key={q}
+                  disabled={!allowed || busy}
+                  onClick={() => ask(q)}
+                >
                   {q}
                   <ArrowUpRight size={15} />
                 </button>
@@ -95,7 +150,7 @@ export function ChatPanel({
                     <Sparkles size={13} />
                     {message.mode === "demo"
                       ? t("演示 · 原文摘录")
-                      : "STUDYPILOT"}
+                      : (message.model_label ?? "STUDYPILOT")}
                   </>
                 )}
               </div>
@@ -167,16 +222,18 @@ export function ChatPanel({
         <button
           className="send-button"
           aria-label={t("发送问题")}
-          disabled={busy || value.trim().length < 2}
+          disabled={busy || !allowed || value.trim().length < 2}
         >
           <ArrowUp size={20} />
         </button>
         <span>{t("回车发送 · Shift + 回车换行")}</span>
       </form>
       <p className="chat-disclaimer">
-        {isDemo
-          ? t("演示模式仅展示固定原文摘录，不调用真实 AI。")
-          : t("AI 也可能出错，重要结论请核对原文。")}
+        {selected
+          ? t("跨语言检索词 + 本地关键词检索；重要结论请核对原文。")
+          : isDemo && modelId === "server"
+            ? t("演示模式仅展示固定原文摘录，不调用真实 AI。")
+            : t("AI 也可能出错，重要结论请核对原文。")}
       </p>
     </div>
   );

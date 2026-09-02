@@ -5,6 +5,7 @@ from itsdangerous import BadSignature
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
+from .ai_profiles import selected_profile
 from .config import get_settings
 from .db import get_db
 from .models import (
@@ -61,8 +62,9 @@ def session(request: Request, response: Response, db: Session = Depends(get_db))
 
 
 @router.get("/settings")
-def settings(user: User = Depends(current_user)):
+def settings(db: Session = Depends(get_db), user: User = Depends(current_user)):
     config = get_settings()
+    profile = selected_profile(db, user, None)
     return {
         "provider": config.ai_provider,
         "base_url": config.ollama_base_url
@@ -74,6 +76,11 @@ def settings(user: User = Depends(current_user)):
         "max_upload_mb": config.max_upload_mb,
         "max_pdf_pages": config.max_pdf_pages,
         "configuration": "server-managed",
+        "default_profile_id": profile.id if profile else None,
+        "chat_available": bool(profile)
+        or config.ai_provider == "ollama"
+        or (config.ai_provider == "openai" and bool(config.ai_api_key)),
+        "chat_connection": f"{profile.name} · {profile.model}" if profile else None,
         "mode": "demo" if config.ai_provider == "demo" else "live",
     }
 

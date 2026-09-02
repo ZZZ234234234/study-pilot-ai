@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .ai_profiles import ProfileProvider, selected_profile
 from .config import get_settings
 from .db import get_db
 from .errors import AppError
@@ -33,8 +34,10 @@ def translate(
     if page is None:
         raise AppError("This page does not exist.", "not_found", 404)
     settings = get_settings()
-    if settings.ai_provider == "demo" or (
-        settings.ai_provider == "openai" and not settings.ai_api_key
+    profile = selected_profile(db, user, body.profile_id, body.profile_revision)
+    if not profile and (
+        settings.ai_provider == "demo"
+        or (settings.ai_provider == "openai" and not settings.ai_api_key)
     ):
         raise AppError(
             "Translation requires a configured real chat model; demo never simulates it.",
@@ -45,7 +48,13 @@ def translate(
         raise AppError("Translation is busy. Please retry.", "provider_busy", 429)
     try:
         # No embeddings, re-indexing, writes to PDF/pages, or persistent translation cache.
-        result = translate_page(page.text, body, get_provider())
-        return {**result, "document_id": document_id, "model": settings.chat_model}
+        result = translate_page(
+            page.text, body, ProfileProvider(profile) if profile else get_provider()
+        )
+        return {
+            **result,
+            "document_id": document_id,
+            "model": f"{profile.name} · {profile.model}" if profile else settings.chat_model,
+        }
     finally:
         translation_slots.release()

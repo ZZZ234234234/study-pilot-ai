@@ -15,6 +15,8 @@ class TranslationRequest(BaseModel):
     target: Literal["zh-CN", "en"] = "zh-CN"
     style: Literal["academic", "clear"] = "academic"
     glossary: str = Field(default="", max_length=2000)
+    profile_id: str | None = Field(default=None, pattern=r"^(server|[a-f0-9-]{36})$")
+    profile_revision: int | None = Field(default=None, ge=1)
 
 
 class TranslatedSegment(BaseModel):

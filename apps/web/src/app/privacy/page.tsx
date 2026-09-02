@@ -29,7 +29,11 @@ export default function PrivacyPage() {
         </p>
         <div className="privacy-callout">
           <ShieldCheck size={25} />
-          <p>{t("不接入广告追踪和统计 SDK，不把 API 密钥发送到浏览器。")}</p>
+          <p>
+            {t(
+              "不接入广告追踪。手动输入的 API 密钥只发送到本项目后端保存；后端不会将已保存的密钥回传浏览器。",
+            )}
+          </p>
         </div>
         <section>
           <h2>{t("会保存哪些数据？")}</h2>

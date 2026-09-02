@@ -1,6 +1,8 @@
 import { toolCopy } from "./tool-copy";
+import { modelCopy } from "./model-copy";
 // Chinese source copy is the stable lookup key. Only interface copy belongs here.
 export const english: Record<string, string> = {
+  ...modelCopy,
   ...toolCopy,
   收起导航: "Collapse navigation",
   展开导航: "Expand navigation",

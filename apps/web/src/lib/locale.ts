@@ -32,15 +32,27 @@ export const reviewGrade = {
 
 // Stable API codes also localize feedback from an older English-speaking server.
 export const errorMessages: Record<string, string> = {
+  profile_changed:
+    "这个模型连接已在其他页面更新。请刷新页面，重新选择并确认模型后再试。",
+  profile_endpoint:
+    "请选择对应服务商的官方 API 地址；第一版不支持自定义中转地址。",
+  profile_key_required: "请输入当前服务商的 API 密钥；更换服务商后需重新填写。",
+  profile_not_found: "这个模型连接已删除或不属于当前空间，请重新选择。",
+  profile_auth: "密钥或型号权限未通过验证，请在 API 接入中检查。",
+  profile_quota: "请检查 API 余额、额度与调用频率，稍后再试。",
+  profile_request: "调用未成功，请核对准确型号、JSON 输出支持及账号权限。",
+  profile_models: "未能读取模型列表。可手动输入官网提供的准确型号。",
+  profile_limit: "最多保存 12 个模型连接，请先删除不再使用的连接。",
+  profile_chat_only: "这个连接只支持聊天，不提供嵌入模型。",
   translation_provider_required:
-    "翻译需要真实聊天模型。请在模型设置中完成配置并重启服务；无需重新建立索引。",
+    "翻译需要真实聊天模型。请在 API 接入中保存模型；无需重启或重新建立索引。",
   translation_empty:
     "这一页没有可提取的文字。扫描页需要先进行 OCR，当前版本不提供文字识别。",
   translation_limit: "这一页超过 18000 字符的翻译上限，请选择文字较少的页面。",
   translation_invalid:
     "模型返回了不完整或错位的译文，未接受这一页结果。已完成的其他页面仍可导出，请稍后重试。",
   provider_required:
-    "PDF 可以继续阅读和搜索。问答等 AI 功能需要先在“模型设置”中配置可用的模型服务，再重新处理文档。",
+    "PDF 可以继续阅读和搜索。请在“API 接入”添加问答模型；原有知识功能可在“模型设置”配置后重新处理。",
   provider_auth:
     "模型服务未通过身份验证，请检查服务端配置的 API 密钥及使用权限。",
   provider_error:

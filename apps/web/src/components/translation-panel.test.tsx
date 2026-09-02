@@ -10,6 +10,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { translateText } from "../lib/i18n";
+import type { AIProfiles } from "../lib/types";
 
 const fixture = vi.hoisted(() => ({
   api: vi.fn(),
@@ -80,6 +81,54 @@ beforeEach(() => {
   fixture.provider = "openai";
 });
 afterEach(cleanup);
+
+it("partitions translations by chosen model and does not send without renewed consent", async () => {
+  fixture.provider = "demo";
+  const connections: AIProfiles = {
+    profiles: ["one", "two"].map((id) => ({
+      id,
+      name: id,
+      provider: "deepseek",
+      base_url: "https://api.deepseek.com/v1",
+      model: id,
+      has_api_key: true,
+      revision: 1,
+    })),
+    default_id: "one",
+    providers: [],
+  };
+  const view = (modelId: string) => (
+    <TranslationPanel
+      id="doc"
+      title="Paper"
+      page={1}
+      count={3}
+      onPage={() => {}}
+      connections={connections}
+      modelId={modelId}
+    />
+  );
+  fixture.api.mockResolvedValue(result());
+  const mounted = render(view("one"));
+  consent();
+  start();
+  await screen.findByText("译文 x = 5 mg。");
+  expect(JSON.parse(fixture.api.mock.calls[0][1].body).profile_id).toBe("one");
+  mounted.rerender(view("two"));
+  expect(screen.queryByText("译文 x = 5 mg。")).toBeNull();
+  expect(
+    (screen.getByRole("button", { name: "翻译选中页" }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  expect(fixture.api).toHaveBeenCalledTimes(1);
+  consent();
+  start();
+  await screen.findByText("译文 x = 5 mg。");
+  expect(JSON.parse(fixture.api.mock.calls[1][1].body).profile_id).toBe("two");
+  mounted.rerender(view("one"));
+  expect(screen.getByText("译文 x = 5 mg。")).toBeTruthy();
+  expect(fixture.api).toHaveBeenCalledTimes(2);
+});
 
 it("does not send any source until the user confirms and starts translation", async () => {
   fixture.api.mockResolvedValue(result());

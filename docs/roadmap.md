@@ -6,6 +6,8 @@
 - Default Simplified Chinese interface with a persistent Chinese/English choice in Settings, localized API feedback and dates, Chinese input-method-safe question submission, and actionable model-setup guidance.
 - PDF upload, page extraction, chunking, asynchronous processing and search.
 - Demo, OpenAI-compatible and Ollama-compatible provider adapters.
+- Private DeepSeek/Zhipu connection management, exact model IDs, draft connection tests, default profiles, in-reader model selection and immutable answer-model labels. New profiles power Q&A/translation using local lexical retrieval without requiring a separate embedding service; the older knowledge pipeline remains separately configured.
+- Fixed translucent sidebar trigger, compact upper reading layout and retained floating assistant interactions.
 - Source-linked knowledge points and document-scoped Q&A.
 - Explicit Chinese/English page translation with academic/clear styles, glossary preferences, verbatim source comparison, ten-page sequential batches, stop-after-current-page and bilingual TXT export. Real-provider quality validation is still pending.
 - Reading-first PDF workspace: collapsible navigation, browser-viewport fullscreen, 50–300% zoom, docked/floating/hidden assistant, bounded drag/resize, keyboard controls and retained in-document drafts. Real-browser interaction and accessibility acceptance are still pending.

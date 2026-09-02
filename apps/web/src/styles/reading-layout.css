@@ -29,6 +29,79 @@
 .navigation-toggle {
   color: var(--green);
   flex-shrink: 0;
+  position: fixed;
+  z-index: 35;
+  top: 46%;
+  left: 250px;
+  width: 38px;
+  min-height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 14px #23312a12;
+  transition: background 150ms ease;
+}
+.nav-collapsed .navigation-toggle,
+.nav-overlay .navigation-toggle {
+  left: 0;
+}
+.navigation-toggle:hover {
+  background: var(--surface);
+}
+.reading-shell .app-topbar {
+  height: 48px;
+  padding-inline: 28px;
+}
+.reading-shell .document-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 48px);
+  min-height: 550px;
+  padding: 12px 20px 16px 48px;
+}
+.reading-shell .document-heading {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.reading-shell .document-heading h1 {
+  font-size: clamp(18px, 1.6vw, 25px);
+  line-height: 1.3;
+}
+.reading-shell .back-link {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+.reading-shell .document-meta {
+  margin-top: 5px;
+  gap: 7px;
+  font-size: 12px;
+}
+.reading-shell .document-top-actions .button {
+  min-height: 36px;
+  font-size: 13px;
+}
+.reading-shell .mode-notice {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.reading-shell .reading-workspace:not(.is-fullscreen) {
+  flex: 1;
+  height: auto;
+  min-height: 360px;
+  box-shadow: 0 5px 24px #23312a06;
+  border-radius: 14px;
+}
+.sidebar-note {
+  margin-top: 26px;
+}
+@media (max-height: 780px) {
+  .sidebar-note {
+    display: none;
+  }
 }
 .breadcrumb {
   min-width: 0;
@@ -99,6 +172,7 @@
   flex: 1;
   height: auto;
   min-height: 0;
+  min-height: 0;
   border: 0;
   border-radius: 0 0 10px 10px;
 }
@@ -131,6 +205,7 @@
 .reading-workspace .reader-toolbar {
   flex-shrink: 0;
   padding: 6px 10px;
+  min-height: 42px;
 }
 .reading-workspace .reader-toolbar .icon-button {
   min-width: 32px;
@@ -391,6 +466,31 @@
   }
 }
 @media (max-width: 760px) {
+  .reading-shell .app-topbar {
+    padding-inline: 16px;
+  }
+  .reading-shell .document-content {
+    padding: 10px 10px 12px 40px;
+    min-height: 600px;
+  }
+  .reading-shell .document-heading {
+    gap: 8px;
+  }
+  .reading-shell .document-meta {
+    gap: 5px;
+    font-size: 11px;
+  }
+  .reading-shell .document-top-actions {
+    gap: 3px;
+  }
+  .reading-shell .document-top-actions .button {
+    padding: 5px 7px;
+  }
+  .navigation-toggle {
+    width: 32px;
+    min-width: 32px;
+    min-height: 50px;
+  }
   .document-content {
     padding: 16px 12px 24px;
   }

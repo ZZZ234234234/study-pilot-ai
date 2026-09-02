@@ -10,6 +10,7 @@ test("Chinese is default; settings switch English without losing inputs and pers
   await expect(
     page.getByRole("radio", { name: "简体中文", exact: true }),
   ).toBeChecked();
+  await page.locator(".advanced-provider-settings > summary").click();
   const model = page.getByLabel("对话模型名称");
   await model.fill("unsaved-model-choice");
   await page.getByRole("radio", { name: "English", exact: true }).check();
@@ -79,6 +80,7 @@ test("language choice works even if the model-settings API is unavailable", asyn
   );
   await page.goto("/app/settings");
   await page.getByRole("radio", { name: "English", exact: true }).check();
+  await page.locator(".advanced-provider-settings > summary").click();
   await expect(
     page.getByRole("heading", { name: "Interface language" }),
   ).toBeVisible();

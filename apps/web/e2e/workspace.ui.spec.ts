@@ -99,6 +99,7 @@ test("responsive routes fit the viewport and the mobile navigation closes", asyn
       "/app/library",
       "/app/study-plan",
       "/app/settings",
+      "/app/models",
     ]) {
       await page.goto(route);
       await expect(page.locator("h1")).toBeVisible();
