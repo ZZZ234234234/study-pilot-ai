@@ -29,6 +29,16 @@
 
 ## 快速开始
 
+### Windows 桌面安装版
+
+桌面版安装包通过 [GitHub Releases](https://github.com/ZZZ234234234/study-pilot-ai/releases) 分发。**只有在发布页实际列出 `.exe` 附件时，才表示该版本已完成构建发布**；源码 ZIP 不是安装包。
+
+下载 `StudyPilot-AI-1.0.0-Windows-x64-Setup.exe` 后安装，通过桌面快捷方式启动，不需要另装 Node、Python 或数据库。AI 问答和翻译仍需在应用的「API 接入」中填写自己的 DeepSeek / 智谱配置。
+
+资料保存在本机用户目录，与源码运行版及浏览器工作空间分开，不会自动导入旧资料。首版安装包未签名；API Key 当前保存在本地数据库，尚未使用系统凭据加密。详细构建与验收说明见 [桌面版文档](desktop/README.md)。
+
+### 从源码运行（开发者）
+
 需要 **Node.js 22.13+、Python 3.11+**；以下克隆命令还需要 Git。首次运行需要联网安装依赖。默认使用随启动脚本运行的本地数据库，不必另外安装 PostgreSQL 或 Docker。
 
 没有 Git，也可以在仓库页面点击 **Code → Download ZIP**，解压后在项目根目录打开终端，跳过下面的 `git clone` 和 `cd` 两行。首次安装请保留 `.env.example` 的默认 Demo 配置。

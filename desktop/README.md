@@ -1,6 +1,6 @@
 # StudyPilot AI Windows 桌面版
 
-当前为 **1.0.0 候选构建配置**，不是已完成验证的正式安装包。Windows 构建、实际安装与启动检查通过后，才可发布 GitHub `v1.0.0` Release。
+桌面版版本号为 **1.0.0**。Windows 构建、实际安装与启动检查通过后，发布流程才会创建 GitHub `v1.0.0` Release；源码存在不代表安装包已经发布，请以 Releases 附件为准。
 
 ## 设计
 
@@ -15,7 +15,7 @@
 
 ## Windows 构建
 
-构建机需要 Node 24、Python 3.12。完整步骤见 `.github/workflows/desktop.yml`。该工作流只生成候选安装包，不自动把未验收构建标记为正式发布。
+构建机需要 Node 24、Python 3.12。完整步骤见 `.github/workflows/desktop.yml`。普通提交只生成候选安装包；提交消息包含 `[release v1.0.0]` 时，只有全部检查通过才会创建正式 Release，不覆盖已有版本。
 
 `desktop/prepare.mjs` 只复制发布资源，排除开发数据和配置文件。先构建网页和冻结后端，再执行 `npm ci --prefix desktop`、`npm run pack --prefix desktop`。
 

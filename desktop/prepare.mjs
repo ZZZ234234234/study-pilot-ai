@@ -1,9 +1,21 @@
 import { cp, mkdir, writeFile, appendFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const bundle = path.join(root, "desktop/bundle");
 await mkdir(bundle, { recursive: true });
+const icon = createCanvas(512, 512);
+icon
+  .getContext("2d")
+  .drawImage(
+    await loadImage(path.join(root, "apps/web/public/logo.svg")),
+    0,
+    0,
+    512,
+    512,
+  );
+await writeFile(path.join(bundle, "icon.png"), icon.toBuffer("image/png"));
 for (const [from, to] of [
   ["apps/web/.next/standalone", "web"],
   ["apps/api/migrations", "migrations"],

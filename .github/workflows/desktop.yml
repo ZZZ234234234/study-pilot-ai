@@ -56,3 +56,22 @@ jobs:
           path: desktop/release/*Setup.exe
           if-no-files-found: error
           retention-days: 30
+  release:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[release v1.0.0]')
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: StudyPilot-AI-1.0.0-Windows-x64-candidate
+          path: installer
+      - name: Publish verified installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd installer
+          sha256sum *.exe > SHA256SUMS.txt
+          gh release create v1.0.0 *.exe SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "StudyPilot AI 1.0.0 · Windows 桌面版" --notes-file ../desktop/RELEASE_NOTES.md

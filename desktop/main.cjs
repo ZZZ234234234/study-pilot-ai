@@ -37,9 +37,16 @@ async function freePort() {
 
 function monitor(child, name) {
   children.push(child);
+  let diagnostic = "";
+  child.stderr?.on("data", (chunk) => {
+    diagnostic = (diagnostic + chunk.toString()).slice(-6000);
+  });
   child.once("error", () => fail(`${name} 无法启动。`));
   child.once("exit", () => {
-    if (!stopping) fail(`${name} 已意外退出。请重新打开应用。`);
+    if (!stopping)
+      fail(
+        `${name} 已意外退出。请重新打开应用。${smokeDirectory ? diagnostic : ""}`,
+      );
   });
   return child;
 }
@@ -95,8 +102,28 @@ async function start() {
   const dbPort = await freePort();
   let apiPort = await freePort();
   while (apiPort === dbPort) apiPort = await freePort();
-  let webPort = await freePort();
-  while ([apiPort, dbPort].includes(webPort)) webPort = await freePort();
+  // A stable origin preserves language/theme/localStorage across launches.
+  const portFile = path.join(app.getPath("userData"), "web-port.json");
+  let webPort;
+  try {
+    webPort = JSON.parse(await fs.readFile(portFile, "utf8"));
+    if (!Number.isInteger(webPort) || webPort < 1024 || webPort > 65535)
+      throw new Error("本地端口配置无效");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    webPort = await freePort();
+    while ([apiPort, dbPort].includes(webPort)) webPort = await freePort();
+    await fs.writeFile(portFile, JSON.stringify(webPort));
+  }
+  if ([apiPort, dbPort].includes(webPort))
+    throw new Error("本地端口冲突，请重新打开应用");
+  await new Promise((resolve, reject) => {
+    const probe = net.createServer();
+    probe.once("error", () =>
+      reject(new Error("应用端口被其他程序占用，请关闭占用程序后重试")),
+    );
+    probe.listen(webPort, "127.0.0.1", () => probe.close(resolve));
+  });
   const origin = `http://127.0.0.1:${webPort}`;
   // Explicit environment prevents accidental reuse of development API keys/configuration.
   const env = Object.fromEntries(
@@ -123,6 +150,7 @@ async function start() {
     API_INTERNAL_URL: `http://127.0.0.1:${apiPort}`,
   });
   window = new BrowserWindow({
+    icon: path.join(bundle, "icon.png"),
     width: 1360,
     height: 900,
     minWidth: 800,
@@ -150,7 +178,11 @@ async function start() {
       ),
   );
   databaseProcess = monitor(
-    utilityProcess.fork(path.join(bundle, "db.mjs"), [], { env, cwd: bundle }),
+    utilityProcess.fork(path.join(bundle, "db.mjs"), [], {
+      env,
+      cwd: bundle,
+      stdio: ["ignore", "ignore", "pipe"],
+    }),
     "本地数据库",
   );
   await waitFor(
@@ -180,11 +212,15 @@ async function start() {
       : "studypilot-backend",
   );
   await new Promise((resolve, reject) => {
+    let diagnostic = "";
     const migrate = spawn(backend, ["migrate"], {
       env,
       cwd: bundle,
       windowsHide: true,
-      stdio: "ignore",
+      stdio: ["ignore", "ignore", "pipe"],
+    });
+    migrate.stderr.on("data", (chunk) => {
+      diagnostic = (diagnostic + chunk.toString()).slice(-6000);
     });
     children.push(migrate);
     const timer = setTimeout(() => {
@@ -198,7 +234,11 @@ async function start() {
     migrate.once("exit", (code) => {
       children.splice(children.indexOf(migrate), 1);
       clearTimeout(timer);
-      code === 0 ? resolve() : reject(new Error("数据库升级失败"));
+      code === 0
+        ? resolve()
+        : reject(
+            new Error("数据库升级失败" + (smokeDirectory ? diagnostic : "")),
+          );
     });
   });
   monitor(
@@ -206,7 +246,7 @@ async function start() {
       env,
       cwd: bundle,
       windowsHide: true,
-      stdio: "ignore",
+      stdio: ["ignore", "ignore", "pipe"],
     }),
     "PDF 服务",
   );
@@ -223,6 +263,7 @@ async function start() {
     utilityProcess.fork(path.join(bundle, "web/apps/web/server.js"), [], {
       env,
       cwd: bundle,
+      stdio: ["ignore", "ignore", "pipe"],
     }),
     "阅读界面",
   );
@@ -235,7 +276,7 @@ async function start() {
       env,
       cwd: bundle,
       windowsHide: true,
-      stdio: "ignore",
+      stdio: ["ignore", "ignore", "pipe"],
     }),
     "PDF 后台处理",
   );

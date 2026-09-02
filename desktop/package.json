@@ -32,6 +32,7 @@
       }
     ],
     "win": {
+      "icon": "bundle/icon.png",
       "target": "nsis",
       "artifactName": "StudyPilot-AI-${version}-Windows-x64-Setup.${ext}"
     },
