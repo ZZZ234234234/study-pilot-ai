@@ -20,7 +20,9 @@ def test_old_records_survive_additive_migration_and_second_run():
         db.execute(text("CREATE TABLE users (id VARCHAR(36) PRIMARY KEY, created_at DATETIME)"))
         db.execute(text("CREATE TABLE chat_messages (id VARCHAR(36) PRIMARY KEY, content TEXT)"))
         db.execute(text("INSERT INTO users (id) VALUES ('existing-owner')"))
-        db.execute(text("INSERT INTO chat_messages VALUES ('old-answer', 'Keep my original answer')"))
+        db.execute(
+            text("INSERT INTO chat_messages VALUES ('old-answer', 'Keep my original answer')")
+        )
         module.op = Operations(MigrationContext.configure(db))
         module.upgrade()
         module.upgrade()  # A fresh install via 0001's live metadata has the same existing columns.

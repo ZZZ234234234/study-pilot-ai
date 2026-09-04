@@ -1,6 +1,6 @@
 # Verification record
 
-StudyPilot AI v1.0.1 authorship, authenticity, model-capability and reading-layout changes checked on **2026-09-04**. This is a local verification record, not a production or model-quality certification. No real AI credentials, private papers or normal development data were used.
+StudyPilot AI v1.1.0 source candidate checked on **2026-09-04**. This is a local verification record, not a production certification or model-quality certification. No real AI credentials, private papers or normal development data were used.
 
 ## Current checks
 
@@ -11,9 +11,9 @@ StudyPilot AI v1.0.1 authorship, authenticity, model-capability and reading-layo
 | TypeScript                                | Passed (`npm run typecheck`)                                                                            |
 | Frontend lint                             | Passed (`npm run lint`)                                                                                 |
 | Formatting                                | Passed (`npm run format:check`)                                                                         |
-| Frontend logic/component/conversion tests | 110 passed: includes six new model-management/chat checks and model-scoped translation caching          |
+| Frontend logic/component/conversion tests | 111 passed: includes seven model-management/chat checks and model-scoped translation caching            |
 | Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                        |
-| Backend tests                             | 71 passed: includes 25 profile/HTTP/retrieval/integration checks and one migration preservation check   |
+| Backend tests                             | 78 passed: includes 32 profile/catalog/HTTP/retrieval/integration checks and migration preservation     |
 | PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                |
 | API end-to-end tests                      | 22 passed against production frontend, temporary API, worker and PGlite                                 |
 | Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                |
@@ -21,13 +21,13 @@ StudyPilot AI v1.0.1 authorship, authenticity, model-capability and reading-layo
 | Browser test collection                   | 20 desktop/mobile scenarios collected separately from the 20 API cases                                  |
 | Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed |
 
-**203 automated tests passed in total.** A separate local API smoke workflow also passed PDF processing, ownership, grounded Demo answers, planning, review, quiz, ordinary upload and cleanup. Node/jsdom checks are not real browser acceptance or evidence of model quality. Python reports a Starlette TestClient/httpx deprecation warning, not a failing test. No dependency versions changed in this update. The v1.0.1 Windows installation and restart gate runs on GitHub's Windows runner before a Release can be created; it was not reproduced on this Linux workspace.
+**211 automated tests passed in total.** A separate earlier local API smoke workflow also passed PDF processing, ownership, grounded Demo answers, planning, review, quiz, ordinary upload and cleanup. Node/jsdom checks are not real browser acceptance or evidence of model quality. Python reports a Starlette TestClient/httpx deprecation warning, not a failing test. No dependency versions changed in this update. The Windows installation and restart gate runs on GitHub's Windows runner before the v1.1.0 Release is created; it was not reproduced on this Linux workspace.
 
 ## New model-connection checks
 
-- Six jsdom tests exercise editing without a returned key, explicit paid-test confirmation, testing unsaved exact IDs, displaying separate capability results, clearing keys when providers change, Q&A profile selection, preserved drafts/history, revision-scoped consent and refusal of deleted selections.
-- Twenty-five isolated backend checks cover private serializers, persistence/defaults, blank-key preservation, provider-change key requirements, cross-workspace denial, connection limits, reference-vs-live lists, draft capability probes, honest failed-capability reporting, official URL allowlists, redacted representations, exact HTTP contracts, no redirects/retries, sanitized errors, truncated JSON rejection, lexical ranking and question-only bilingual query conversion. Mock HTTP replaces every real provider call.
-- The capability probe sends one synthetic three-turn context in one paid request. It separately checks connectivity/JSON, recall of a random token from an earlier turn and application of a temporary prompt-only mapping. Cross-session memory is deliberately out of scope and is not shown as a capability. This verifies the protocol and reporting logic, not a live DeepSeek or Zhipu model; users must run the check with their own selected model.
+- Seven jsdom tests exercise grouped provider selection, optional local credentials, editing without a returned key, explicit paid-test confirmation, testing unsaved exact IDs, displaying separate capability results, clearing keys when providers change, Q&A profile selection, preserved drafts/history, revision-scoped consent and refusal of deleted selections.
+- Thirty-two isolated backend checks cover the nineteen-provider catalog, every allowlisted regional/loopback endpoint, private serializers, local empty-key persistence, defaults, provider-change key requirements, cross-workspace denial, connection limits, reference-vs-live lists, draft capability probes, honest failed-capability reporting, redacted representations, provider-specific token/JSON parameters, exact HTTP contracts, no redirects/retries, sanitized errors, truncated JSON rejection, lexical ranking and question-only bilingual query conversion. Mock HTTP replaces every real provider call.
+- The capability probe sends one synthetic three-turn context in one paid request. It separately checks connectivity/JSON, recall of a random token from an earlier turn and application of a temporary prompt-only mapping. Cross-session memory is deliberately out of scope and is not shown as a capability. This verifies protocol and reporting logic, not any live third-party model; users must run the check with their own selected connection.
 - A full saved-profile route test uses an uploaded-paper fixture, switches DeepSeek/Zhipu for answers and translation without embeddings, preserves source and original index signatures, retains answer labels after rename/deletion and rejects stale configuration revisions.
 - An additive-migration test preserves old user/message rows and tolerates already-present columns. API end-to-end startup also applies migrations to a fresh temporary PGlite database.
 - HTTP end-to-end scenarios check `/app/models`, private configuration CRUD/defaults, same-origin mutation protection, actual workspace isolation, sanitized validation errors and the authenticity page through the production proxy. No real key is used and no successful live-provider request is attempted.

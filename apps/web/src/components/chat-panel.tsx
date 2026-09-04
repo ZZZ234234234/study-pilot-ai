@@ -37,6 +37,9 @@ export function ChatPanel({
   const [failure, setFailure] = useState("");
   const [consentKey, setConsentKey] = useState("");
   const selected = connections?.profiles.find((p) => p.id === modelId);
+  const selectedProvider = connections?.providers.find(
+    (provider) => provider.id === selected?.provider,
+  );
   const selectionKey = selected ? `${selected.id}:${selected.revision}` : "";
   const available = modelId === "server" ? serverAvailable : !!selected;
   const allowed =
@@ -93,7 +96,7 @@ export function ChatPanel({
           <span>
             {t(
               "允许向 {0} 发送问题与相关原文，可能产生费用。",
-              selected.provider === "deepseek" ? "DeepSeek" : t("智谱"),
+              selectedProvider ? t(selectedProvider.name) : selected.provider,
             )}
           </span>
         </label>

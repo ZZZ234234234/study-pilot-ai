@@ -213,7 +213,7 @@ export default function SettingsPage() {
         <KeyRound size={22} />
         <div>
           <strong>{t("API 接入")}</strong>
-          <p>{t("DeepSeek、智谱：在界面保存密钥与型号，即时生效。")}</p>
+          <p>{t("主流云端与本地模型：在界面保存密钥与型号，即时生效。")}</p>
         </div>
         <span>↗</span>
       </Link>

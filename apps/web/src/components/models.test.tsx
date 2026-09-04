@@ -59,15 +59,74 @@ const connections: AIProfiles = {
   providers: [
     {
       id: "deepseek",
+      name: "DeepSeek",
+      group: "china",
+      monogram: "D",
       base_url: "https://api.deepseek.com/v1",
+      endpoints: [{ label: "中国大陆", url: "https://api.deepseek.com/v1" }],
       models: ["deepseek-v4-flash"],
+      model_source: "reference",
+      model_list: true,
+      key_required: true,
+      docs_url: "https://api-docs.deepseek.com/",
+      key_url: "https://platform.deepseek.com/api_keys",
       checked_on: "2026-09-02",
     },
     {
       id: "zhipu",
+      name: "智谱 AI",
+      group: "china",
+      monogram: "GLM",
       base_url: "https://open.bigmodel.cn/api/paas/v4",
+      endpoints: [
+        {
+          label: "中国大陆",
+          url: "https://open.bigmodel.cn/api/paas/v4",
+        },
+      ],
       models: ["glm-5.3"],
+      model_source: "reference",
+      model_list: false,
+      key_required: true,
+      docs_url: "https://docs.bigmodel.cn/cn/guide/develop/openai/introduction",
+      key_url: "https://bigmodel.cn/usercenter/proj-mgmt/apikeys",
       checked_on: "2026-09-02",
+    },
+    {
+      id: "openai",
+      name: "OpenAI",
+      group: "international",
+      monogram: "OAI",
+      base_url: "https://api.openai.com/v1",
+      endpoints: [{ label: "全球", url: "https://api.openai.com/v1" }],
+      models: ["gpt-5.6"],
+      model_source: "reference",
+      model_list: true,
+      key_required: true,
+      docs_url: "https://developers.openai.com/api/docs/models",
+      key_url: "https://platform.openai.com/api-keys",
+      checked_on: "2026-09-04",
+    },
+    {
+      id: "ollama",
+      name: "Ollama",
+      group: "local",
+      monogram: "OL",
+      base_url: "http://127.0.0.1:11434/v1",
+      endpoints: [
+        { label: "本机", url: "http://127.0.0.1:11434/v1" },
+        {
+          label: "本机 localhost",
+          url: "http://localhost:11434/v1",
+        },
+      ],
+      models: ["qwen3:8b"],
+      model_source: "reference",
+      model_list: true,
+      key_required: false,
+      docs_url: "https://docs.ollama.com/api/openai-compatibility",
+      key_url: "",
+      checked_on: "2026-09-04",
     },
   ],
 };
@@ -172,6 +231,36 @@ it("clears a draft key and model when changing providers and never guesses a mod
     "glm-5.3",
   );
   expect(fixture.request).not.toHaveBeenCalled();
+});
+
+it("groups mainstream providers and lets a local runtime save without a fake key", async () => {
+  render(<ModelManager />);
+  fireEvent.click(screen.getByRole("button", { name: "添加模型" }));
+  const provider = screen.getByLabelText("服务商") as HTMLSelectElement;
+  expect(screen.getByRole("option", { name: "OpenAI" })).toBeTruthy();
+  expect(screen.getByRole("option", { name: "Ollama" })).toBeTruthy();
+  fireEvent.change(provider, { target: { value: "ollama" } });
+  const key = screen.getByLabelText("API Key") as HTMLInputElement;
+  expect(key.required).toBe(false);
+  expect(key.placeholder).toBe("本地服务通常无需 API Key");
+  fireEvent.change(screen.getByLabelText("连接备注名"), {
+    target: { value: "本机千问" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "qwen3:8b" }));
+  fireEvent.submit(
+    screen.getByRole("button", { name: "保存连接" }).closest("form")!,
+  );
+  await waitFor(() =>
+    expect(fixture.request).toHaveBeenCalledWith(
+      "/ai/profiles",
+      expect.objectContaining({
+        provider: "ollama",
+        base_url: "http://127.0.0.1:11434/v1",
+        model: "qwen3:8b",
+        api_key: "",
+      }),
+    ),
+  );
 });
 
 it("gates remote Q&A on consent and sends only the selected profile ID", async () => {

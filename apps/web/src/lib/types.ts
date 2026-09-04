@@ -99,10 +99,30 @@ export type Settings = {
   default_profile_id?: string | null;
   chat_connection?: string | null;
 };
+export type AIProviderId =
+  | "deepseek"
+  | "zhipu"
+  | "qwen"
+  | "moonshot"
+  | "minimax"
+  | "qianfan"
+  | "hunyuan"
+  | "doubao"
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "xai"
+  | "mistral"
+  | "openrouter"
+  | "siliconflow"
+  | "groq"
+  | "together"
+  | "ollama"
+  | "lmstudio";
 export type AIProfile = {
   id: string;
   name: string;
-  provider: "deepseek" | "zhipu";
+  provider: AIProviderId;
   base_url: string;
   model: string;
   has_api_key: boolean;
@@ -112,9 +132,18 @@ export type AIProfiles = {
   profiles: AIProfile[];
   default_id: string | null;
   providers: {
-    id: AIProfile["provider"];
+    id: AIProviderId;
+    name: string;
+    group: "china" | "international" | "gateway" | "local";
+    monogram: string;
     base_url: string;
+    endpoints: { label: string; url: string }[];
     models: string[];
+    model_source: "reference" | "manual";
+    model_list: boolean;
+    key_required: boolean;
+    docs_url: string;
+    key_url: string;
     checked_on: string;
   }[];
 };

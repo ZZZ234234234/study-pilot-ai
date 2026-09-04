@@ -21,26 +21,44 @@ export const modelCopy: Record<string, string> = {
     "Bring your preferred AI into your reading space.",
   "先选择服务商，再填入密钥与型号。无需编辑文件，无需重启。":
     "Choose a provider, then enter its key and model ID. No file editing or restart.",
+  "国内 · 国际 · 聚合平台 · 本地模型":
+    "China · International · Gateways · Local models",
   智谱: "Zhipu",
+  "智谱 AI": "Zhipu AI",
+  "通义千问 / DashScope": "Qwen / DashScope",
+  百度千帆: "Baidu Qianfan",
+  腾讯混元: "Tencent Hunyuan",
+  "豆包 / 火山方舟": "Doubao / Volcengine Ark",
+  "SiliconFlow 硅基流动": "SiliconFlow",
   默认: "Default",
   "密钥已保存 · 使用前请测试": "Key saved · Test before use",
   设为默认: "Set default",
   "编辑 {0}": "Edit {0}",
   "删除 {0}": "Delete {0}",
-  "每个连接对应一个准确型号；同一服务商可添加多个。最多保存 12 个。":
-    "Each connection uses one exact model ID. Add multiple models from one provider, up to 12 connections.",
+  "每个连接对应一个准确型号；同一服务商可添加多个。最多保存 30 个。":
+    "Each connection uses one exact model ID. Add multiple models from one provider, up to 30 connections.",
   "密钥留在后端，选择留给你。":
     "Your keys stay server-side. The choice stays yours.",
   "密钥保存到当前学习空间的后端数据库，不会回传浏览器或写入 Git。数据库尚未加密，请保护电脑、data 目录和备份，不要把它们公开。":
     "Keys are saved in this workspace's backend database, never returned to the browser or committed to Git. The database is not encrypted at rest. Protect your computer, data directory and backups; do not share them publicly.",
-  "第一版仅允许 DeepSeek、智谱的官方通用 API 地址，不支持中转站或 Coding Plan 专用接口。":
-    "This version supports only official general-purpose DeepSeek and Zhipu endpoints, not gateways or Coding Plan endpoints.",
+  "已覆盖国内外主流模型、聚合平台与本地模型。云端服务只允许预置官方地址，不开放任意转发地址。":
+    "Major Chinese and international models, gateways and local runtimes are supported. Cloud connections use curated official endpoints; arbitrary proxy URLs are not accepted.",
   "新连接用于文档问答和翻译。知识地图、闪卡与测验仍使用原有服务端配置。":
     "New connections power document Q&A and translation. Knowledge maps, flashcards and quizzes still use the original server configuration.",
   "学习空间绑定浏览器 Cookie，不是登录账号。清除 Cookie 后无法找回原空间。":
     "Your workspace is tied to a browser cookie, not an account. Clearing it loses access to the original workspace.",
-  "DeepSeek 开放平台": "DeepSeek platform",
-  智谱开放平台: "Zhipu platform",
+  已支持的服务类型: "Supported service groups",
+  中国大陆模型: "Models available in China",
+  国际模型: "International models",
+  聚合平台: "Model gateways",
+  本地模型: "Local models",
+  中国大陆: "Mainland China",
+  新加坡: "Singapore",
+  美国: "United States",
+  全球: "Global",
+  本机: "This device",
+  "本机 localhost": "This device · localhost",
+  "本机 IPv6": "This device · IPv6",
   编辑模型连接: "Edit model connection",
   添加模型连接: "Add model connection",
   服务商: "Provider",
@@ -48,14 +66,24 @@ export const modelCopy: Record<string, string> = {
   "例如：论文阅读助手": "e.g. Paper reading assistant",
   留空保留已保存的密钥: "Leave blank to keep the saved key",
   "粘贴此服务商的 API 密钥": "Paste this provider's API key",
+  "本地服务通常无需 API Key":
+    "Local runtimes usually do not require an API key",
+  "本地连接 · 使用前请测试": "Local connection · Test before use",
+  "为保护密钥，仅可选择已核验的官方或本机地址。":
+    "To protect your key, choose only a verified official or loopback endpoint.",
   "准确模型 ID": "Exact model ID",
   "选择下方型号，或输入官方完整 ID":
     "Choose below or enter the complete official ID",
-  读取官方模型列表: "Fetch official model list",
-  "型号来自当前官方接口；具体调用权限仍需测试。":
-    "IDs returned by the official API. Test to confirm your access to a specific model.",
+  读取可用模型列表: "Fetch available models",
+  "型号来自当前接口，可能包含非聊天模型；请选择支持对话与 JSON 输出的型号并执行测试。":
+    "IDs come from the current endpoint and may include non-chat models. Choose one that supports chat and JSON output, then run the test.",
   "这些是官方文档参考型号，不代表你的账号已开通。可输入其他准确型号，不会自动猜测或替换。":
     "These are documented reference IDs, not confirmed account permissions. You can enter another exact ID; it will not be guessed or replaced.",
+  "请从服务商控制台复制准确模型 ID 或推理接入点 ID。":
+    "Copy the exact model ID or inference endpoint ID from the provider console.",
+  当前服务商: "Current provider",
+  "获取 API Key": "Get API key",
+  查看官方文档: "Open official docs",
   "允许发送一条小型能力检测请求，可能产生少量 API 费用；不会发送论文或历史对话。":
     "Allow one small capability check that may incur a small API charge. No document or chat history will be sent.",
   检测连接与能力: "Check connection & capabilities",
@@ -74,8 +102,8 @@ export const modelCopy: Record<string, string> = {
     "Remove the key and settings for {0}. Past answers and model labels stay. Provider billing records and backups are not deleted automatically.",
   确认删除: "Confirm deletion",
   "适合你的模型，随时切换。": "Your models. Ready when you are.",
-  "连接 DeepSeek 与智谱，让问答和翻译按你的习惯工作。":
-    "Connect DeepSeek and Zhipu for Q&A and translation that fit your workflow.",
+  "连接主流云端或本地模型，让问答和翻译按你的习惯工作。":
+    "Connect a major cloud or local model for Q&A and translation that fit your workflow.",
   "保存模型后即可问答与翻译，无需重新上传。":
     "Save a model to start Q&A and translation without uploading again.",
   "允许向 {0} 发送问题与相关原文，可能产生费用。":
@@ -84,14 +112,16 @@ export const modelCopy: Record<string, string> = {
     "Add a model connection or select an available model.",
   "跨语言检索词 + 本地关键词检索；重要结论请核对原文。":
     "Cross-language search terms + local keyword retrieval. Verify important conclusions against the source.",
-  "DeepSeek、智谱：在界面保存密钥与型号，即时生效。":
-    "DeepSeek and Zhipu: save keys and model IDs here, with immediate effect.",
+  "主流云端与本地模型：在界面保存密钥与型号，即时生效。":
+    "Major cloud and local models: save credentials and exact model IDs here for immediate use.",
   "高级：原有索引与本地模型配置":
     "Advanced: original indexing and local model configuration",
   "不接入广告追踪。手动输入的 API 密钥只发送到本项目后端保存；后端不会将已保存的密钥回传浏览器。":
     "No ad tracking. API keys you enter are sent only to this application's backend for storage. Saved keys are never returned to the browser.",
-  "请选择对应服务商的官方 API 地址；第一版不支持自定义中转地址。":
-    "Use the selected provider's official API endpoint. Custom gateways are not supported in this version.",
+  "请选择当前服务商预置的官方或本机 API 地址；不支持任意转发地址。":
+    "Choose a curated official or loopback endpoint for this provider. Arbitrary proxy URLs are not supported.",
+  "当前版本不支持这个服务商，请刷新配置列表后重试。":
+    "This provider is not supported by the current version. Refresh the provider list and try again.",
   "请输入当前服务商的 API 密钥；更换服务商后需重新填写。":
     "Enter this provider's API key. A different provider needs its own key.",
   "这个模型连接已删除或不属于当前空间，请重新选择。":
@@ -104,8 +134,8 @@ export const modelCopy: Record<string, string> = {
     "Request rejected. Check the exact model ID, JSON output support and account access.",
   "未能读取模型列表。可手动输入官网提供的准确型号。":
     "Could not read the model list. You can enter an exact ID from the official documentation.",
-  "最多保存 12 个模型连接，请先删除不再使用的连接。":
-    "Up to 12 model connections are allowed. Remove an unused connection first.",
+  "最多保存 30 个模型连接，请先删除不再使用的连接。":
+    "Up to 30 model connections are allowed. Remove an unused connection first.",
   "这个连接只支持聊天，不提供嵌入模型。":
     "This connection supports chat, not embeddings.",
   "翻译需要真实聊天模型。请在 API 接入中保存模型；无需重启或重新建立索引。":

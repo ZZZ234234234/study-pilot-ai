@@ -1,7 +1,7 @@
 {
   "name": "studypilot-desktop",
   "productName": "StudyPilot AI",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "description": "本地优先的 PDF 阅读与 AI 学习助手",
   "author": "爱吃孜然芥末 <2014546082@qq.com>",

@@ -455,8 +455,8 @@ export const english: Record<string, string> = {
   "scripts：本地启动、样例生成与检查脚本":
     "scripts — local startup, sample generation, and quality checks",
   "当前版本能做什么，还缺什么": "Honest first-release boundaries",
-  "这是本地优先的开源应用。Windows v1.0.1 通过发布工作流后提供安装包，但真实付费模型质量、全部设备与长期稳定性仍需持续验证。当前不包含扫描件 OCR、可找回账号、跨文档问答或学习小组。引用便于核对原文，但不保证模型解释一定正确；简答题采用可解释的关键词匹配评分。":
-    "This is a local-first open-source application. A Windows v1.0.1 installer is published only after its release workflow passes, while real paid-model quality, all devices, and long-term stability still require ongoing validation. OCR for scanned PDFs, recoverable accounts, cross-document Q&A, and study groups are not currently included. Source citations help verification but do not guarantee every model explanation. Short-answer scoring uses transparent keyword matching.",
+  "这是本地优先的开源应用。Windows v1.1.0 通过发布工作流后提供安装包，但真实付费模型质量、全部设备与长期稳定性仍需持续验证。当前不包含扫描件 OCR、可找回账号、跨文档问答或学习小组。引用便于核对原文，但不保证模型解释一定正确；简答题采用可解释的关键词匹配评分。":
+    "This is a local-first open-source application. A Windows v1.1.0 installer is published only after its release workflow passes, while real paid-model quality, all devices, and long-term stability still require ongoing validation. OCR for scanned PDFs, recoverable accounts, cross-document Q&A, and study groups are not currently included. Source citations help verification but do not guarantee every model explanation. Short-answer scoring uses transparent keyword matching.",
   "隐私说明 / 把规则说清楚": "PRIVACY / PLAIN LANGUAGE",
   "你的知识，": "Your knowledge.",
   "StudyPilot 支持自行部署。部署者决定文件存放在哪里，以及由哪个模型服务接收相关文本。":

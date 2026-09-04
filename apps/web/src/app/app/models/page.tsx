@@ -9,7 +9,7 @@ export default function ModelsPage() {
       <PageHeading
         eyebrow="YOUR AI, YOUR CHOICE"
         title={t("适合你的模型，随时切换。")}
-        description={t("连接 DeepSeek 与智谱，让问答和翻译按你的习惯工作。")}
+        description={t("连接主流云端或本地模型，让问答和翻译按你的习惯工作。")}
       />
       <ModelManager />
     </>

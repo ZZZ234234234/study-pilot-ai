@@ -34,6 +34,14 @@ type CapabilityReport = {
     in_context_learning: boolean;
   };
 };
+type ProviderConfig = AIProfiles["providers"][number];
+const PROFILE_LIMIT = 30;
+const providerGroups: { id: ProviderConfig["group"]; label: string }[] = [
+  { id: "china", label: "中国大陆模型" },
+  { id: "international", label: "国际模型" },
+  { id: "gateway", label: "聚合平台" },
+  { id: "local", label: "本地模型" },
+];
 const blank: Draft = {
   name: "",
   provider: "deepseek",
@@ -58,8 +66,15 @@ export function ModelManager() {
   const [testConsent, setTestConsent] = useState(false);
   const [remove, setRemove] = useState<AIProfile | null>(null);
   const existing = editing && editing !== "new" ? editing : null;
+  const selectedProvider = data?.providers.find(
+    (provider) => provider.id === draft.provider,
+  );
 
   function open(profile: AIProfile | "new") {
+    const config = data?.providers.find(
+      (provider) =>
+        provider.id === (profile === "new" ? "deepseek" : profile.provider),
+    );
     setEditing(profile);
     setDraft(
       profile === "new"
@@ -72,12 +87,8 @@ export function ModelManager() {
             api_key: "",
           },
     );
-    setModels(
-      data?.providers.find(
-        (p) => p.id === (profile === "new" ? "deepseek" : profile.provider),
-      )?.models ?? [],
-    );
-    setSource("reference");
+    setModels(config?.models ?? []);
+    setSource(config?.model_source ?? "manual");
     setFailure("");
     setNotice("");
     setCapabilityReport(null);
@@ -173,7 +184,7 @@ export function ModelManager() {
           </div>
           <button
             className="button primary small"
-            disabled={!!busy || data.profiles.length >= 12}
+            disabled={!!busy || data.profiles.length >= PROFILE_LIMIT}
             onClick={() => open("new")}
           >
             <Plus size={16} />
@@ -198,60 +209,27 @@ export function ModelManager() {
             <p>
               {t("先选择服务商，再填入密钥与型号。无需编辑文件，无需重启。")}
             </p>
-            <span>DeepSeek / {t("智谱")}</span>
+            <span>{t("国内 · 国际 · 聚合平台 · 本地模型")}</span>
           </div>
         ) : (
           <div className="connection-list">
             {data.profiles.map((p) => (
-              <article className="connection-row" key={p.id}>
-                <div className="connection-monogram">
-                  {p.provider === "deepseek" ? "D" : "Z"}
-                </div>
-                <div className="connection-identity">
-                  <h3>
-                    {p.name}
-                    {data.default_id === p.id && <span>{t("默认")}</span>}
-                  </h3>
-                  <p>
-                    {p.provider === "deepseek" ? "DeepSeek" : t("智谱")} ·{" "}
-                    {p.model}
-                  </p>
-                  <small>{t("密钥已保存 · 使用前请测试")}</small>
-                </div>
-                <div className="connection-actions">
-                  {data.default_id !== p.id && (
-                    <button
-                      className="text-button"
-                      disabled={!!busy}
-                      onClick={() => actOnProfile("default", p)}
-                    >
-                      {t("设为默认")}
-                    </button>
-                  )}
-                  <button
-                    className="icon-button"
-                    aria-label={t("编辑 {0}", p.name)}
-                    disabled={!!busy}
-                    onClick={() => open(p)}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    className="icon-button"
-                    aria-label={t("删除 {0}", p.name)}
-                    disabled={!!busy}
-                    onClick={() => setRemove(p)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </article>
+              <ConnectionRow
+                key={p.id}
+                profile={p}
+                provider={data.providers.find((item) => item.id === p.provider)}
+                isDefault={data.default_id === p.id}
+                busy={!!busy}
+                onDefault={() => actOnProfile("default", p)}
+                onEdit={() => open(p)}
+                onRemove={() => setRemove(p)}
+              />
             ))}
           </div>
         )}
         <p className="form-note">
           {t(
-            "每个连接对应一个准确型号；同一服务商可添加多个。最多保存 12 个。",
+            "每个连接对应一个准确型号；同一服务商可添加多个。最多保存 30 个。",
           )}
         </p>
       </section>
@@ -265,7 +243,7 @@ export function ModelManager() {
         </p>
         <p>
           {t(
-            "第一版仅允许 DeepSeek、智谱的官方通用 API 地址，不支持中转站或 Coding Plan 专用接口。",
+            "已覆盖国内外主流模型、聚合平台与本地模型。云端服务只允许预置官方地址，不开放任意转发地址。",
           )}
         </p>
         <p>
@@ -278,22 +256,17 @@ export function ModelManager() {
             "学习空间绑定浏览器 Cookie，不是登录账号。清除 Cookie 后无法找回原空间。",
           )}
         </p>
-        <a
-          href="https://platform.deepseek.com/api_keys"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {t("DeepSeek 开放平台")}
-          <ArrowUpRight size={14} />
-        </a>
-        <a
-          href="https://bigmodel.cn/usercenter/proj-mgmt/apikeys"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {t("智谱开放平台")}
-          <ArrowUpRight size={14} />
-        </a>
+        <div className="provider-coverage" aria-label={t("已支持的服务类型")}>
+          {providerGroups.map((group) => (
+            <span key={group.id}>
+              {t(group.label)} ·{" "}
+              {
+                data.providers.filter((provider) => provider.group === group.id)
+                  .length
+              }
+            </span>
+          ))}
+        </div>
       </aside>
       {editing && (
         <Modal
@@ -332,13 +305,22 @@ export function ModelManager() {
                       api_key: "",
                     });
                     setModels(config.models);
-                    setSource("reference");
+                    setSource(config.model_source);
                     setNotice("");
                     setCapabilityReport(null);
                   }}
                 >
-                  <option value="deepseek">DeepSeek</option>
-                  <option value="zhipu">{t("智谱")}</option>
+                  {providerGroups.map((group) => (
+                    <optgroup label={t(group.label)} key={group.id}>
+                      {data.providers
+                        .filter((provider) => provider.group === group.id)
+                        .map((provider) => (
+                          <option value={provider.id} key={provider.id}>
+                            {t(provider.name)}
+                          </option>
+                        ))}
+                    </optgroup>
+                  ))}
                 </select>
               </label>
               <label className="field">
@@ -353,12 +335,20 @@ export function ModelManager() {
               </label>
               <label className="field">
                 {t("服务接口地址（Base URL）")}
-                <input
-                  type="url"
+                <select
                   required
                   value={draft.base_url}
                   onChange={(e) => change("base_url", e.target.value)}
-                />
+                >
+                  {selectedProvider?.endpoints.map((endpoint) => (
+                    <option value={endpoint.url} key={endpoint.url}>
+                      {t(endpoint.label)} · {endpoint.url}
+                    </option>
+                  ))}
+                </select>
+                <small className="field-help">
+                  {t("为保护密钥，仅可选择已核验的官方或本机地址。")}
+                </small>
               </label>
               <label className="field">
                 API Key
@@ -368,11 +358,16 @@ export function ModelManager() {
                   spellCheck={false}
                   maxLength={512}
                   value={draft.api_key}
-                  required={!existing || existing.provider !== draft.provider}
+                  required={
+                    !!selectedProvider?.key_required &&
+                    (!existing || existing.provider !== draft.provider)
+                  }
                   placeholder={
-                    existing?.provider === draft.provider
-                      ? t("留空保留已保存的密钥")
-                      : t("粘贴此服务商的 API 密钥")
+                    !selectedProvider?.key_required
+                      ? t("本地服务通常无需 API Key")
+                      : existing?.provider === draft.provider
+                        ? t("留空保留已保存的密钥")
+                        : t("粘贴此服务商的 API 密钥")
                   }
                   onChange={(e) => change("api_key", e.target.value)}
                 />
@@ -405,22 +400,54 @@ export function ModelManager() {
                   </button>
                 ))}
               </div>
-              {draft.provider === "deepseek" && (
+              {selectedProvider?.model_list && (
                 <button
                   type="button"
                   className="text-button"
                   onClick={() => run("models")}
                 >
-                  {t("读取官方模型列表")}
+                  {t("读取可用模型列表")}
                 </button>
               )}
               <p className="form-note">
                 {source === "provider"
-                  ? t("型号来自当前官方接口；具体调用权限仍需测试。")
-                  : t(
-                      "这些是官方文档参考型号，不代表你的账号已开通。可输入其他准确型号，不会自动猜测或替换。",
-                    )}
+                  ? t(
+                      "型号来自当前接口，可能包含非聊天模型；请选择支持对话与 JSON 输出的型号并执行测试。",
+                    )
+                  : source === "manual"
+                    ? t("请从服务商控制台复制准确模型 ID 或推理接入点 ID。")
+                    : t(
+                        "这些是官方文档参考型号，不代表你的账号已开通。可输入其他准确型号，不会自动猜测或替换。",
+                      )}
               </p>
+              {selectedProvider && (
+                <div className="provider-reference">
+                  <div>
+                    <span>{t("当前服务商")}</span>
+                    <strong>{t(selectedProvider.name)}</strong>
+                  </div>
+                  <div className="provider-reference-links">
+                    {selectedProvider.key_url && (
+                      <a
+                        href={selectedProvider.key_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t("获取 API Key")}
+                        <ArrowUpRight size={13} />
+                      </a>
+                    )}
+                    <a
+                      href={selectedProvider.docs_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {t("查看官方文档")}
+                      <ArrowUpRight size={13} />
+                    </a>
+                  </div>
+                </div>
+              )}
               <label className="connection-consent">
                 <input
                   type="checkbox"
@@ -537,5 +564,73 @@ export function ModelManager() {
         </Modal>
       )}
     </div>
+  );
+}
+
+function ConnectionRow({
+  profile,
+  provider,
+  isDefault,
+  busy,
+  onDefault,
+  onEdit,
+  onRemove,
+}: {
+  profile: AIProfile;
+  provider?: ProviderConfig;
+  isDefault: boolean;
+  busy: boolean;
+  onDefault: () => void;
+  onEdit: () => void;
+  onRemove: () => void;
+}) {
+  const { t } = useLocale();
+  return (
+    <article className="connection-row">
+      <div
+        className="connection-monogram"
+        aria-hidden="true"
+        data-long={(provider?.monogram.length ?? 0) > 2 || undefined}
+      >
+        {provider?.monogram ?? profile.provider.slice(0, 2).toUpperCase()}
+      </div>
+      <div className="connection-identity">
+        <h3>
+          {profile.name}
+          {isDefault && <span>{t("默认")}</span>}
+        </h3>
+        <p>
+          {provider ? t(provider.name) : profile.provider} · {profile.model}
+        </p>
+        <small>
+          {provider?.key_required === false
+            ? t("本地连接 · 使用前请测试")
+            : t("密钥已保存 · 使用前请测试")}
+        </small>
+      </div>
+      <div className="connection-actions">
+        {!isDefault && (
+          <button className="text-button" disabled={busy} onClick={onDefault}>
+            {t("设为默认")}
+          </button>
+        )}
+        <button
+          className="icon-button"
+          aria-label={t("编辑 {0}", profile.name)}
+          disabled={busy}
+          onClick={onEdit}
+        >
+          <Pencil size={16} />
+        </button>
+        <button
+          className="icon-button"
+          aria-label={t("删除 {0}", profile.name)}
+          disabled={busy}
+          onClick={onRemove}
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    </article>
   );
 }

@@ -65,6 +65,11 @@
   border-radius: 8px;
   flex-shrink: 0;
 }
+.connection-monogram[data-long="true"] {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
 .connection-identity {
   min-width: 0;
   flex: 1;
@@ -131,6 +136,19 @@
   align-items: center;
   margin-top: 12px;
 }
+.provider-coverage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 22px;
+}
+.provider-coverage span {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  color: var(--green);
+  font-size: 11px;
+  line-height: 1.5;
+}
 .connection-form fieldset {
   border: 0;
   padding: 0;
@@ -144,6 +162,14 @@
 .connection-form .field select {
   width: 100%;
   min-width: 0;
+}
+.connection-form .field-help {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.55;
 }
 .connection-form-actions {
   display: flex;
@@ -168,6 +194,44 @@
   color: var(--green);
   border-radius: 4px;
   overflow-wrap: anywhere;
+}
+.provider-reference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  margin: 12px 0 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.provider-reference > div:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.provider-reference span {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.provider-reference strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.provider-reference-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.provider-reference-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--green);
+  font-size: 12px;
+  white-space: nowrap;
 }
 .connection-consent,
 .chat-model-consent {
@@ -387,5 +451,12 @@
   .connection-actions {
     width: 100%;
     max-width: none;
+  }
+  .provider-reference {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .provider-reference-links {
+    justify-content: flex-start;
   }
 }

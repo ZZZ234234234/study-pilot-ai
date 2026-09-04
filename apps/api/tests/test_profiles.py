@@ -26,6 +26,7 @@ from studypilot.models import (
     User,
 )
 from studypilot.profile_retrieval import profile_retrieve, rank_chunks
+from studypilot.provider_catalog import PROVIDERS, provider_spec
 from studypilot.routes_profiles import router
 from studypilot.security import current_user
 
@@ -92,6 +93,22 @@ def test_create_persists_default_and_never_returns_key(client_fixture):
         assert db.get(User, "owner").ai_profile_id == profile["id"]
 
 
+def test_local_profile_can_be_saved_without_a_fake_key(client_fixture):
+    client, engine, _ = client_fixture
+    body = {
+        "name": "本机 Ollama",
+        "provider": "ollama",
+        "base_url": "http://127.0.0.1:11434/v1",
+        "model": "qwen3:8b",
+        "api_key": "",
+    }
+    response = client.post("/ai/profiles", json=body)
+    assert response.status_code == 200
+    assert response.json()["has_api_key"] is False
+    with Session(engine) as db:
+        assert db.get(AIProfile, response.json()["id"]).api_key == ""
+
+
 def test_edit_keeps_blank_key_and_increments_revision(client_fixture):
     client, engine, _ = client_fixture
     profile = client.post("/ai/profiles", json=BODY).json()
@@ -138,7 +155,7 @@ def test_ownership_default_delete_and_missing_profile(client_fixture):
 def test_limit_and_reference_catalog_do_not_call_remote(client_fixture, monkeypatch):
     client, _, _ = client_fixture
     monkeypatch.setattr(ProfileProvider, "request", lambda *a, **kw: pytest.fail("No network"))
-    for _ in range(12):
+    for _ in range(30):
         assert client.post("/ai/profiles", json=BODY).status_code == 200
     assert client.post("/ai/profiles", json=BODY).status_code == 409
     result = client.post("/ai/profiles/models", json={**BODY, "provider": "zhipu"}).json()
@@ -178,9 +195,7 @@ def test_unsaved_test_checks_actual_draft_not_old_server_config(client_fixture, 
     assert client.get("/ai/profiles").json()["profiles"] == []
 
 
-def test_capability_probe_reports_limits_instead_of_claiming_learning(
-    client_fixture, monkeypatch
-):
+def test_capability_probe_reports_limits_instead_of_claiming_learning(client_fixture, monkeypatch):
     client, _, _ = client_fixture
     monkeypatch.setattr(
         ProfileProvider,
@@ -216,6 +231,61 @@ def test_capability_probe_reports_limits_instead_of_claiming_learning(
 def test_endpoint_allowlist_rejects_redirection_and_secret_exfiltration(url):
     with pytest.raises(AppError):
         canonical_endpoint("deepseek", url)
+
+
+def test_catalog_covers_mainstream_cloud_gateways_and_local_runtimes(client_fixture):
+    client, _, _ = client_fixture
+    response = client.get("/ai/profiles")
+    assert response.status_code == 200
+    catalog = response.json()["providers"]
+    ids = {provider["id"] for provider in catalog}
+    assert len(catalog) == 19
+    assert {
+        "deepseek",
+        "zhipu",
+        "qwen",
+        "moonshot",
+        "minimax",
+        "qianfan",
+        "hunyuan",
+        "doubao",
+        "openai",
+        "anthropic",
+        "gemini",
+        "xai",
+        "mistral",
+        "openrouter",
+        "siliconflow",
+        "groq",
+        "together",
+        "ollama",
+        "lmstudio",
+    } == ids
+    assert {provider["group"] for provider in catalog} == {
+        "china",
+        "international",
+        "gateway",
+        "local",
+    }
+    assert all(provider["docs_url"].startswith("https://") for provider in catalog)
+    assert all(provider["endpoints"] for provider in catalog)
+    assert {provider["id"] for provider in catalog if not provider["key_required"]} == {
+        "ollama",
+        "lmstudio",
+    }
+
+
+def test_every_catalog_endpoint_is_accepted_only_for_its_provider():
+    for provider in PROVIDERS:
+        for endpoint in provider.endpoints:
+            assert canonical_endpoint(provider.id, endpoint.url + "/") == endpoint.url
+    with pytest.raises(AppError):
+        canonical_endpoint("gemini", provider_spec("openai").base_url)
+
+
+def test_unknown_provider_is_rejected_before_any_request():
+    with pytest.raises(ValueError):
+        ProfileInput(**{**BODY, "provider": "unknown-ai"})
 
 
 def test_api_key_repr_is_redacted():
@@ -263,6 +333,73 @@ def test_exact_official_chat_contract(monkeypatch, provider, base, model):
     )
     assert adapter.complete_json("JSON test", "{}", 64) == {"ok": True}
     assert len(seen) == 1
+
+
+def test_openai_uses_completion_token_parameter(monkeypatch):
+    def handler(request):
+        payload = json.loads(request.content)
+        assert payload["max_completion_tokens"] == 48
+        assert "max_tokens" not in payload
+        return httpx.Response(
+            200,
+            json={"choices": [{"finish_reason": "stop", "message": {"content": '{"ok":true}'}}]},
+        )
+
+    mock_transport(monkeypatch, handler)
+    profile = AIProfile(
+        name="OpenAI",
+        provider="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-5.6",
+        api_key=KEY,
+    )
+    assert ProfileProvider(profile).complete_json("JSON test", "{}", 48) == {"ok": True}
+
+
+def test_anthropic_compatibility_omits_unpromised_response_format(monkeypatch):
+    def handler(request):
+        payload = json.loads(request.content)
+        assert payload["max_tokens"] == 48
+        assert "response_format" not in payload
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {"content": '```json\n{"ok":true}\n```'},
+                    }
+                ]
+            },
+        )
+
+    mock_transport(monkeypatch, handler)
+    profile = AIProfile(
+        name="Claude",
+        provider="anthropic",
+        base_url="https://api.anthropic.com/v1",
+        model="claude-sonnet-5",
+        api_key=KEY,
+    )
+    assert ProfileProvider(profile).complete_json("JSON test", "{}", 48) == {"ok": True}
+
+
+def test_local_runtime_needs_no_key_and_sends_no_authorization(monkeypatch):
+    def handler(request):
+        assert "authorization" not in request.headers
+        return httpx.Response(200, json={"data": [{"id": "qwen3:8b"}]})
+
+    mock_transport(monkeypatch, handler)
+    values = {
+        "name": "本地模型",
+        "provider": "ollama",
+        "base_url": "http://127.0.0.1:11434/v1",
+        "model": "qwen3:8b",
+        "api_key": "",
+    }
+    body = ProfileInput(**values)
+    assert ProfileProvider(AIProfile(**values)).models() == ["qwen3:8b"]
+    assert body.api_key.get_secret_value() == ""
 
 
 @pytest.mark.parametrize(

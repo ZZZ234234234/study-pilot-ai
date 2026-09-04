@@ -5,8 +5,6 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from .ai_profiles import (
-    ENDPOINTS,
-    REFERENCE_MODELS,
     ProfileInput,
     ProfileProbe,
     ProfileProvider,
@@ -17,9 +15,11 @@ from .ai_profiles import (
 from .db import get_db
 from .errors import AppError
 from .models import AIProfile, User
+from .provider_catalog import provider_spec, public_catalog
 from .security import current_user
 
 router = APIRouter(prefix="/ai/profiles", tags=["model connections"])
+PROFILE_LIMIT = 30
 
 
 @router.get("")
@@ -32,16 +32,7 @@ def profiles(db: Session = Depends(get_db), user: User = Depends(current_user)):
     return {
         "profiles": [public_profile(p) for p in rows],
         "default_id": user.ai_profile_id,
-        "providers": [
-            {
-                "id": key,
-                "base_url": url,
-                "models": REFERENCE_MODELS[key],
-                "model_source": "reference",
-                "checked_on": "2026-09-02",
-            }
-            for key, url in ENDPOINTS.items()
-        ],
+        "providers": public_catalog(),
     }
 
 
@@ -55,9 +46,13 @@ def create(body: ProfileInput, db: Session = Depends(get_db), user: User = Depen
     lock_workspace(db, user)
     if (
         db.scalar(select(func.count()).select_from(AIProfile).where(AIProfile.user_id == user.id))
-        >= 12
+        >= PROFILE_LIMIT
     ):
-        raise AppError("A workspace supports up to 12 model connections.", "profile_limit", 409)
+        raise AppError(
+            f"A workspace supports up to {PROFILE_LIMIT} model connections.",
+            "profile_limit",
+            409,
+        )
     profile = AIProfile(user_id=user.id, **values)
     db.add(profile)
     db.flush()
@@ -70,9 +65,13 @@ def create(body: ProfileInput, db: Session = Depends(get_db), user: User = Depen
 @router.post("/models")
 def models(body: ProfileProbe, db: Session = Depends(get_db), user: User = Depends(current_user)):
     existing = owned_profile(db, user, body.profile_id) if body.profile_id else None
-    # Zhipu: no guessed list endpoint or web scraping; references do not imply key validation.
-    if body.provider == "zhipu":
-        return {"models": REFERENCE_MODELS["zhipu"], "source": "reference"}
+    spec = provider_spec(body.provider)
+    # No guessed endpoint or web scraping. References do not imply key validation.
+    if not spec.model_list:
+        return {
+            "models": list(spec.models),
+            "source": "reference" if spec.models else "manual",
+        }
     provider = ProfileProvider(AIProfile(**resolve_input(body, existing)))
     return {"models": provider.models(), "source": "provider"}
 

@@ -26,7 +26,25 @@ test("private model connections survive requests, redact keys and isolate worksp
   const stranger = await playwright.request.newContext({ baseURL });
   try {
     const list = await request.get("/api/v1/ai/profiles");
-    expect((await list.json()).default_id).toBe(id);
+    const listed = await list.json();
+    expect(listed.default_id).toBe(id);
+    expect(listed.providers).toHaveLength(19);
+    expect(
+      listed.providers.map((provider: { id: string }) => provider.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "deepseek",
+        "openai",
+        "gemini",
+        "openrouter",
+        "ollama",
+      ]),
+    );
+    expect(
+      listed.providers.find(
+        (provider: { id: string }) => provider.id === "ollama",
+      ).key_required,
+    ).toBe(false);
     expect(await list.text()).not.toContain(key);
     expect(
       (await (await request.get("/api/v1/settings")).json()).chat_available,

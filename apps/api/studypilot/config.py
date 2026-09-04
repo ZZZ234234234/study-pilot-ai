@@ -6,7 +6,11 @@ from typing import Literal
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ROOT = Path(os.environ["STUDYPILOT_RESOURCE_ROOT"]) if os.environ.get("STUDYPILOT_RESOURCE_ROOT") else Path(__file__).resolve().parents[3]
+ROOT = (
+    Path(os.environ["STUDYPILOT_RESOURCE_ROOT"])
+    if os.environ.get("STUDYPILOT_RESOURCE_ROOT")
+    else Path(__file__).resolve().parents[3]
+)
 
 
 class Settings(BaseSettings):

@@ -1,8 +1,7 @@
-"""Two official providers; no arbitrary URL proxy and no client-readable credentials."""
+"""Private OpenAI-compatible connections with a strict provider allowlist."""
 
 import json
 import re
-from typing import Literal
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
@@ -11,24 +10,19 @@ from sqlalchemy.orm import Session
 from .config import get_settings
 from .errors import AppError
 from .models import AIProfile, User
+from .provider_catalog import (
+    ProviderId,
+    provider_spec,
+)
 from .providers import SAFETY
 
-ENDPOINTS = {
-    "deepseek": "https://api.deepseek.com/v1",
-    "zhipu": "https://open.bigmodel.cn/api/paas/v4",
-}
-# Reference IDs, not a promise of account access. Verified against official docs 2026-09-02.
-REFERENCE_MODELS = {
-    "deepseek": ["deepseek-v4-flash", "deepseek-v4-pro"],
-    "zhipu": ["glm-5.3", "glm-5.3-flash", "glm-4-flash-250414"],
-}
 MODEL_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$"
 
 
 class ProfileInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1, max_length=60)
-    provider: Literal["deepseek", "zhipu"]
+    provider: ProviderId
     base_url: str = Field(max_length=200)
     model: str = Field(pattern=MODEL_PATTERN)
     api_key: SecretStr = Field(default=SecretStr(""), max_length=512)
@@ -54,10 +48,15 @@ class ProfileProbe(ProfileInput):
 
 
 def canonical_endpoint(provider: str, base_url: str) -> str:
+    try:
+        spec = provider_spec(provider)
+    except ValueError:
+        raise AppError("Unsupported model provider.", "profile_provider", 422) from None
     value = base_url.strip().rstrip("/")
     if provider == "deepseek" and value == "https://api.deepseek.com":
         value += "/v1"
-    if value != ENDPOINTS[provider]:
+    allowed = {endpoint.url for endpoint in spec.endpoints}
+    if value not in allowed:
         raise AppError(
             "Only the selected provider's official endpoint is allowed.", "profile_endpoint", 422
         )
@@ -90,15 +89,16 @@ def public_profile(profile: AIProfile) -> dict:
     return {
         name: getattr(profile, name)
         for name in ("id", "name", "provider", "base_url", "model", "revision")
-    } | {"has_api_key": True}
+    } | {"has_api_key": bool(profile.api_key)}
 
 
 def resolve_input(body: ProfileInput, existing: AIProfile | None = None) -> dict:
+    spec = provider_spec(body.provider)
     base = canonical_endpoint(body.provider, body.base_url)
     key = body.api_key.get_secret_value()
     if not key and existing and existing.provider == body.provider:
         key = existing.api_key
-    if not key:
+    if spec.key_required and not key:
         raise AppError("Enter an API key for this provider.", "profile_key_required", 422)
     return {
         "name": body.name,
@@ -116,6 +116,7 @@ class ProfileProvider:
 
     def __init__(self, profile: AIProfile):
         self.profile = profile
+        self.spec = provider_spec(profile.provider)
         self.base_url = canonical_endpoint(profile.provider, profile.base_url)
 
     def request(self, method: str, route: str, payload: dict | None = None) -> dict:
@@ -124,11 +125,14 @@ class ProfileProvider:
             with httpx.Client(
                 timeout=get_settings().ai_timeout_seconds, follow_redirects=False, trust_env=False
             ) as client:
+                headers = {}
+                if self.profile.api_key:
+                    headers["Authorization"] = f"Bearer {self.profile.api_key}"
                 with client.stream(
                     method,
                     f"{self.base_url}/{route}",
                     json=payload,
-                    headers={"Authorization": f"Bearer {self.profile.api_key}"},
+                    headers=headers,
                 ) as r:
                     if r.status_code in {401, 403}:
                         raise AppError(
@@ -179,10 +183,11 @@ class ProfileProvider:
                 {"role": "system", "content": SAFETY + "\n" + instructions},
                 *messages,
             ],
-            "response_format": {"type": "json_object"},
-            "max_tokens": max_tokens,
             "stream": False,
         }
+        payload[self.spec.token_parameter] = max_tokens
+        if self.spec.json_mode:
+            payload["response_format"] = {"type": "json_object"}
         if self.profile.provider == "deepseek" or self.profile.model.startswith(
             ("glm-5", "glm-4.5", "glm-4.6", "glm-4.7")
         ):
@@ -192,11 +197,16 @@ class ProfileProvider:
             choice = result["choices"][0]
             if choice.get("finish_reason") not in {None, "stop"}:
                 raise ValueError
-            parsed = json.loads(choice["message"]["content"])
+            content = choice["message"]["content"].strip()
+            if content.startswith("```json") and content.endswith("```"):
+                content = content[7:-3].strip()
+            elif content.startswith("```") and content.endswith("```"):
+                content = content[3:-3].strip()
+            parsed = json.loads(content)
             if not isinstance(parsed, dict):
                 raise ValueError
             return parsed
-        except (KeyError, IndexError, TypeError, ValueError):
+        except (AttributeError, KeyError, IndexError, TypeError, ValueError):
             raise AppError(
                 "The model did not return complete JSON data.", "invalid_ai_output", 502
             ) from None

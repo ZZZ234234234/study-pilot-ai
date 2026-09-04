@@ -35,14 +35,15 @@ export const errorMessages: Record<string, string> = {
   profile_changed:
     "这个模型连接已在其他页面更新。请刷新页面，重新选择并确认模型后再试。",
   profile_endpoint:
-    "请选择对应服务商的官方 API 地址；第一版不支持自定义中转地址。",
+    "请选择当前服务商预置的官方或本机 API 地址；不支持任意转发地址。",
+  profile_provider: "当前版本不支持这个服务商，请刷新配置列表后重试。",
   profile_key_required: "请输入当前服务商的 API 密钥；更换服务商后需重新填写。",
   profile_not_found: "这个模型连接已删除或不属于当前空间，请重新选择。",
   profile_auth: "密钥或型号权限未通过验证，请在 API 接入中检查。",
   profile_quota: "请检查 API 余额、额度与调用频率，稍后再试。",
   profile_request: "调用未成功，请核对准确型号、JSON 输出支持及账号权限。",
   profile_models: "未能读取模型列表。可手动输入官网提供的准确型号。",
-  profile_limit: "最多保存 12 个模型连接，请先删除不再使用的连接。",
+  profile_limit: "最多保存 30 个模型连接，请先删除不再使用的连接。",
   profile_chat_only: "这个连接只支持聊天，不提供嵌入模型。",
   translation_provider_required:
     "翻译需要真实聊天模型。请在 API 接入中保存模型；无需重启或重新建立索引。",
