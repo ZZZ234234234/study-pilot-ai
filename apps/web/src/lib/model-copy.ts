@@ -12,8 +12,8 @@ export const modelCopy: Record<string, string> = {
   "已保存，问答与翻译中可立即选择。":
     "Saved. Available immediately in Q&A and translation.",
   我的模型: "My model",
-  "连接测试通过：{0}。保存后才会更新配置。":
-    "Connection test passed: {0}. Save to apply these settings.",
+  "连接与能力检测完成：{0}。保存后才会更新配置。":
+    "Connection and capability check completed for {0}. Save to apply these settings.",
   "连接，由你选择": "YOUR CONNECTIONS",
   我的模型连接: "My model connections",
   添加模型: "Add model",
@@ -56,9 +56,18 @@ export const modelCopy: Record<string, string> = {
     "IDs returned by the official API. Test to confirm your access to a specific model.",
   "这些是官方文档参考型号，不代表你的账号已开通。可输入其他准确型号，不会自动猜测或替换。":
     "These are documented reference IDs, not confirmed account permissions. You can enter another exact ID; it will not be guessed or replaced.",
-  "允许发送一条小型测试请求，可能产生少量 API 费用；不会发送论文。":
-    "Allow one small test request that may incur a small API charge. No document will be sent.",
-  测试这个型号: "Test this model",
+  "允许发送一条小型能力检测请求，可能产生少量 API 费用；不会发送论文或历史对话。":
+    "Allow one small capability check that may incur a small API charge. No document or chat history will be sent.",
+  检测连接与能力: "Check connection & capabilities",
+  模型能力检测结果: "Model capability check results",
+  本次实测结果: "Measured in this test",
+  "接口连接与 JSON 输出": "Connection and JSON output",
+  请求内上下文记忆: "In-request context memory",
+  "临时示例学习（上下文内）": "Temporary example learning (in context)",
+  通过: "Passed",
+  未通过: "Not passed",
+  "上下文记忆只在本次检测请求提供的前文范围内有效；临时示例学习不等于训练或永久学习。":
+    "Context memory applies only to earlier turns supplied with this capability-check request. Temporary example learning is not training or permanent learning.",
   保存连接: "Save connection",
   "删除模型连接？": "Delete model connection?",
   "将移除 {0} 的密钥与配置，历史回答和模型标签仍保留。服务商账单与备份不会自动删除。":

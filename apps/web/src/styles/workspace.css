@@ -15,13 +15,63 @@
 }
 .sidebar-brand {
   padding-left: 9px;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .sidebar .logo {
   font-size: 22px;
+}
+.creator-proof {
+  margin: 0 9px 24px;
+  padding: 2px 0 2px 13px;
+  border-left: 2px solid #86a871;
+}
+.creator-proof-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 650;
+}
+.creator-proof > p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.creator-proof > strong {
+  display: block;
+  margin-top: 1px;
+  font-size: 12px;
+  line-height: 1.55;
+  font-weight: 600;
+}
+.creator-proof > a:not(.creator-proof-link) {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+.creator-proof > a:not(.creator-proof-link) span {
+  display: block;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.creator-proof-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 9px;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+}
+.creator-proof a:hover {
+  text-decoration: underline;
 }
 .workspace-label {
   display: flex;

@@ -41,6 +41,18 @@ it("defaults to a collapsed navigation with an accessible reopen control", () =>
   expect(
     screen.getByRole("link", { name: "API 接入" }).getAttribute("href"),
   ).toBe("/app/models");
+  expect(screen.getByText("嘉兴大学 · 通信专业")).toBeTruthy();
+  expect(screen.getByText("爱吃孜然芥末 制作完成")).toBeTruthy();
+  expect(
+    screen
+      .getByRole("link", { name: "真伪核验与维权说明" })
+      .getAttribute("href"),
+  ).toBe("/app/authenticity");
+  expect(
+    screen
+      .getByRole("link", { name: /2014546082@qq.com/ })
+      .getAttribute("href"),
+  ).toBe("mailto:2014546082@qq.com");
   expect(
     screen
       .getByRole("button", { name: "收起导航", expanded: true })

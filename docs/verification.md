@@ -1,36 +1,44 @@
 # Verification record
 
-Private DeepSeek/Zhipu connections and the compact reading-layout update checked on **2026-09-02**. This is an alpha snapshot, not a production certification. No real AI credentials, private papers or normal development data were used.
+StudyPilot AI v1.0.1 authorship, authenticity, model-capability and reading-layout changes checked on **2026-09-04**. This is a local verification record, not a production or model-quality certification. No real AI credentials, private papers or normal development data were used.
 
 ## Current checks
 
 | Check                                     | Result                                                                                                  |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Dependency installation                   | Updated lockfile for pdf-lib and fflate; locked installation checked with `npm ci`                      |
-| Frontend production build                 | Passed, including standalone assets and `/app/models`                                                   |
+| Frontend production build                 | Passed, including standalone assets, `/app/models` and `/app/authenticity`                              |
 | TypeScript                                | Passed (`npm run typecheck`)                                                                            |
 | Frontend lint                             | Passed (`npm run lint`)                                                                                 |
 | Formatting                                | Passed (`npm run format:check`)                                                                         |
 | Frontend logic/component/conversion tests | 110 passed: includes six new model-management/chat checks and model-scoped translation caching          |
 | Backend lint                              | Passed (`python -m ruff check apps/api scripts`)                                                        |
-| Backend tests                             | 70 passed: includes 24 profile/HTTP/retrieval/integration checks and one migration preservation check   |
+| Backend tests                             | 71 passed: includes 25 profile/HTTP/retrieval/integration checks and one migration preservation check   |
 | PDF.js compatibility                      | All eight original sample pages rendered and text extracted in Node (`npm run test:pdf`)                |
-| API end-to-end tests                      | 20 passed against production frontend, temporary API, worker and PGlite                                 |
+| API end-to-end tests                      | 22 passed against production frontend, temporary API, worker and PGlite                                 |
 | Local API workflow                        | Passed (`python scripts/smoke_test.py --start-services`)                                                |
 | Production dependency audit               | Zero reported on 2026-09-02 (`npm audit --omit=dev`); not a whole-application security assessment       |
 | Browser test collection                   | 20 desktop/mobile scenarios collected separately from the 20 API cases                                  |
 | Browser execution                         | Not passed; previous local-browser/runtime connection blockers remain. No new browser execution claimed |
 
-**200 automated tests passed in total.** Node/jsdom checks are not real browser acceptance or evidence of model quality. Python reports a Starlette TestClient/httpx deprecation warning, not a failing test. Dependencies and lockfile are unchanged by this update. Installation, audit, smoke workflow and eight-page Node rendering checks above were completed earlier on the same date; they are retained checks, not a fresh installation on Windows/macOS.
+**203 automated tests passed in total.** A separate local API smoke workflow also passed PDF processing, ownership, grounded Demo answers, planning, review, quiz, ordinary upload and cleanup. Node/jsdom checks are not real browser acceptance or evidence of model quality. Python reports a Starlette TestClient/httpx deprecation warning, not a failing test. No dependency versions changed in this update. The v1.0.1 Windows installation and restart gate runs on GitHub's Windows runner before a Release can be created; it was not reproduced on this Linux workspace.
 
 ## New model-connection checks
 
-- Six jsdom tests exercise editing without a returned key, explicit paid-test confirmation, testing unsaved exact IDs, clearing keys when providers change, Q&A profile selection, preserved drafts/history, revision-scoped consent and refusal of deleted selections.
-- Twenty-four isolated backend checks cover private serializers, persistence/defaults, blank-key preservation, provider-change key requirements, cross-workspace denial, connection limits, reference-vs-live lists, draft model tests, official URL allowlists, redacted representations, exact HTTP contracts, no redirects/retries, sanitized errors, truncated JSON rejection, lexical ranking and question-only bilingual query conversion. Mock HTTP replaces every real provider call.
+- Six jsdom tests exercise editing without a returned key, explicit paid-test confirmation, testing unsaved exact IDs, displaying separate capability results, clearing keys when providers change, Q&A profile selection, preserved drafts/history, revision-scoped consent and refusal of deleted selections.
+- Twenty-five isolated backend checks cover private serializers, persistence/defaults, blank-key preservation, provider-change key requirements, cross-workspace denial, connection limits, reference-vs-live lists, draft capability probes, honest failed-capability reporting, official URL allowlists, redacted representations, exact HTTP contracts, no redirects/retries, sanitized errors, truncated JSON rejection, lexical ranking and question-only bilingual query conversion. Mock HTTP replaces every real provider call.
+- The capability probe sends one synthetic three-turn context in one paid request. It separately checks connectivity/JSON, recall of a random token from an earlier turn and application of a temporary prompt-only mapping. Cross-session memory is deliberately out of scope and is not shown as a capability. This verifies the protocol and reporting logic, not a live DeepSeek or Zhipu model; users must run the check with their own selected model.
 - A full saved-profile route test uses an uploaded-paper fixture, switches DeepSeek/Zhipu for answers and translation without embeddings, preserves source and original index signatures, retains answer labels after rename/deletion and rejects stale configuration revisions.
 - An additive-migration test preserves old user/message rows and tolerates already-present columns. API end-to-end startup also applies migrations to a fresh temporary PGlite database.
-- Two new HTTP end-to-end scenarios check `/app/models`, private configuration CRUD/defaults, same-origin mutation protection, actual workspace isolation and sanitized validation errors through the production proxy. No real key is used and no successful live-provider request is attempted.
+- HTTP end-to-end scenarios check `/app/models`, private configuration CRUD/defaults, same-origin mutation protection, actual workspace isolation, sanitized validation errors and the authenticity page through the production proxy. No real key is used and no successful live-provider request is attempted.
 - The UI keeps the established cream/green theme. Fixed navigation and a compact flex-height normal reader are implemented in CSS; no rendered-browser visual acceptance is claimed.
+
+## Authorship and release-verification checks
+
+- The navigation test checks the requested Jiaxing University / communications-program authorship, creator name, support email and authenticity-page link. English static rendering contains no accidental Chinese interface copy.
+- `/app/authenticity` is included in the production build and end-to-end security-header checks. A separate response check verifies creator, SHA-256, GitHub provenance and support-contact content.
+- The Windows workflow injects version and commit identity into the compiled application, creates `SHA256SUMS.txt`, and uses `actions/attest@v4` with restricted job permissions to issue build provenance for the installer. These claims are verified only after the public GitHub workflow succeeds; local source builds identify themselves as development builds.
+- `LICENSE` retains the MIT grant with the creator copyright line. `TRADEMARKS.md` distinguishes permitted code reuse from misleading claims of official origin; it is packaged with the desktop application. This is project documentation, not legal advice.
 
 ## Retained reading-layout checks
 

@@ -2,8 +2,10 @@
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import {
+  BrainCircuit,
   Cable,
   Check,
+  CircleAlert,
   Plus,
   ShieldCheck,
   ArrowUpRight,
@@ -21,6 +23,16 @@ type Draft = {
   base_url: string;
   model: string;
   api_key: string;
+};
+type CapabilityReport = {
+  ok: true;
+  model: string;
+  capabilities: {
+    connection: boolean;
+    structured_output: boolean;
+    context_memory: boolean;
+    in_context_learning: boolean;
+  };
 };
 const blank: Draft = {
   name: "",
@@ -41,6 +53,8 @@ export function ModelManager() {
   const [busy, setBusy] = useState("");
   const [failure, setFailure] = useState("");
   const [notice, setNotice] = useState("");
+  const [capabilityReport, setCapabilityReport] =
+    useState<CapabilityReport | null>(null);
   const [testConsent, setTestConsent] = useState(false);
   const [remove, setRemove] = useState<AIProfile | null>(null);
   const existing = editing && editing !== "new" ? editing : null;
@@ -66,11 +80,13 @@ export function ModelManager() {
     setSource("reference");
     setFailure("");
     setNotice("");
+    setCapabilityReport(null);
     setTestConsent(false);
   }
   function change<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((previous) => ({ ...previous, [key]: value }));
     setNotice("");
+    setCapabilityReport(null);
   }
   async function sync() {
     await Promise.all([mutate(), refresh("/settings")]);
@@ -80,6 +96,7 @@ export function ModelManager() {
     setBusy(action);
     setFailure("");
     setNotice("");
+    if (action === "test") setCapabilityReport(null);
     const body = {
       ...draft,
       name: draft.name.trim(),
@@ -93,7 +110,7 @@ export function ModelManager() {
         setEditing(null);
         await sync();
         setNotice(t("已保存，问答与翻译中可立即选择。"));
-      } else {
+      } else if (action === "models") {
         // A model name is unnecessary to list models; the server schema still requires a safe ID.
         const result = await post<{ models: string[]; source: string }>(
           `/ai/profiles/${action}`,
@@ -104,11 +121,18 @@ export function ModelManager() {
             profile_id: existing?.id,
           },
         );
-        if (action === "models") {
-          setModels(result.models);
-          setSource(result.source);
-        } else
-          setNotice(t("连接测试通过：{0}。保存后才会更新配置。", body.model));
+        setModels(result.models);
+        setSource(result.source);
+      } else {
+        const result = await post<CapabilityReport>("/ai/profiles/test", {
+          ...body,
+          name: body.name || t("我的模型"),
+          profile_id: existing?.id,
+        });
+        setCapabilityReport(result);
+        setNotice(
+          t("连接与能力检测完成：{0}。保存后才会更新配置。", result.model),
+        );
       }
     } catch (e) {
       setFailure(errorMessage(e));
@@ -310,6 +334,7 @@ export function ModelManager() {
                     setModels(config.models);
                     setSource("reference");
                     setNotice("");
+                    setCapabilityReport(null);
                   }}
                 >
                   <option value="deepseek">DeepSeek</option>
@@ -404,7 +429,7 @@ export function ModelManager() {
                 />
                 <span>
                   {t(
-                    "允许发送一条小型测试请求，可能产生少量 API 费用；不会发送论文。",
+                    "允许发送一条小型能力检测请求，可能产生少量 API 费用；不会发送论文或历史对话。",
                   )}
                 </span>
               </label>
@@ -419,6 +444,54 @@ export function ModelManager() {
                 {notice}
               </p>
             )}
+            {capabilityReport && (
+              <section
+                className="capability-report"
+                aria-label={t("模型能力检测结果")}
+              >
+                <div className="capability-report-heading">
+                  <BrainCircuit size={18} />
+                  <div>
+                    <strong>{t("本次实测结果")}</strong>
+                    <span>{capabilityReport.model}</span>
+                  </div>
+                </div>
+                <div className="capability-checks">
+                  {[
+                    [
+                      t("接口连接与 JSON 输出"),
+                      capabilityReport.capabilities.connection &&
+                        capabilityReport.capabilities.structured_output,
+                    ],
+                    [
+                      t("请求内上下文记忆"),
+                      capabilityReport.capabilities.context_memory,
+                    ],
+                    [
+                      t("临时示例学习（上下文内）"),
+                      capabilityReport.capabilities.in_context_learning,
+                    ],
+                  ].map(([label, passed]) => (
+                    <div className="capability-check" key={String(label)}>
+                      {passed ? (
+                        <Check aria-hidden="true" size={15} />
+                      ) : (
+                        <CircleAlert aria-hidden="true" size={15} />
+                      )}
+                      <span>{label}</span>
+                      <strong className={passed ? "passed" : "limited"}>
+                        {passed ? t("通过") : t("未通过")}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+                <p>
+                  {t(
+                    "上下文记忆只在本次检测请求提供的前文范围内有效；临时示例学习不等于训练或永久学习。",
+                  )}
+                </p>
+              </section>
+            )}
             <div className="connection-form-actions">
               <button
                 type="button"
@@ -426,7 +499,7 @@ export function ModelManager() {
                 disabled={!!busy || !testConsent || !draft.model.trim()}
                 onClick={() => run("test")}
               >
-                {busy === "test" ? <Spinner /> : t("测试这个型号")}
+                {busy === "test" ? <Spinner /> : t("检测连接与能力")}
               </button>
               <button className="button primary" disabled={!!busy}>
                 {busy === "save" ? <Spinner /> : t("保存连接")}

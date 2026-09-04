@@ -47,9 +47,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         ? "隐私与数据"
         : pathname === "/open-source"
           ? "开源说明"
-          : pathname.includes("/documents/")
-            ? "文档学习空间"
-            : "";
+          : pathname === "/app/authenticity"
+            ? "真伪核验与维权"
+            : pathname.includes("/documents/")
+              ? "文档学习空间"
+              : "";
     document.title = section
       ? `${translateText(section, locale)} · StudyPilot AI`
       : translateText("StudyPilot AI｜把资料读懂，把知识留下", locale);

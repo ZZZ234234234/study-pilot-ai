@@ -31,6 +31,7 @@ for (const [from, to] of [
   ["docs/sample", "docs/sample"],
   ["scripts/dev-db.mjs", "db.mjs"],
   ["LICENSE", "LICENSE"],
+  ["TRADEMARKS.md", "TRADEMARKS.md"],
 ])
   await cp(path.join(root, from), path.join(bundle, to), { recursive: true });
 await appendFile(

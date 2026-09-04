@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -79,10 +81,44 @@ def models(body: ProfileProbe, db: Session = Depends(get_db), user: User = Depen
 def test(body: ProfileProbe, db: Session = Depends(get_db), user: User = Depends(current_user)):
     existing = owned_profile(db, user, body.profile_id) if body.profile_id else None
     provider = ProfileProvider(AIProfile(**resolve_input(body, existing)))
-    result = provider.complete_json('Connection test only. Return JSON {"ok":true}.', "{}", 64)
-    if result.get("ok") is not True:
-        raise AppError("The model did not return the test JSON.", "invalid_ai_output", 502)
-    return {"ok": True, "model": body.model}
+    token = f"SP-{secrets.token_hex(4).upper()}"
+    result = provider.complete_messages_json(
+        """Capability check only. Follow the user's latest request using earlier turns.
+Return exactly one JSON object and do not add commentary.""",
+        [
+            {
+                "role": "user",
+                "content": (
+                    f"For this temporary conversation only, remember the token {token}. "
+                    "Learn this temporary example rule: KITE maps to ORBIT. "
+                    "Acknowledge without repeating either answer."
+                ),
+            },
+            {"role": "assistant", "content": "Acknowledged."},
+            {
+                "role": "user",
+                "content": (
+                    'Return {"probe":"studypilot-capability","memory":"TOKEN",'
+                    '"learned":"RESULT"}. Replace TOKEN with the remembered token and '
+                    "RESULT with the output learned for KITE."
+                ),
+            },
+        ],
+        160,
+    )
+    structured = result.get("probe") == "studypilot-capability"
+    memory = str(result.get("memory", "")).strip() == token
+    learning = str(result.get("learned", "")).strip().upper() == "ORBIT"
+    return {
+        "ok": True,
+        "model": body.model,
+        "capabilities": {
+            "connection": True,
+            "structured_output": structured,
+            "context_memory": memory,
+            "in_context_learning": learning,
+        },
+    }
 
 
 @router.patch("/{profile_id}")

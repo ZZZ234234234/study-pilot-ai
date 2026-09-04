@@ -1,6 +1,6 @@
 # StudyPilot AI Windows 桌面版
 
-桌面版版本号为 **1.0.0**。Windows 构建、实际安装与启动检查通过后，发布流程才会创建 GitHub `v1.0.0` Release；源码存在不代表安装包已经发布，请以 Releases 附件为准。
+桌面版版本号为 **1.0.1**。Windows 构建、实际安装与启动检查通过后，发布流程才会创建 GitHub `v1.0.1` Release；源码存在不代表安装包已经发布，请以 Releases 附件为准。
 
 ## 设计
 
@@ -15,14 +15,14 @@
 
 ## Windows 构建
 
-构建机需要 Node 24、Python 3.12。完整步骤见 `.github/workflows/desktop.yml`。普通提交只生成候选安装包；提交消息包含 `[release v1.0.0]` 时，只有全部检查通过才会创建正式 Release，不覆盖已有版本。
+构建机需要 Node 24、Python 3.12。完整步骤见 `.github/workflows/desktop.yml`。普通提交只生成候选安装包；提交消息包含 `[release v1.0.1]` 时，只有全部检查通过才会创建正式 Release，不覆盖已有版本。
 
 `desktop/prepare.mjs` 只复制发布资源，排除开发数据和配置文件。先构建网页和冻结后端，再执行 `npm ci --prefix desktop`、`npm run pack --prefix desktop`。
 
-输出：`desktop/release/StudyPilot-AI-1.0.0-Windows-x64-Setup.exe`。
+输出：`desktop/release/StudyPilot-AI-1.0.1-Windows-x64-Setup.exe`。
 
 ## 正式发布验收
 
 在没有 Node/Python 的 Windows 电脑检查安装、首次启动、重复启动、上传 PDF、重启后数据保留、DeepSeek/智谱配置与问答、翻译、文件导出、退出后后台进程释放、覆盖安装及卸载。需要特别检查中文用户名及带空格路径。
 
-目前没有代码签名证书；未签名安装包可能触发 Windows 安全提示。不要关闭系统安全防护。通过测试后应附 SHA-256 校验值与已知限制，再上传到 GitHub Releases，而不是把二进制安装包提交到源码目录。
+目前没有代码签名证书；未签名安装包可能触发 Windows 安全提示。不要关闭系统安全防护。发布流程会附 SHA-256 校验值，并使用 GitHub Artifact Attestations 为安装包生成可验证的构建来源证明；二进制安装包不提交到源码目录。

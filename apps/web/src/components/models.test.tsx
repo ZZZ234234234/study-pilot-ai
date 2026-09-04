@@ -121,12 +121,22 @@ it("edits without exposing an existing key and sends blank to preserve it", asyn
 it("requires explicit test consent and tests the unsaved selected exact model", async () => {
   render(<ModelManager />);
   fireEvent.click(screen.getByRole("button", { name: "编辑 论文助手" }));
-  const testButton = screen.getByRole("button", { name: "测试这个型号" });
+  const testButton = screen.getByRole("button", { name: "检测连接与能力" });
   expect((testButton as HTMLButtonElement).disabled).toBe(true);
   fireEvent.change(screen.getByLabelText("准确模型 ID"), {
     target: { value: "deepseek-v4-pro" },
   });
   fireEvent.click(screen.getByRole("checkbox"));
+  fixture.request.mockResolvedValueOnce({
+    ok: true,
+    model: "deepseek-v4-pro",
+    capabilities: {
+      connection: true,
+      structured_output: true,
+      context_memory: true,
+      in_context_learning: false,
+    },
+  });
   fireEvent.click(testButton);
   await waitFor(() =>
     expect(fixture.request).toHaveBeenCalledWith(
@@ -138,6 +148,10 @@ it("requires explicit test consent and tests the unsaved selected exact model", 
     "textContent",
     expect.stringContaining("deepseek-v4-pro"),
   );
+  const report = screen.getByLabelText("模型能力检测结果").textContent;
+  expect(report).toContain("请求内上下文记忆通过");
+  expect(report).toContain("临时示例学习（上下文内）未通过");
+  expect(report).not.toContain("跨会话长期记忆");
 });
 
 it("clears a draft key and model when changing providers and never guesses a model", () => {

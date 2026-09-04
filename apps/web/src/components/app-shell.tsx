@@ -98,6 +98,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <X size={20} />
           </button>
         </div>
+        <section className="creator-proof" aria-label={t("作者与官方版本")}>
+          <div className="creator-proof-heading">
+            <ShieldCheck size={15} />
+            <span>{t("作者与官方版本")}</span>
+          </div>
+          <p>{t("嘉兴大学 · 通信专业")}</p>
+          <strong>{t("爱吃孜然芥末 制作完成")}</strong>
+          <a href="mailto:2014546082@qq.com">
+            {t("有任何使用问题请联系")}
+            <span>2014546082@qq.com</span>
+          </a>
+          <Link
+            href="/app/authenticity"
+            onClick={() => setOpen(false)}
+            className="creator-proof-link"
+          >
+            {t("真伪核验与维权说明")}
+            <ChevronRight size={14} />
+          </Link>
+        </section>
         <div className="workspace-label">
           <span className="workspace-avatar">P</span>
           <div>
@@ -214,9 +234,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       ? t("学习工具箱")
                       : path.includes("models")
                         ? t("API 接入")
-                        : path.includes("settings")
-                          ? t("设置")
-                          : t("学习概览")}
+                        : path.includes("authenticity")
+                          ? t("真伪核验与维权")
+                          : path.includes("settings")
+                            ? t("设置")
+                            : t("学习概览")}
             </strong>
           </div>
           <div className="topbar-right">

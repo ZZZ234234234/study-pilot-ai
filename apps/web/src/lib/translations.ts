@@ -455,8 +455,8 @@ export const english: Record<string, string> = {
   "scripts：本地启动、样例生成与检查脚本":
     "scripts — local startup, sample generation, and quality checks",
   "当前版本能做什么，还缺什么": "Honest first-release boundaries",
-  "这是 Alpha 开发预览版，尚未经过完整生产验收。真实模型联调和浏览器回归仍待完成。v0.1 不包含扫描件 OCR、可找回账号、跨文档问答或学习小组。引用便于核对原文，但不保证模型解释一定正确；简答题采用可解释的关键词匹配评分。":
-    "This is an alpha development preview, not a production-audited service. Real-provider integration and complete browser regression testing remain outstanding. Scanned-PDF OCR, recoverable account login, multi-document conversations, and study groups are not included in v0.1. Source citations are navigable evidence, not a factuality guarantee. Short-answer quiz scoring uses transparent keyword matching.",
+  "这是本地优先的开源应用。Windows v1.0.1 通过发布工作流后提供安装包，但真实付费模型质量、全部设备与长期稳定性仍需持续验证。当前不包含扫描件 OCR、可找回账号、跨文档问答或学习小组。引用便于核对原文，但不保证模型解释一定正确；简答题采用可解释的关键词匹配评分。":
+    "This is a local-first open-source application. A Windows v1.0.1 installer is published only after its release workflow passes, while real paid-model quality, all devices, and long-term stability still require ongoing validation. OCR for scanned PDFs, recoverable accounts, cross-document Q&A, and study groups are not currently included. Source citations help verification but do not guarantee every model explanation. Short-answer scoring uses transparent keyword matching.",
   "隐私说明 / 把规则说清楚": "PRIVACY / PLAIN LANGUAGE",
   "你的知识，": "Your knowledge.",
   "StudyPilot 支持自行部署。部署者决定文件存放在哪里，以及由哪个模型服务接收相关文本。":
@@ -742,4 +742,63 @@ export const english: Record<string, string> = {
     "This action could not be completed. Please try again.",
   "嵌入模型接口连接正常。对话模型尚未在本次检查中验证，请通过处理文档进一步测试。":
     "The embedding endpoint is working. This check did not test the chat model; process a document to verify it.",
+  作者与官方版本: "Creator & official build",
+  "嘉兴大学 · 通信专业": "Jiaxing University · Communications",
+  "爱吃孜然芥末 制作完成": "Created by ZZZ234234234",
+  有任何使用问题请联系: "Questions or support",
+  真伪核验与维权说明: "Authenticity & rights notice",
+  真伪核验与维权: "Authenticity & rights",
+  "OFFICIAL BUILD / RIGHTS": "OFFICIAL BUILD / RIGHTS",
+  "确认来源，也尊重创作。": "Verify the source. Respect the work.",
+  "在这里核对官方版本、安装包来源和开源使用边界。":
+    "Check the official build, installer provenance, and the boundaries of the open-source license.",
+  "GitHub 正式构建": "Official GitHub build",
+  本地源码构建: "Local source build",
+  官方发布身份: "OFFICIAL PUBLISHER IDENTITY",
+  "由嘉兴大学通信专业学生“爱吃孜然芥末”独立制作。":
+    "Independently created by ZZZ234234234, a communications student at Jiaxing University.",
+  "该身份说明不代表嘉兴大学官方开发、授权或背书。":
+    "This affiliation does not imply development, authorization, or endorsement by Jiaxing University.",
+  版本: "Version",
+  构建标识: "Build ID",
+  官方仓库: "Official repository",
+  三重核验: "THREE-LAYER VERIFICATION",
+  "确认安装包来自官方发布。": "Confirm that the installer is official.",
+  只从官方仓库下载: "Download only from the official repository",
+  "正式安装包只在下方 GitHub Releases 页面发布，源码 ZIP 不是安装包。":
+    "Official installers are published only on the GitHub Releases page below. Source ZIP files are not installers.",
+  "核对 SHA-256": "Compare the SHA-256 digest",
+  "计算安装包指纹，并与同一发布页中的 SHA256SUMS.txt 对照。":
+    "Calculate the installer digest and compare it with SHA256SUMS.txt on the same release page.",
+  "验证 GitHub 构建证明": "Verify GitHub build provenance",
+  "构建证明把安装包与官方仓库、提交记录和发布工作流绑定；验证失败时不要安装。":
+    "Build provenance binds the installer to the official repository, commit, and release workflow. Do not install if verification fails.",
+  打开官方发布页: "Open official releases",
+  查看官方仓库: "View official repository",
+  "WINDOWS 核验命令": "WINDOWS VERIFICATION COMMANDS",
+  "复制后在安装包目录运行。": "Copy and run these in the installer folder.",
+  "当前正式安装包文件名：{0}": "Current official installer: {0}",
+  文件指纹: "File digest",
+  官方构建证明: "Official build provenance",
+  "复制：{0}": "Copy: {0}",
+  "核验命令已复制。": "Verification command copied.",
+  "暂时无法访问剪贴板，请手动复制命令。":
+    "Clipboard access is unavailable. Copy the command manually.",
+  "页面中的版本信息方便定位构建，最终真伪以 GitHub 构建证明和文件指纹核验结果为准。":
+    "The version shown here identifies the build. Final authenticity depends on GitHub provenance and file-digest verification.",
+  开源许可与维权说明: "OPEN-SOURCE LICENSE & RIGHTS",
+  "开放代码，不等于可以冒充官方。":
+    "Open code does not permit false claims of official status.",
+  "MIT 允许的使用": "Permitted by the MIT License",
+  "任何人可以在保留原版权声明和 MIT 许可文本的前提下使用、修改、分发或销售本项目代码。":
+    "Anyone may use, modify, distribute, or sell the code as long as the original copyright notice and MIT License are retained.",
+  不得伪造的身份: "Identity that must not be misrepresented",
+  "未经书面许可，不得使用 StudyPilot AI 名称、Logo、作者署名或“官方版本”标识，使公众误认为第三方版本由原作者发布、授权或背书。":
+    "Without written permission, do not use the StudyPilot AI name, logo, creator attribution, or official-build mark in a way that suggests a third-party version was published, authorized, or endorsed by the original creator.",
+  "发现疑似仿冒、删署名或伪造官方安装包？":
+    "Found suspected impersonation, removed attribution, or a forged installer?",
+  "请保留页面链接、账号名称、截图、文件及发现时间。作者将视情况通过平台投诉、侵权通知或其他合法途径维护权益。":
+    "Keep the page URL, account name, screenshots, files, and discovery time. The creator may use platform reports, infringement notices, or other lawful remedies.",
+  "完整条款以仓库中的 LICENSE 与 TRADEMARKS.md 为准。本说明用于界定项目许可和官方身份，不构成针对个案的法律意见。":
+    "See LICENSE and TRADEMARKS.md in the repository for the full terms. This notice explains licensing and official identity; it is not legal advice for a specific case.",
 };

@@ -162,12 +162,22 @@ class ProfileProvider:
                 "Unable to read the provider response.", "provider_unavailable", 502
             ) from None
 
-    def complete_json(self, instructions: str, data: str, max_tokens: int = 8192) -> dict:
+    def complete_messages_json(
+        self,
+        instructions: str,
+        messages: list[dict[str, str]],
+        max_tokens: int = 8192,
+    ) -> dict:
+        """Complete a small, explicit conversation and require one JSON object.
+
+        This is intentionally separate from stored chat history: callers decide exactly
+        which turns leave the machine, and the provider never receives hidden records.
+        """
         payload = {
             "model": self.profile.model,
             "messages": [
                 {"role": "system", "content": SAFETY + "\n" + instructions},
-                {"role": "user", "content": data},
+                *messages,
             ],
             "response_format": {"type": "json_object"},
             "max_tokens": max_tokens,
@@ -190,6 +200,13 @@ class ProfileProvider:
             raise AppError(
                 "The model did not return complete JSON data.", "invalid_ai_output", 502
             ) from None
+
+    def complete_json(self, instructions: str, data: str, max_tokens: int = 8192) -> dict:
+        return self.complete_messages_json(
+            instructions,
+            [{"role": "user", "content": data}],
+            max_tokens,
+        )
 
     def embeddings(self, texts: list[str]) -> list[list[float]]:
         raise AppError("This connection is chat-only.", "profile_chat_only", 409)

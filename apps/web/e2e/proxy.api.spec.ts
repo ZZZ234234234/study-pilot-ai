@@ -67,6 +67,7 @@ for (const route of [
   "/app/library",
   "/app/study-plan",
   "/app/settings",
+  "/app/authenticity",
   "/privacy",
   "/open-source",
 ]) {
@@ -79,6 +80,18 @@ for (const route of [
     expect(await response.text()).toContain('lang="zh-CN"');
   });
 }
+
+test("authenticity page identifies the creator and verification methods", async ({
+  request,
+}) => {
+  const response = await request.get("/app/authenticity");
+  const html = await response.text();
+  expect(response.status()).toBe(200);
+  expect(html).toContain("爱吃孜然芥末");
+  expect(html).toContain("SHA-256");
+  expect(html).toContain("GitHub");
+  expect(html).toContain("2014546082@qq.com");
+});
 
 test("unknown page has a real 404 response", async ({ request }) => {
   expect((await request.get("/e2e-page-that-does-not-exist")).status()).toBe(

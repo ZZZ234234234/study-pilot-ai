@@ -1,6 +1,7 @@
 """Isolated, non-billable tests for private connections and official HTTP contracts."""
 
 import json
+import re
 
 import httpx
 import pytest
@@ -148,15 +149,56 @@ def test_unsaved_test_checks_actual_draft_not_old_server_config(client_fixture, 
     client, _, _ = client_fixture
     seen = []
 
-    def complete(self, instructions, data, max_tokens):
-        seen.append((self.profile.model, self.profile.api_key, max_tokens))
-        return {"ok": True}
+    def complete(self, instructions, messages, max_tokens):
+        token = re.search(r"SP-[A-F0-9]{8}", messages[0]["content"]).group(0)
+        seen.append(
+            (
+                self.profile.model,
+                self.profile.api_key,
+                max_tokens,
+                [message["role"] for message in messages],
+            )
+        )
+        return {
+            "probe": "studypilot-capability",
+            "memory": token,
+            "learned": "ORBIT",
+        }
 
-    monkeypatch.setattr(ProfileProvider, "complete_json", complete)
+    monkeypatch.setattr(ProfileProvider, "complete_messages_json", complete)
     response = client.post("/ai/profiles/test", json=BODY)
     assert response.status_code == 200 and KEY not in response.text
-    assert seen == [(BODY["model"], KEY, 64)]
+    assert seen == [(BODY["model"], KEY, 160, ["user", "assistant", "user"])]
+    assert response.json()["capabilities"] == {
+        "connection": True,
+        "structured_output": True,
+        "context_memory": True,
+        "in_context_learning": True,
+    }
     assert client.get("/ai/profiles").json()["profiles"] == []
+
+
+def test_capability_probe_reports_limits_instead_of_claiming_learning(
+    client_fixture, monkeypatch
+):
+    client, _, _ = client_fixture
+    monkeypatch.setattr(
+        ProfileProvider,
+        "complete_messages_json",
+        lambda *args, **kwargs: {
+            "probe": "studypilot-capability",
+            "memory": "wrong",
+            "learned": "wrong",
+        },
+    )
+    response = client.post("/ai/profiles/test", json=BODY)
+    assert response.status_code == 200
+    assert response.json()["capabilities"] == {
+        "connection": True,
+        "structured_output": True,
+        "context_memory": False,
+        "in_context_learning": False,
+    }
 
 
 @pytest.mark.parametrize(
