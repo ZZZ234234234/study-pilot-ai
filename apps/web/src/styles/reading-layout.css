@@ -78,6 +78,41 @@
   gap: 7px;
   font-size: 12px;
 }
+/* On desktop, keep document context in one compact line so the reading surface
+   begins near the top of the window instead of sitting below a tall title block. */
+@media (min-width: 1081px) {
+  .reading-shell .document-heading {
+    min-height: 36px;
+    margin-bottom: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 16px;
+  }
+  .reading-shell .document-heading > div:first-child {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 12px;
+  }
+  .reading-shell .back-link,
+  .reading-shell .document-meta {
+    flex-shrink: 0;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .reading-shell .document-heading h1 {
+    min-width: 120px;
+    max-width: min(38vw, 560px);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .reading-shell .document-top-actions {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
 .reading-shell .document-top-actions .button {
   min-height: 36px;
   font-size: 13px;
@@ -277,9 +312,47 @@
   flex: none;
   z-index: 80;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: 0 12px 44px #0002;
+  border: 1px solid color-mix(in srgb, var(--line) 72%, #fff 28%);
+  border-radius: 16px;
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(118%);
+  backdrop-filter: blur(22px) saturate(118%);
+  box-shadow:
+    0 26px 70px #17261d2e,
+    0 7px 22px #17261d17,
+    inset 0 1px 0 color-mix(in srgb, #fff 74%, transparent);
+}
+.reading-workspace
+  .assistant-floating
+  :is(.assistant-window-bar, .document-tabs, .assistant-window-bottom) {
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+}
+.reading-workspace .assistant-floating :is(.assistant-panel, .chat-panel) {
+  background: transparent;
+}
+.reading-workspace
+  .assistant-floating
+  :is(
+    .chat-message.user,
+    .chat-composer,
+    .suggested-questions button,
+    .citation
+  ) {
+  border-color: color-mix(in srgb, var(--line) 68%, transparent);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+.reading-workspace .assistant-floating .chat-composer:focus-within {
+  border-color: color-mix(in srgb, var(--green) 48%, var(--line));
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+}
+.dark .reading-workspace .assistant-floating {
+  border-color: color-mix(in srgb, var(--line) 76%, #fff 24%);
+  box-shadow:
+    0 28px 74px #0008,
+    0 8px 24px #0005,
+    inset 0 1px 0 #ffffff18;
 }
 .assistant-window-bar {
   display: flex;
